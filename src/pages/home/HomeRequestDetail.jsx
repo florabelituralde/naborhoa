@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext, useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import StatusBadge from "@/components/StatusBadge";
+import RequestProgress from "@/components/RequestProgress";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft, X } from "lucide-react";
 import { formatDate } from "@/lib/format";
@@ -42,6 +43,10 @@ export default function HomeRequestDetail() {
           <StatusBadge status={request.status} />
         </div>
         <p className="text-muted-foreground mb-6">{request.description}</p>
+
+        <div className="mb-6 pb-6 border-b border-border">
+          <RequestProgress status={request.status} />
+        </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div><span className="text-muted-foreground">Category: </span><span className="font-medium capitalize">{request.category}</span></div>
