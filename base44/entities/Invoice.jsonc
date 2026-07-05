@@ -1,0 +1,60 @@
+{
+  "name": "Invoice",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "homeowner_id": {
+      "type": "string"
+    },
+    "property_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "description": {
+      "type": "string"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "confirmed",
+        "overdue"
+      ],
+      "default": "pending"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "dues",
+        "assessment",
+        "fee",
+        "fine"
+      ],
+      "default": "dues"
+    },
+    "payment_proof_url": {
+      "type": "string"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "community_id",
+    "homeowner_id",
+    "amount",
+    "description",
+    "due_date",
+    "type"
+  ]
+}

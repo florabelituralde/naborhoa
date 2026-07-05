@@ -1,0 +1,19 @@
+{
+  "name": "Property",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "owner_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "community_id",
+    "address"
+  ]
+}

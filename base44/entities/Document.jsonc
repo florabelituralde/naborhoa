@@ -1,0 +1,46 @@
+{
+  "name": "Document",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    },
+    "file_type": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "bylaws",
+        "rules",
+        "minutes",
+        "forms",
+        "other"
+      ],
+      "default": "other"
+    },
+    "uploaded_by_id": {
+      "type": "string"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "community_id",
+    "title",
+    "file_url",
+    "category",
+    "uploaded_by_id"
+  ]
+}

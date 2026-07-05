@@ -1,0 +1,43 @@
+{
+  "name": "Poll",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "closed"
+      ],
+      "default": "active"
+    },
+    "author_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "community_id",
+    "title",
+    "options",
+    "deadline",
+    "author_id"
+  ]
+}

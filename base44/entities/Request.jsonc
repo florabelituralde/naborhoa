@@ -1,0 +1,67 @@
+{
+  "name": "Request",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "property_id": {
+      "type": "string"
+    },
+    "homeowner_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "maintenance",
+        "repair",
+        "plan_review",
+        "other"
+      ],
+      "default": "maintenance"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "in_progress",
+        "resolved",
+        "cancelled"
+      ],
+      "default": "submitted"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    },
+    "assigned_to_id": {
+      "type": "string"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "resolution_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "community_id",
+    "homeowner_id",
+    "title",
+    "description",
+    "category"
+  ]
+}

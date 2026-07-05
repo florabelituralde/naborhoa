@@ -7,6 +7,35 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 // Add page imports here
+import ProtectedRoute from '@/components/ProtectedRoute';
+import RoleRouter from '@/components/RoleRouter';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
+import ChooseRole from '@/pages/ChooseRole';
+import Onboarding from '@/pages/Onboarding';
+import Join from '@/pages/Join';
+import HOALayout from '@/components/HOALayout';
+import HomeownerLayout from '@/components/HomeownerLayout';
+import HOADashboard from '@/pages/hoa/HOADashboard';
+import HOARequests from '@/pages/hoa/HOARequests';
+import HOARequestDetail from '@/pages/hoa/HOARequestDetail';
+import HOAInvoices from '@/pages/hoa/HOAInvoices';
+import HOAAnnouncements from '@/pages/hoa/HOAAnnouncements';
+import HOAPolls from '@/pages/hoa/HOAPolls';
+import HOADocuments from '@/pages/hoa/HOADocuments';
+import HOACommunity from '@/pages/hoa/HOACommunity';
+import HomeDashboard from '@/pages/home/HomeDashboard';
+import HomeRequests from '@/pages/home/HomeRequests';
+import HomeNewRequest from '@/pages/home/HomeNewRequest';
+import HomeRequestDetail from '@/pages/home/HomeRequestDetail';
+import HomeInvoices from '@/pages/home/HomeInvoices';
+import HomeAnnouncements from '@/pages/home/HomeAnnouncements';
+import HomePolls from '@/pages/home/HomePolls';
+import HomeDocuments from '@/pages/home/HomeDocuments';
+import HomeAIChat from '@/pages/home/HomeAIChat';
+import { Navigate } from 'react-router-dom';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -34,7 +63,41 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/choose-role" element={<ChooseRole />} />
+
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/" element={<RoleRouter />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/join" element={<Join />} />
+
+        <Route element={<HOALayout />}>
+          <Route path="/hoa/dashboard" element={<HOADashboard />} />
+          <Route path="/hoa/requests" element={<HOARequests />} />
+          <Route path="/hoa/requests/:id" element={<HOARequestDetail />} />
+          <Route path="/hoa/invoices" element={<HOAInvoices />} />
+          <Route path="/hoa/announcements" element={<HOAAnnouncements />} />
+          <Route path="/hoa/polls" element={<HOAPolls />} />
+          <Route path="/hoa/documents" element={<HOADocuments />} />
+          <Route path="/hoa/community" element={<HOACommunity />} />
+        </Route>
+
+        <Route element={<HomeownerLayout />}>
+          <Route path="/home/dashboard" element={<HomeDashboard />} />
+          <Route path="/home/requests" element={<HomeRequests />} />
+          <Route path="/home/requests/new" element={<HomeNewRequest />} />
+          <Route path="/home/requests/:id" element={<HomeRequestDetail />} />
+          <Route path="/home/invoices" element={<HomeInvoices />} />
+          <Route path="/home/announcements" element={<HomeAnnouncements />} />
+          <Route path="/home/polls" element={<HomePolls />} />
+          <Route path="/home/documents" element={<HomeDocuments />} />
+          <Route path="/home/chat" element={<HomeAIChat />} />
+        </Route>
+      </Route>
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

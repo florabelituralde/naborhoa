@@ -1,0 +1,28 @@
+{
+  "name": "Announcement",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "pinned": {
+      "type": "boolean",
+      "default": false
+    },
+    "author_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "community_id",
+    "title",
+    "body",
+    "author_id"
+  ]
+}

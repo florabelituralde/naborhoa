@@ -1,0 +1,26 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "hoa_admin",
+        "hoa_staff",
+        "homeowner"
+      ]
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "community_id": {
+      "type": "string"
+    },
+    "property_id": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    }
+  }
+}
