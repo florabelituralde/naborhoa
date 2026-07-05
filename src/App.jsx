@@ -22,6 +22,7 @@ import HOADashboard from '@/pages/hoa/HOADashboard';
 import HOARequests from '@/pages/hoa/HOARequests';
 import HOARequestDetail from '@/pages/hoa/HOARequestDetail';
 import HOAInvoices from '@/pages/hoa/HOAInvoices';
+import HOAExpenses from '@/pages/hoa/HOAExpenses';
 import HOAAnnouncements from '@/pages/hoa/HOAAnnouncements';
 import HOAPolls from '@/pages/hoa/HOAPolls';
 import HOADocuments from '@/pages/hoa/HOADocuments';
@@ -34,6 +35,7 @@ import HomeRequests from '@/pages/home/HomeRequests';
 import HomeNewRequest from '@/pages/home/HomeNewRequest';
 import HomeRequestDetail from '@/pages/home/HomeRequestDetail';
 import HomeInvoices from '@/pages/home/HomeInvoices';
+import HomeExpenses from '@/pages/home/HomeExpenses';
 import HomeAnnouncements from '@/pages/home/HomeAnnouncements';
 import HomePolls from '@/pages/home/HomePolls';
 import HomeDocuments from '@/pages/home/HomeDocuments';
@@ -94,6 +96,7 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/requests" element={<HOARequests />} />
           <Route path="/hoa/requests/:id" element={<HOARequestDetail />} />
           <Route path="/hoa/invoices" element={<HOAInvoices />} />
+          <Route path="/hoa/expenses" element={<HOAExpenses />} />
           <Route path="/hoa/announcements" element={<HOAAnnouncements />} />
           <Route path="/hoa/polls" element={<HOAPolls />} />
           <Route path="/hoa/events" element={<HOAEvents />} />
@@ -109,6 +112,7 @@ const AuthenticatedApp = () => {
           <Route path="/home/requests/new" element={<HomeNewRequest />} />
           <Route path="/home/requests/:id" element={<HomeRequestDetail />} />
           <Route path="/home/invoices" element={<HomeInvoices />} />
+          <Route path="/home/expenses" element={<HomeExpenses />} />
           <Route path="/home/announcements" element={<HomeAnnouncements />} />
           <Route path="/home/polls" element={<HomePolls />} />
           <Route path="/home/events" element={<HomeEvents />} />

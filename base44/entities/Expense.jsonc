@@ -1,0 +1,53 @@
+{
+  "name": "Expense",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "maintenance",
+        "landscaping",
+        "utilities",
+        "insurance",
+        "management",
+        "reserves",
+        "amenities",
+        "administrative",
+        "other"
+      ],
+      "default": "other"
+    },
+    "vendor": {
+      "type": "string"
+    },
+    "expense_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "receipt_url": {
+      "type": "string"
+    },
+    "created_by_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "community_id",
+    "title",
+    "amount",
+    "category",
+    "expense_date"
+  ]
+}
