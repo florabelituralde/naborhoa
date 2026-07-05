@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Home, LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
+import NaborLogo from "@/components/NaborLogo";
 
 function SidebarContent({ navItems, user, community, onNavigate }) {
   const location = useLocation();
@@ -14,9 +15,8 @@ function SidebarContent({ navItems, user, community, onNavigate }) {
   return (
     <div className="h-full flex flex-col">
       <div className="h-20 flex items-center px-6 border-b border-sidebar-border">
-        <Link to="/" onClick={onNavigate} className="flex items-center gap-2">
-          <Home className="w-7 h-7 text-primary" />
-          <span className="font-bold text-lg text-sidebar-foreground">Nabor</span>
+        <Link to="/" onClick={onNavigate}>
+          <NaborLogo iconClassName="w-8 h-8" />
         </Link>
       </div>
 
@@ -84,9 +84,8 @@ export default function Sidebar({ navItems, user, community }) {
 
       {/* Mobile top bar */}
       <header className="md:hidden fixed top-0 inset-x-0 h-14 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4 z-40">
-        <Link to="/" className="flex items-center gap-2">
-          <Home className="w-6 h-6 text-primary" />
-          <span className="font-bold text-sidebar-foreground">Nabor</span>
+        <Link to="/">
+          <NaborLogo iconClassName="w-7 h-7" textClassName="font-bold text-sidebar-foreground" />
         </Link>
         <button
           onClick={() => setMobileOpen(true)}
