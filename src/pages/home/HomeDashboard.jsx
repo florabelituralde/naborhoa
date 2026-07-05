@@ -3,7 +3,7 @@ import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
-import { ClipboardList, Receipt, Vote, MessageCircle, Loader2, Plus, ArrowRight } from "lucide-react";
+import { ClipboardList, Receipt, Vote, MessageCircle, Loader2, Plus, ArrowRight, History, RefreshCw } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 export default function HomeDashboard() {
@@ -13,6 +13,7 @@ export default function HomeDashboard() {
   const [invoices, setInvoices] = useState([]);
   const [polls, setPolls] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
     if (!community) return;
@@ -21,11 +22,13 @@ export default function HomeDashboard() {
       base44.entities.Invoice.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date"),
       base44.entities.Poll.filter({ community_id: community.id, status: "active" }, "-created_date", 3),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 3),
-    ]).then(([reqs, invs, activePolls, anns]) => {
+      base44.entities.Subscription.filter({ community_id: community.id, homeowner_id: user.id, status: "active" }),
+    ]).then(([reqs, invs, activePolls, anns, subs]) => {
       setRequests(reqs);
       setInvoices(invs);
       setPolls(activePolls);
       setAnnouncements(anns);
+      setSubscription(subs.length > 0 ? subs[0] : null);
       setLoading(false);
     });
   }, [community, user]);
@@ -60,6 +63,42 @@ export default function HomeDashboard() {
           <Receipt className="w-8 h-8 text-primary" />
           <div><p className="font-semibold">Pay Bills</p><p className="text-sm text-muted-foreground">View and pay invoices</p></div>
         </Link>
+      </div>
+
+      {/* Payment History */}
+      <div className="bg-card rounded-2xl warm-shadow p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-lg flex items-center gap-2"><History className="w-5 h-5 text-primary" /> Payment History</h2>
+          <Link to="/home/invoices" className="text-sm text-primary font-medium hover:underline">View all</Link>
+        </div>
+        {subscription ? (
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 mb-3">
+            <RefreshCw className="w-4 h-4 text-primary" />
+            <div className="flex-1">
+              <p className="text-sm font-medium">Auto-Pay Active</p>
+              <p className="text-xs text-muted-foreground">{subscription.frequency === "MONTH" ? "Monthly" : "Annual"} • {formatCurrency(subscription.amount || 0)}</p>
+            </div>
+          </div>
+        ) : null}
+        {invoices.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No payment history yet</p>
+        ) : (
+          <div className="space-y-2">
+            {invoices.slice(0, 5).map(inv => (
+              <div key={inv.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm capitalize">{inv.type} — {formatCurrency(inv.amount)}</p>
+                  <p className="text-xs text-muted-foreground">{inv.description}</p>
+                  <div className="flex gap-3 mt-0.5 text-xs text-muted-foreground">
+                    <span>Due: {formatDate(inv.due_date)}</span>
+                    {inv.paid_date && <span>Paid: {formatDate(inv.paid_date)}</span>}
+                  </div>
+                </div>
+                <StatusBadge status={inv.status} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
