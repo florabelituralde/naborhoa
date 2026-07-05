@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Copy, Check, Users, Home, UserCog, Send, Upload } from "lucide-react";
+import { Loader2, Copy, Check, Users, Home, UserCog, Send, Upload, Images, X } from "lucide-react";
 
 export default function HOACommunity() {
   const { user, community } = useOutletContext();
@@ -23,7 +23,10 @@ export default function HOACommunity() {
   const [dues, setDues] = useState("");
   const [photoFile, setPhotoFile] = useState(null);
   const [savingSettings, setSavingSettings] = useState(false);
+  const [gallery, setGallery] = useState([]);
+  const [galleryFiles, setGalleryFiles] = useState([]);
   const fileInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
 
   const loadData = async () => {
     const [homes, staffList, props] = await Promise.all([
@@ -35,6 +38,7 @@ export default function HOACommunity() {
     setStaff(staffList);
     setProperties(props);
     setDues(community.monthly_dues ? String(community.monthly_dues) : "");
+    setGallery(community.gallery || []);
     setLoading(false);
   };
 
@@ -68,11 +72,20 @@ export default function HOACommunity() {
         const { file_url } = await base44.integrations.Core.UploadFile({ file: photoFile });
         photoUrl = file_url;
       }
+      const newGalleryUrls = [];
+      for (const file of galleryFiles) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        newGalleryUrls.push(file_url);
+      }
+      const updatedGallery = [...gallery, ...newGalleryUrls];
       await base44.entities.Community.update(community.id, {
         monthly_dues: dues ? parseFloat(dues) : 0,
         photo_url: photoUrl,
+        gallery: updatedGallery,
       });
+      setGallery(updatedGallery);
       setPhotoFile(null);
+      setGalleryFiles([]);
     } catch (err) {
       console.error("Failed to save settings:", err);
     }
@@ -122,6 +135,30 @@ export default function HOACommunity() {
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => setPhotoFile(e.target.files[0])} />
           </div>
         </div>
+
+        {/* Gallery */}
+        <div className="mt-4">
+          <Label>Community Gallery</Label>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-2">
+            {gallery.map((url, i) => (
+              <div key={i} className="relative group">
+                <img src={url} alt="" className="w-full h-20 object-cover rounded-lg" />
+                <button onClick={() => setGallery(gallery.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+            <div onClick={() => galleryInputRef.current?.click()} className="border-2 border-dashed border-border rounded-lg h-20 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+              <Upload className="w-4 h-4 text-muted-foreground mb-1" />
+              <span className="text-xs text-muted-foreground">Add</span>
+            </div>
+          </div>
+          <input ref={galleryInputRef} type="file" multiple accept="image/*" className="hidden" onChange={e => setGalleryFiles([...galleryFiles, ...Array.from(e.target.files)])} />
+          {galleryFiles.length > 0 && (
+            <p className="text-xs text-muted-foreground mt-2">{galleryFiles.length} new photo(s) ready to upload — click Save Settings</p>
+          )}
+        </div>
+
         <Button onClick={handleSaveSettings} disabled={savingSettings} className="mt-4">
           {savingSettings ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
           Save Settings

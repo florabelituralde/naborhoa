@@ -32,6 +32,13 @@
     "monthly_dues": {
       "type": "number",
       "default": 0
+    },
+    "gallery": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
     }
   },
   "required": [

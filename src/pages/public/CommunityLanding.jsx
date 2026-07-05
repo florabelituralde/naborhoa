@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Megaphone, Calendar, MapPin, Home, MessageCircle, CreditCard, Users, Loader2, ArrowRight, Shield } from "lucide-react";
+import { Megaphone, Calendar, MapPin, Home, MessageCircle, CreditCard, Users, Loader2, ArrowRight, Shield, Images } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
 
 const ROLE_LABELS = {
@@ -203,6 +203,20 @@ export default function CommunityLanding() {
             )}
           </div>
         </div>
+
+        {/* Gallery */}
+        {community.gallery?.length > 0 && (
+          <div className="mt-10">
+            <h2 className="font-bold text-xl mb-4 flex items-center gap-2"><Images className="w-5 h-5 text-primary" /> Community Gallery</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {community.gallery.map((url, i) => (
+                <div key={i} className="rounded-xl overflow-hidden warm-shadow aspect-square">
+                  <img src={url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Board Members */}
         {boardMembers?.length > 0 && (
