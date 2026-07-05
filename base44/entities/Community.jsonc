@@ -25,6 +25,13 @@
     },
     "logo_url": {
       "type": "string"
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "monthly_dues": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [

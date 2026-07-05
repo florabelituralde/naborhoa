@@ -11,6 +11,9 @@
     "property_id": {
       "type": "string"
     },
+    "property_address": {
+      "type": "string"
+    },
     "amount": {
       "type": "number"
     },
@@ -47,11 +50,16 @@
     "paid_date": {
       "type": "string",
       "format": "date"
+    },
+    "wix_checkout_id": {
+      "type": "string"
+    },
+    "wix_order_id": {
+      "type": "string"
     }
   },
   "required": [
     "community_id",
-    "homeowner_id",
     "amount",
     "description",
     "due_date",

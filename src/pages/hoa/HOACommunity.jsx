@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Copy, Check, Users, Home, UserCog, Send } from "lucide-react";
+import { Loader2, Copy, Check, Users, Home, UserCog, Send, Upload } from "lucide-react";
 
 export default function HOACommunity() {
   const { user, community } = useOutletContext();
@@ -20,6 +20,10 @@ export default function HOACommunity() {
   const [inviteRole, setInviteRole] = useState("homeowner");
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState("");
+  const [dues, setDues] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const fileInputRef = useRef(null);
 
   const loadData = async () => {
     const [homes, staffList, props] = await Promise.all([
@@ -30,6 +34,7 @@ export default function HOACommunity() {
     setHomeowners(homes);
     setStaff(staffList);
     setProperties(props);
+    setDues(community.monthly_dues ? String(community.monthly_dues) : "");
     setLoading(false);
   };
 
@@ -55,6 +60,25 @@ export default function HOACommunity() {
     setInviting(false);
   };
 
+  const handleSaveSettings = async () => {
+    setSavingSettings(true);
+    try {
+      let photoUrl = community.photo_url;
+      if (photoFile) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: photoFile });
+        photoUrl = file_url;
+      }
+      await base44.entities.Community.update(community.id, {
+        monthly_dues: dues ? parseFloat(dues) : 0,
+        photo_url: photoUrl,
+      });
+      setPhotoFile(null);
+    } catch (err) {
+      console.error("Failed to save settings:", err);
+    }
+    setSavingSettings(false);
+  };
+
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
@@ -70,6 +94,38 @@ export default function HOACommunity() {
             {copied ? <Check className="w-5 h-5 text-primary" /> : <Copy className="w-5 h-5 text-primary" />}
           </button>
         </div>
+      </div>
+
+      {/* Community Settings */}
+      <div className="bg-card rounded-2xl warm-shadow p-6 mb-8">
+        <h2 className="font-semibold text-lg mb-4">Community Settings</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Monthly Dues ($)</Label>
+            <Input type="number" step="0.01" value={dues} onChange={e => setDues(e.target.value)} className="mt-1.5" placeholder="45.00" />
+            <p className="text-xs text-muted-foreground mt-1">Used for guest payments and auto-pay</p>
+          </div>
+          <div>
+            <Label>Community Photo</Label>
+            <div onClick={() => fileInputRef.current?.click()} className="mt-1.5 border-2 border-dashed border-border rounded-xl p-4 text-center cursor-pointer hover:border-primary transition-colors">
+              {photoFile ? (
+                <p className="text-sm font-medium">{photoFile.name}</p>
+              ) : community.photo_url ? (
+                <img src={community.photo_url} alt="Community" className="w-full h-24 object-cover rounded-lg" />
+              ) : (
+                <>
+                  <Upload className="w-5 h-5 text-muted-foreground mx-auto mb-1" />
+                  <p className="text-sm text-muted-foreground">Upload neighborhood sign or photo</p>
+                </>
+              )}
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => setPhotoFile(e.target.files[0])} />
+          </div>
+        </div>
+        <Button onClick={handleSaveSettings} disabled={savingSettings} className="mt-4">
+          {savingSettings ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
+          Save Settings
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

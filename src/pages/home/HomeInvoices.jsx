@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Upload, Check } from "lucide-react";
+import { Loader2, Upload, Check, RefreshCw, X } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 export default function HomeInvoices() {
@@ -18,10 +18,16 @@ export default function HomeInvoices() {
   const [proofFile, setProofFile] = useState(null);
   const [paying, setPaying] = useState(false);
   const fileInputRef = useRef(null);
+  const [subscription, setSubscription] = useState(null);
+  const [showAutopay, setShowAutopay] = useState(false);
+  const [autopayFreq, setAutopayFreq] = useState("MONTH");
+  const [settingUpAutopay, setSettingUpAutopay] = useState(false);
 
   const loadData = async () => {
     const invs = await base44.entities.Invoice.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date");
     setInvoices(invs);
+    const subs = await base44.entities.Subscription.filter({ community_id: community.id, homeowner_id: user.id, status: "active" });
+    setSubscription(subs.length > 0 ? subs[0] : null);
     setLoading(false);
   };
 
@@ -45,11 +51,68 @@ export default function HomeInvoices() {
     loadData();
   };
 
+  const handleSetupAutopay = async () => {
+    setSettingUpAutopay(true);
+    try {
+      const amount = autopayFreq === "MONTH" ? (community.monthly_dues || 45) : (community.monthly_dues || 45) * 12;
+      const res = await base44.functions.invoke("create-checkout", {
+        community_id: community.id,
+        join_code: community.join_code,
+        amount,
+        description: `HOA Dues Auto-Pay (${autopayFreq === "MONTH" ? "Monthly" : "Annual"}) - ${community.name}`,
+        frequency: autopayFreq,
+        homeowner_id: user.id,
+      });
+      if (res.data?.redirectUrl) {
+        window.location.href = res.data.redirectUrl;
+      } else {
+        setSettingUpAutopay(false);
+      }
+    } catch {
+      setSettingUpAutopay(false);
+    }
+  };
+
+  const handleCancelAutopay = async () => {
+    if (!subscription?.subscription_id) return;
+    await base44.functions.invoke("cancel-subscription", { subscription_id: subscription.subscription_id });
+    loadData();
+  };
+
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <PageHeader title="My Bills" subtitle="View invoices and mark payments" />
+
+      {/* Auto-Pay Section */}
+      {subscription ? (
+        <div className="bg-primary/5 border-2 border-primary/20 rounded-2xl p-5 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"><RefreshCw className="w-5 h-5 text-primary" /></div>
+              <div>
+                <p className="font-semibold">Auto-Pay Active</p>
+                <p className="text-sm text-muted-foreground">{subscription.frequency === "MONTH" ? "Monthly" : "Annual"} • ${(subscription.amount || 0).toFixed(2)}</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleCancelAutopay}><X className="w-4 h-4 mr-1" /> Cancel</Button>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-card rounded-2xl warm-shadow p-5 mb-6">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"><RefreshCw className="w-5 h-5 text-primary" /></div>
+              <div>
+                <p className="font-semibold">Set Up Auto-Pay</p>
+                <p className="text-sm text-muted-foreground">Never miss a dues payment</p>
+              </div>
+            </div>
+            <Button onClick={() => setShowAutopay(true)}>Set Up Auto-Pay</Button>
+          </div>
+        </div>
+      )}
 
       {invoices.length === 0 ? (
         <div className="bg-card rounded-2xl warm-shadow p-12 text-center">
@@ -119,6 +182,29 @@ export default function HomeInvoices() {
               </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAutopay} onOpenChange={() => setShowAutopay(false)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Set Up Auto-Pay</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Choose your payment frequency. Your dues will be automatically charged each cycle.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setAutopayFreq("MONTH")} className={`p-4 rounded-xl border-2 text-center transition-all ${autopayFreq === "MONTH" ? "border-primary bg-primary/5" : "border-border"}`}>
+                <p className="font-semibold">${(community?.monthly_dues || 45).toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">Monthly</p>
+              </button>
+              <button onClick={() => setAutopayFreq("YEAR")} className={`p-4 rounded-xl border-2 text-center transition-all ${autopayFreq === "YEAR" ? "border-primary bg-primary/5" : "border-border"}`}>
+                <p className="font-semibold">${((community?.monthly_dues || 45) * 12).toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">Annual</p>
+              </button>
+            </div>
+            <Button onClick={handleSetupAutopay} disabled={settingUpAutopay} className="w-full">
+              {settingUpAutopay && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Start Auto-Pay
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

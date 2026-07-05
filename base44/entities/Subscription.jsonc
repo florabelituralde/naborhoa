@@ -1,0 +1,50 @@
+{
+  "name": "Subscription",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "homeowner_id": {
+      "type": "string"
+    },
+    "property_address": {
+      "type": "string"
+    },
+    "checkout_id": {
+      "type": "string"
+    },
+    "subscription_id": {
+      "type": "string"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "MONTH",
+        "YEAR"
+      ]
+    },
+    "amount": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "canceled",
+        "ended"
+      ],
+      "default": "pending"
+    },
+    "buyer_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "community_id",
+    "checkout_id",
+    "frequency",
+    "amount"
+  ]
+}

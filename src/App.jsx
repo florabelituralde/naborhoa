@@ -41,6 +41,10 @@ import HomeAIChat from '@/pages/home/HomeAIChat';
 import HomeEvents from '@/pages/home/HomeEvents';
 import HomeBoard from '@/pages/home/HomeBoard';
 import HomeElections from '@/pages/home/HomeElections';
+import CommunityLanding from '@/pages/public/CommunityLanding';
+import GuestChat from '@/pages/public/GuestChat';
+import GuestPay from '@/pages/public/GuestPay';
+import PaymentThankYou from '@/pages/public/PaymentThankYou';
 import { Navigate } from 'react-router-dom';
 
 const AuthenticatedApp = () => {
@@ -74,6 +78,11 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/choose-role" element={<ChooseRole />} />
+
+      <Route path="/c/:joinCode" element={<CommunityLanding />} />
+      <Route path="/c/:joinCode/chat" element={<GuestChat />} />
+      <Route path="/c/:joinCode/pay" element={<GuestPay />} />
+      <Route path="/pay/thank-you" element={<PaymentThankYou />} />
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/" element={<RoleRouter />} />

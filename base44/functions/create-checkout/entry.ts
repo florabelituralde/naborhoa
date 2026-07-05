@@ -1,0 +1,93 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const body = await req.json();
+    const { community_id, amount, description, property_address, join_code, frequency, homeowner_id } = body;
+
+    if (!community_id || !amount || !join_code) {
+      return Response.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    if (amount < 0.50) {
+      return Response.json({ error: "Amount must be at least $0.50" }, { status: 400 });
+    }
+
+    const origin = req.headers.get("Origin") || req.headers.get("origin") || "";
+    const WIX_API_KEY = Deno.env.get("WIX_PAYMENTS_API_KEY");
+    const WIX_SITE_ID = Deno.env.get("WIX_PAYMENTS_SITE_ID");
+
+    const isSubscription = frequency === "MONTH" || frequency === "YEAR";
+
+    const item = {
+      name: description || "HOA Dues Payment",
+      quantity: 1,
+      price: amount.toFixed(2),
+    };
+
+    if (isSubscription) {
+      item.subscriptionInfo = {
+        subscriptionSettings: {
+          frequency: frequency,
+        },
+        title: description || "HOA Dues Auto-Pay",
+        description: `Automatic ${frequency === "MONTH" ? "monthly" : "annual"} HOA dues payment`,
+      };
+    }
+
+    const response = await fetch("https://www.wixapis.com/payments/platform/v1/checkout-sessions/construct", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": WIX_API_KEY,
+        "wix-site-id": WIX_SITE_ID,
+      },
+      body: JSON.stringify({
+        cart: { items: [item] },
+        callbackUrls: {
+          postFlowUrl: `${origin}/c/${join_code}`,
+          thankYouPageUrl: `${origin}/pay/thank-you?c=${join_code}`,
+        },
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Wix checkout error:", JSON.stringify(data));
+      return Response.json({ error: data?.details?.applicationError?.description || "Failed to create checkout" }, { status: 500 });
+    }
+
+    const checkoutId = data.checkoutSession.id;
+
+    if (isSubscription) {
+      await base44.asServiceRole.entities.Subscription.create({
+        community_id,
+        homeowner_id: homeowner_id || "",
+        property_address: property_address || "",
+        checkout_id: checkoutId,
+        frequency,
+        amount,
+        status: "pending",
+      });
+    } else {
+      await base44.asServiceRole.entities.Invoice.create({
+        community_id,
+        homeowner_id: homeowner_id || "",
+        property_address: property_address || "",
+        amount,
+        description: description || "HOA Dues Payment",
+        due_date: new Date().toISOString().split("T")[0],
+        type: "dues",
+        status: "pending",
+        wix_checkout_id: checkoutId,
+      });
+    }
+
+    return Response.json({ redirectUrl: data.checkoutSession.redirectUrl });
+  } catch (error) {
+    console.error("create-checkout error:", error);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});
