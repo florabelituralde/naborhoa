@@ -31,7 +31,7 @@ export default function HomeEvents() {
   const past = events.filter(e => new Date(e.start_time) < now);
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       <PageHeader title="Events" subtitle={`Community calendar for ${community?.name}`} />
 
       {events.length === 0 ? (

@@ -36,14 +36,14 @@ export default function HomeNewRequest() {
   };
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-2xl mx-auto">
       <button onClick={() => navigate("/home/requests")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to Requests
       </button>
 
       <PageHeader title="New Request" subtitle="Submit a maintenance, repair, or plan review request" />
 
-      <div className="bg-card rounded-2xl warm-shadow p-8">
+      <div className="bg-card rounded-2xl warm-shadow p-5 sm:p-8">
         <div className="space-y-5">
           <div>
             <Label>Title</Label>

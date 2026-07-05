@@ -70,7 +70,7 @@ export default function HOAInvoices() {
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       <PageHeader
         title="Invoices"
         subtitle="Create and track homeowner billing"

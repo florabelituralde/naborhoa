@@ -63,7 +63,7 @@ export default function HOAEvents() {
   const past = events.filter(e => new Date(e.start_time) < now);
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto">
       <PageHeader
         title="Events"
         subtitle="Schedule board meetings and community events"

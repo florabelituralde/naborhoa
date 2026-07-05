@@ -27,7 +27,7 @@ export default function HOARequests() {
   const filtered = filter === "all" ? requests : requests.filter(r => r.status === filter);
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       <PageHeader title="Requests" subtitle="Manage all community maintenance and repair requests" />
       <div className="flex flex-wrap gap-2 mb-6">
         {FILTERS.map(f => (

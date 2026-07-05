@@ -32,12 +32,12 @@ export default function HomeRequestDetail() {
   const canCancel = request.status === "submitted" && request.homeowner_id === user.id;
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       <button onClick={() => navigate("/home/requests")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to Requests
       </button>
 
-      <div className="bg-card rounded-2xl warm-shadow p-8 mb-6">
+      <div className="bg-card rounded-2xl warm-shadow p-5 sm:p-8 mb-6">
         <div className="flex items-start justify-between mb-4">
           <h1 className="text-2xl font-bold">{request.title}</h1>
           <StatusBadge status={request.status} />

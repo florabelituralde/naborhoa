@@ -23,7 +23,7 @@ export default function HomeAnnouncements() {
   const sorted = [...announcements].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       <PageHeader title="Announcements" subtitle={`Updates from ${community?.name}`} />
 
       {sorted.length === 0 ? (

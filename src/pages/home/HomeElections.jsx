@@ -46,7 +46,7 @@ export default function HomeElections() {
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       <PageHeader title="Elections" subtitle={`Vote in ${community?.name} board elections`} />
 
       {elections.length === 0 ? (

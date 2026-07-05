@@ -64,7 +64,7 @@ export default function HOAElections() {
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto">
       <PageHeader
         title="Elections"
         subtitle="Manage board elections and view results"

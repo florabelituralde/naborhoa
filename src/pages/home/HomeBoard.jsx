@@ -33,7 +33,7 @@ export default function HomeBoard() {
   const sorted = [...members].sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role));
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto">
       <PageHeader title="Board Members" subtitle={`Your HOA leadership team at ${community?.name}`} />
 
       {sorted.length === 0 ? (

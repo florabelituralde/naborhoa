@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Home, LogOut } from "lucide-react";
+import { Home, LogOut, Menu, X } from "lucide-react";
 
-export default function Sidebar({ navItems, user, community }) {
+function SidebarContent({ navItems, user, community, onNavigate }) {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await base44.auth.logout();
@@ -13,9 +12,9 @@ export default function Sidebar({ navItems, user, community }) {
   };
 
   return (
-    <aside className="w-64 bg-sidebar h-screen flex flex-col border-r border-sidebar-border shrink-0">
+    <div className="h-full flex flex-col">
       <div className="h-20 flex items-center px-6 border-b border-sidebar-border">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" onClick={onNavigate} className="flex items-center gap-2">
           <Home className="w-7 h-7 text-primary" />
           <span className="font-bold text-lg text-sidebar-foreground">Nabor</span>
         </Link>
@@ -35,6 +34,7 @@ export default function Sidebar({ navItems, user, community }) {
             <Link
               key={item.path}
               to={item.path}
+              onClick={onNavigate}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${active ? "bg-primary text-primary-foreground warm-shadow" : "text-sidebar-foreground hover:bg-sidebar-accent"}`}
             >
               <item.icon className="w-5 h-5" />
@@ -62,6 +62,57 @@ export default function Sidebar({ navItems, user, community }) {
           Log out
         </button>
       </div>
-    </aside>
+    </div>
+  );
+}
+
+export default function Sidebar({ navItems, user, community }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+
+  // Close drawer on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-64 bg-sidebar h-screen flex-col border-r border-sidebar-border shrink-0">
+        <SidebarContent navItems={navItems} user={user} community={community} />
+      </aside>
+
+      {/* Mobile top bar */}
+      <header className="md:hidden fixed top-0 inset-x-0 h-14 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4 z-40">
+        <Link to="/" className="flex items-center gap-2">
+          <Home className="w-6 h-6 text-primary" />
+          <span className="font-bold text-sidebar-foreground">Nabor</span>
+        </Link>
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="w-10 h-10 flex items-center justify-center rounded-lg text-sidebar-foreground hover:bg-sidebar-accent"
+          aria-label="Open menu"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      </header>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
+          <aside className="absolute top-0 left-0 h-full w-72 max-w-[85%] bg-sidebar border-r border-sidebar-border shadow-xl">
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="absolute top-4 right-3 w-9 h-9 flex items-center justify-center rounded-lg text-sidebar-foreground hover:bg-sidebar-accent z-10"
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <SidebarContent navItems={navItems} user={user} community={community} onNavigate={() => setMobileOpen(false)} />
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

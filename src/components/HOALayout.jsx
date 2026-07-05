@@ -52,7 +52,7 @@ export default function HOALayout() {
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar navItems={navItems} user={user} community={community} />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
         <Outlet context={{ user, community }} />
       </main>
     </div>
