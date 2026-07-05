@@ -26,6 +26,7 @@ import HOAAnnouncements from '@/pages/hoa/HOAAnnouncements';
 import HOAPolls from '@/pages/hoa/HOAPolls';
 import HOADocuments from '@/pages/hoa/HOADocuments';
 import HOACommunity from '@/pages/hoa/HOACommunity';
+import HOAEvents from '@/pages/hoa/HOAEvents';
 import HomeDashboard from '@/pages/home/HomeDashboard';
 import HomeRequests from '@/pages/home/HomeRequests';
 import HomeNewRequest from '@/pages/home/HomeNewRequest';
@@ -35,6 +36,7 @@ import HomeAnnouncements from '@/pages/home/HomeAnnouncements';
 import HomePolls from '@/pages/home/HomePolls';
 import HomeDocuments from '@/pages/home/HomeDocuments';
 import HomeAIChat from '@/pages/home/HomeAIChat';
+import HomeEvents from '@/pages/home/HomeEvents';
 import { Navigate } from 'react-router-dom';
 
 const AuthenticatedApp = () => {
@@ -81,6 +83,7 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/invoices" element={<HOAInvoices />} />
           <Route path="/hoa/announcements" element={<HOAAnnouncements />} />
           <Route path="/hoa/polls" element={<HOAPolls />} />
+          <Route path="/hoa/events" element={<HOAEvents />} />
           <Route path="/hoa/documents" element={<HOADocuments />} />
           <Route path="/hoa/community" element={<HOACommunity />} />
         </Route>
@@ -93,6 +96,7 @@ const AuthenticatedApp = () => {
           <Route path="/home/invoices" element={<HomeInvoices />} />
           <Route path="/home/announcements" element={<HomeAnnouncements />} />
           <Route path="/home/polls" element={<HomePolls />} />
+          <Route path="/home/events" element={<HomeEvents />} />
           <Route path="/home/documents" element={<HomeDocuments />} />
           <Route path="/home/chat" element={<HomeAIChat />} />
         </Route>
