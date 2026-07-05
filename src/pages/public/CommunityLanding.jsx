@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Megaphone, Calendar, MapPin, Home, MessageCircle, CreditCard, Users, Loader2, ArrowRight } from "lucide-react";
+import { Megaphone, Calendar, MapPin, Home, MessageCircle, CreditCard, Users, Loader2, ArrowRight, Shield } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
 
 const ROLE_LABELS = {
@@ -25,6 +25,9 @@ export default function CommunityLanding() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
+  const [address, setAddress] = useState("");
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState("");
 
   useEffect(() => {
     base44.functions.invoke("get-public-community", { join_code: joinCode }).then(res => {
@@ -35,6 +38,31 @@ export default function CommunityLanding() {
       setLoading(false);
     });
   }, [joinCode]);
+
+  const handlePay = async () => {
+    if (!address.trim() || paying) return;
+    setPaying(true);
+    setPayError("");
+    try {
+      const community = data?.community;
+      const res = await base44.functions.invoke("create-checkout", {
+        community_id: community.id,
+        join_code: joinCode,
+        amount: community.monthly_dues || 45,
+        description: `HOA Dues - ${community.name}`,
+        property_address: address,
+      });
+      if (res.data?.redirectUrl) {
+        window.location.href = res.data.redirectUrl;
+      } else {
+        setPayError(res.data?.error || "Failed to start payment");
+        setPaying(false);
+      }
+    } catch (err) {
+      setPayError(err.response?.data?.error || "Payment failed. Please try again.");
+      setPaying(false);
+    }
+  };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (error) return (
@@ -94,13 +122,40 @@ export default function CommunityLanding() {
               <p className="text-sm text-muted-foreground">Get answers about HOA policies</p>
             </div>
           </Link>
-          <Link to={`/c/${joinCode}/pay`}>
+          <a href="#pay-dues">
             <div className="bg-card rounded-2xl warm-shadow p-5 hover:warm-shadow-md transition-all cursor-pointer h-full">
               <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-3"><CreditCard className="w-5 h-5 text-primary" /></div>
               <h3 className="font-semibold mb-1">Pay HOA Dues</h3>
               <p className="text-sm text-muted-foreground">{community.monthly_dues ? `$${community.monthly_dues}/month` : "Quick online payment"}</p>
             </div>
-          </Link>
+          </a>
+        </div>
+
+        {/* Pay Dues Inline */}
+        <div id="pay-dues" className="bg-card rounded-2xl warm-shadow-md p-6 mb-10 scroll-mt-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center"><CreditCard className="w-5 h-5 text-primary" /></div>
+            <div>
+              <h2 className="font-bold text-lg">Pay Your HOA Dues</h2>
+              <p className="text-sm text-muted-foreground">No account needed — pay securely online</p>
+            </div>
+          </div>
+          <div className="p-4 rounded-xl bg-primary/5 mb-4">
+            <p className="text-3xl font-bold text-primary">${(community.monthly_dues || 45).toFixed(2)}</p>
+            <p className="text-sm text-muted-foreground">Monthly Dues</p>
+          </div>
+          {payError && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{payError}</div>}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Input value={address} onChange={e => setAddress(e.target.value)} placeholder="Enter your property address" className="flex-1 h-11" />
+            <Button onClick={handlePay} disabled={!address.trim() || paying} className="h-11 sm:px-8">
+              {paying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
+              Pay ${(community.monthly_dues || 45).toFixed(2)} Now
+            </Button>
+          </div>
+          <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+            <Shield className="w-4 h-4 text-primary" />
+            <span>Secure payment via Base44 Payments. <Link to="/join" className="text-primary font-medium hover:underline">Sign up</Link> to set up auto-pay and track payment history.</span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
