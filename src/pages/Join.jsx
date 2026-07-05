@@ -4,13 +4,16 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Home, Loader2, Check, Search } from "lucide-react";
+import { Home, Loader2, Check, Search, MapPin } from "lucide-react";
 
 export default function Join() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [code, setCode] = useState("");
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [searched, setSearched] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [community, setCommunity] = useState(null);
   const [address, setAddress] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -24,20 +27,27 @@ export default function Join() {
     }).catch(() => navigate("/login"));
   }, []);
 
-  const lookupCommunity = async () => {
+  const searchCommunities = async () => {
     setError("");
-    setSubmitting(true);
+    setSearching(true);
     try {
-      const results = await base44.entities.Community.filter({ join_code: code.toUpperCase() });
-      if (results.length > 0) {
-        setCommunity(results[0]);
-      } else {
-        setError("No community found with that code");
-      }
+      const all = await base44.entities.Community.list();
+      const q = query.toLowerCase().trim();
+      const filtered = q
+        ? all.filter(c =>
+            (c.name || "").toLowerCase().includes(q) ||
+            (c.city || "").toLowerCase().includes(q) ||
+            (c.state || "").toLowerCase().includes(q) ||
+            (c.address || "").toLowerCase().includes(q)
+          )
+        : all;
+      setResults(filtered);
+      setSearched(true);
+      if (filtered.length === 0) setError("No communities found. Try a different search.");
     } catch (err) {
-      setError(err.message || "Failed to find community");
+      setError(err.message || "Search failed");
     }
-    setSubmitting(false);
+    setSearching(false);
   };
 
   const joinCommunity = async () => {
@@ -76,19 +86,37 @@ export default function Join() {
         <div className="w-full max-w-md">
           {!community ? (
             <div className="bg-card rounded-2xl warm-shadow-md p-8">
-              <h2 className="text-2xl font-bold mb-1">Join your community</h2>
-              <p className="text-muted-foreground mb-6">Enter the join code provided by your HOA</p>
+              <h2 className="text-2xl font-bold mb-1">Find your community</h2>
+              <p className="text-muted-foreground mb-6">Search by neighborhood name, city, or state</p>
               {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="code">Community Code</Label>
-                  <Input id="code" value={code} onChange={e => setCode(e.target.value)} placeholder="ABC123" className="mt-1.5 h-12 text-lg tracking-widest uppercase" autoFocus />
+                  <Label htmlFor="search">Search</Label>
+                  <Input id="search" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && searchCommunities()} placeholder="e.g. Oakwood Hills, Austin, TX" className="mt-1.5 h-12" autoFocus />
                 </div>
-                <Button onClick={lookupCommunity} disabled={!code || submitting} className="w-full h-12">
-                  {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
-                  Find Community
+                <Button onClick={searchCommunities} disabled={searching} className="w-full h-12">
+                  {searching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+                  Search Communities
                 </Button>
               </div>
+              {searched && results.length > 0 && (
+                <div className="mt-6 space-y-2">
+                  {results.map(c => (
+                    <button key={c.id} onClick={() => { setCommunity(c); setError(""); }} className="w-full text-left p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-medium">{c.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {[c.address, c.city, c.state].filter(Boolean).join(", ")}
+                          </p>
+                          {c.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{c.description}</p>}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <div className="bg-card rounded-2xl warm-shadow-md p-8">
@@ -98,7 +126,7 @@ export default function Join() {
                 </div>
                 <h2 className="text-xl font-bold">{community.name}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {community.address}{community.city && `, ${community.city}`}{community.state && `, ${community.state}`}
+                  {[community.address, community.city, community.state].filter(Boolean).join(", ")}
                 </p>
               </div>
               {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
@@ -111,8 +139,8 @@ export default function Join() {
                   {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
                   Join Community
                 </Button>
-                <button onClick={() => { setCommunity(null); setError(""); }} className="w-full text-sm text-muted-foreground hover:text-foreground">
-                  Use a different code
+                <button onClick={() => { setCommunity(null); setError(""); setResults([]); setSearched(false); }} className="w-full text-sm text-muted-foreground hover:text-foreground">
+                  Back to search
                 </button>
               </div>
             </div>

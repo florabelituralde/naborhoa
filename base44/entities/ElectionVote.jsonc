@@ -1,0 +1,20 @@
+{
+  "name": "ElectionVote",
+  "type": "object",
+  "properties": {
+    "election_id": {
+      "type": "string"
+    },
+    "voter_id": {
+      "type": "string"
+    },
+    "candidate_index": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "election_id",
+    "voter_id",
+    "candidate_index"
+  ]
+}

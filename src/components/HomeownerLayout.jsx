@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
-import { LayoutDashboard, ClipboardList, Receipt, Megaphone, Vote, FileText, MessageCircle, Calendar, Loader2 } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Receipt, Megaphone, Vote, FileText, MessageCircle, Calendar, Contact, Trophy, Loader2 } from "lucide-react";
 
 export default function HomeownerLayout() {
   const navigate = useNavigate();
@@ -40,8 +40,10 @@ export default function HomeownerLayout() {
     { path: "/home/invoices", label: "My Bills", icon: Receipt },
     { path: "/home/announcements", label: "Announcements", icon: Megaphone },
     { path: "/home/polls", label: "Polls", icon: Vote },
+    { path: "/home/elections", label: "Elections", icon: Trophy },
     { path: "/home/events", label: "Events", icon: Calendar },
     { path: "/home/documents", label: "Documents", icon: FileText },
+    { path: "/home/board", label: "Board", icon: Contact },
     { path: "/home/chat", label: "AI Assistant", icon: MessageCircle },
   ];
 

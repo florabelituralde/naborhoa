@@ -1,0 +1,45 @@
+{
+  "name": "BoardMember",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "president",
+        "vice_president",
+        "treasurer",
+        "secretary",
+        "member_at_large"
+      ],
+      "default": "member_at_large"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "term_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "term_end": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "community_id",
+    "name",
+    "role"
+  ]
+}

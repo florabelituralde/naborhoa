@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
-import { LayoutDashboard, ClipboardList, Receipt, Megaphone, Vote, FileText, Users, Calendar, Loader2 } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Receipt, Megaphone, Vote, FileText, Users, Calendar, Contact, Trophy, Loader2 } from "lucide-react";
 
 export default function HOALayout() {
   const navigate = useNavigate();
@@ -40,11 +40,13 @@ export default function HOALayout() {
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt },
     { path: "/hoa/announcements", label: "Announcements", icon: Megaphone },
     { path: "/hoa/polls", label: "Polls", icon: Vote },
+    { path: "/hoa/elections", label: "Elections", icon: Trophy },
     { path: "/hoa/events", label: "Events", icon: Calendar },
     { path: "/hoa/documents", label: "Documents", icon: FileText },
   ];
   if (user.role === "hoa_admin") {
     navItems.push({ path: "/hoa/community", label: "Community", icon: Users });
+    navItems.push({ path: "/hoa/board", label: "Board", icon: Contact });
   }
 
   return (

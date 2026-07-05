@@ -27,6 +27,8 @@ import HOAPolls from '@/pages/hoa/HOAPolls';
 import HOADocuments from '@/pages/hoa/HOADocuments';
 import HOACommunity from '@/pages/hoa/HOACommunity';
 import HOAEvents from '@/pages/hoa/HOAEvents';
+import HOABoard from '@/pages/hoa/HOABoard';
+import HOAElections from '@/pages/hoa/HOAElections';
 import HomeDashboard from '@/pages/home/HomeDashboard';
 import HomeRequests from '@/pages/home/HomeRequests';
 import HomeNewRequest from '@/pages/home/HomeNewRequest';
@@ -37,6 +39,8 @@ import HomePolls from '@/pages/home/HomePolls';
 import HomeDocuments from '@/pages/home/HomeDocuments';
 import HomeAIChat from '@/pages/home/HomeAIChat';
 import HomeEvents from '@/pages/home/HomeEvents';
+import HomeBoard from '@/pages/home/HomeBoard';
+import HomeElections from '@/pages/home/HomeElections';
 import { Navigate } from 'react-router-dom';
 
 const AuthenticatedApp = () => {
@@ -84,8 +88,10 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/announcements" element={<HOAAnnouncements />} />
           <Route path="/hoa/polls" element={<HOAPolls />} />
           <Route path="/hoa/events" element={<HOAEvents />} />
+          <Route path="/hoa/elections" element={<HOAElections />} />
           <Route path="/hoa/documents" element={<HOADocuments />} />
           <Route path="/hoa/community" element={<HOACommunity />} />
+          <Route path="/hoa/board" element={<HOABoard />} />
         </Route>
 
         <Route element={<HomeownerLayout />}>
@@ -97,7 +103,9 @@ const AuthenticatedApp = () => {
           <Route path="/home/announcements" element={<HomeAnnouncements />} />
           <Route path="/home/polls" element={<HomePolls />} />
           <Route path="/home/events" element={<HomeEvents />} />
+          <Route path="/home/elections" element={<HomeElections />} />
           <Route path="/home/documents" element={<HomeDocuments />} />
+          <Route path="/home/board" element={<HomeBoard />} />
           <Route path="/home/chat" element={<HomeAIChat />} />
         </Route>
       </Route>
