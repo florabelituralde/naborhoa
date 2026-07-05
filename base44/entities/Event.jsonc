@@ -1,0 +1,48 @@
+{
+  "name": "Event",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "location": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "meeting",
+        "social",
+        "deadline"
+      ],
+      "default": "meeting"
+    },
+    "created_by_id": {
+      "type": "string"
+    },
+    "google_calendar_event_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "community_id",
+    "title",
+    "start_time",
+    "end_time",
+    "created_by_id"
+  ]
+}
