@@ -33,9 +33,6 @@
     },
     "created_by_id": {
       "type": "string"
-    },
-    "google_calendar_event_id": {
-      "type": "string"
     }
   },
   "required": [
