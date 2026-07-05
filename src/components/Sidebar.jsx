@@ -17,7 +17,7 @@ export default function Sidebar({ navItems, user, community }) {
       <div className="h-20 flex items-center px-6 border-b border-sidebar-border">
         <Link to="/" className="flex items-center gap-2">
           <Home className="w-7 h-7 text-primary" />
-          <span className="font-bold text-lg text-sidebar-foreground">NeighborHOA</span>
+          <span className="font-bold text-lg text-sidebar-foreground">Nabor</span>
         </Link>
       </div>
 
