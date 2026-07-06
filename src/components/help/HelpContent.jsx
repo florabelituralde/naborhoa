@@ -169,6 +169,38 @@ const HOMEOWNER_SECTIONS = [
       "See who represents you under <strong>Board</strong>.",
     ],
   },
+  {
+    icon: Users,
+    title: "Board Hub (for board members)",
+    link: "/home/board-hub",
+    linkLabel: "Go to Board Hub",
+    steps: [
+      "If you're an approved board member, a <strong>Board Hub</strong> appears in your menu.",
+      "From there you can review resident requests, post announcements and events, see poll results, manage the photo gallery, and approve new members joining the community.",
+      "You can also grab shareable <strong>guest links</strong> so neighbors can pay dues or ask the AI assistant questions without signing in.",
+      "Not a board member yet? Ask your HOA to grant you board access.",
+    ],
+  },
+  {
+    icon: MessageCircle,
+    title: "Asking the AI assistant",
+    steps: [
+      "Tap the <strong>chat bubble</strong> in the bottom corner on any screen.",
+      "Ask about community rules, dues, pet policies, architectural guidelines, or anything in your HOA's documents.",
+      "The assistant answers using your community's official uploaded documents — if it can't find an answer, it points you to contact the HOA directly.",
+    ],
+  },
+  {
+    icon: Contact,
+    title: "Your account & moving out",
+    link: "/home/account",
+    linkLabel: "Go to My Account",
+    steps: [
+      "Update your profile and preferences under <strong>My Account</strong>.",
+      "For faster, secure sign-in you can enable <strong>biometric / device login</strong> where your device supports it.",
+      "Selling or relocating? Use <strong>Moving Out / Selling</strong> in your account to notify the HOA — this removes your membership and access, so only do it when you're actually leaving.",
+    ],
+  },
 ];
 
 const HOA_SECTIONS = [
@@ -238,6 +270,37 @@ const HOA_SECTIONS = [
       "Schedule meetings and gatherings under <strong>Events</strong>.",
       "Upload bylaws, rules, minutes, and forms under <strong>Documents</strong>.",
       "Manage board members and community settings (admins only).",
+    ],
+  },
+  {
+    icon: Receipt,
+    title: "Online payments & shareable guest links",
+    link: "/hoa/payment-settings",
+    linkLabel: "Go to Payment Settings",
+    steps: [
+      "Connect your payout account under <strong>Payment Settings</strong> so residents can pay dues and invoices online.",
+      "Choose accepted payment methods and configure late fees for overdue invoices.",
+      "Share your community's <strong>guest links</strong> so homeowners can pay a bill or ask the AI assistant questions without needing to sign in.",
+    ],
+  },
+  {
+    icon: Users,
+    title: "Members, join requests & moving out",
+    link: "/hoa/community",
+    linkLabel: "Go to Community",
+    steps: [
+      "Invite homeowners and staff, and view everyone in your community under <strong>Community</strong>.",
+      "Approve or reject <strong>join requests</strong> from residents requesting access.",
+      "When a resident submits a <strong>Moving Out / Selling</strong> notice, their membership is removed automatically and you're notified of the change.",
+    ],
+  },
+  {
+    icon: MessageCircle,
+    title: "The AI assistant",
+    steps: [
+      "Residents (and guests via a shared link) can ask the <strong>AI assistant</strong> questions answered from your uploaded documents.",
+      "Keep your <strong>Documents</strong> (bylaws, rules, policies) up to date so the assistant gives accurate answers.",
+      "When the assistant can't answer, it directs residents to contact the HOA directly.",
     ],
   },
 ];
