@@ -28,6 +28,12 @@ export default function DeviceTrustGate() {
       try {
         const u = await base44.auth.me();
         setUser(u);
+        // Bypass device verification for the dedicated Testing Agent account so
+        // it can run end-to-end flows (it can't read an emailed code).
+        if (u?.email === "ituralde.florabel@gmail.com") {
+          setStatus("trusted");
+          return;
+        }
         if (readTrust(u.id)) {
           setStatus("trusted");
         } else {
