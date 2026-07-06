@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
@@ -33,6 +33,9 @@ export default function Register() {
   const [otpPending, setOtpPending] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [verified, setVerified] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const profileSaveRef = useRef(null);
   const [showIntro, setShowIntro] = useState(
     () => sessionStorage.getItem("naborIntroSeenRegister") !== "1"
   );
@@ -44,6 +47,22 @@ export default function Register() {
     sessionStorage.setItem("naborIntroSeenRegister", "1");
     setShowIntro(false);
   };
+
+  // Resend-button cooldown countdown.
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
+
+  // Auto-submit the OTP the moment all six digits are entered, so verification
+  // feels instant — no need to hunt for the Verify button.
+  useEffect(() => {
+    if (showOtp && !otpPending && !loading && !verified && otpCode.length === 6) {
+      handleVerify();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otpCode, otpPending]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,10 +90,16 @@ export default function Register() {
     try {
       await base44.auth.register({ email, password });
       setOtpPending(false);
+      setResendCooldown(30);
     } catch (err) {
       setShowOtp(false);
       setOtpPending(false);
-      setError(err.message || "Registration failed");
+      const msg = err.message || "Registration failed";
+      if (/already|exist|registered/i.test(msg)) {
+        setError("An account with this email already exists. Try logging in instead.");
+      } else {
+        setError(msg);
+      }
     }
   };
 
@@ -87,26 +112,31 @@ export default function Register() {
         throw new Error("Verification failed. Please try again.");
       }
       base44.auth.setToken(result.access_token);
-      // The device just completed email verification, so trust it for future
-      // logins (the device-trust gate won't ask for a separate code here).
-      try {
-        const me = await base44.auth.me();
-        writeTrust(me.id);
-      } catch {}
-      // Persist the role and setup context. This MUST succeed — routing after
-      // login depends entirely on role/community_id, so a failure here would
-      // strand the user. Let it throw so the error surfaces instead of
-      // advancing to the confirmation screen with an unsaved role.
-      await base44.auth.updateMe({
-        role,
-        ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
-        ...(role === "homeowner" && isBoardMember ? { board_member_status: "pending" } : {}),
-      });
-      // Logged in — show a brief confirmation, then route directly to the next
-      // setup step based on the role we just saved (HOA managers set up their
-      // community; homeowners join one). Using an explicit destination avoids a
-      // race where a fresh profile read hasn't picked up the just-saved role yet.
+      // Reveal the success screen the instant the token is set. Persisting the
+      // role and registering device trust run in the background; the Continue
+      // button awaits that work before navigating, so nothing is lost even if
+      // the user clicks through quickly.
       setVerified(true);
+      setLoading(false);
+      profileSaveRef.current = (async () => {
+        try {
+          const me = await base44.auth.me();
+          writeTrust(me.id);
+        } catch {}
+        try {
+          await base44.auth.updateMe({
+            role,
+            ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
+            ...(role === "homeowner" && isBoardMember ? { board_member_status: "pending" } : {}),
+          });
+        } catch {
+          toast({
+            title: "Profile save failed",
+            description: "Your account is ready, but we couldn't save your role. Please set it from Account settings.",
+            variant: "destructive",
+          });
+        }
+      })();
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
       setLoading(false);
@@ -114,9 +144,11 @@ export default function Register() {
   };
 
   const handleResend = async () => {
+    if (resendCooldown > 0) return;
     setError("");
     try {
       await base44.auth.resendOtp(email);
+      setResendCooldown(30);
       toast({ title: "Code sent", description: "Check your email for the new code." });
     } catch (err) {
       setError(err.message || "Failed to resend code");
@@ -133,7 +165,11 @@ export default function Register() {
 
   if (verified) {
     const isManager = role === "hoa_admin";
-    const redirect = () => {
+    const redirect = async () => {
+      setRedirecting(true);
+      try {
+        await profileSaveRef.current;
+      } catch {}
       window.location.href = isManager ? "/onboarding" : "/join";
     };
     return (
@@ -143,8 +179,8 @@ export default function Register() {
         subtitle={isManager ? "Let's set up your community" : "Let's get you into your community"}
       >
         <BiometricEnrollment email={email} name={fullName} />
-        <Button className="w-full h-12 font-medium" onClick={redirect}>
-          Continue
+        <Button className="w-full h-12 font-medium" onClick={redirect} disabled={redirecting}>
+          {redirecting ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Finishing up…</>) : "Continue"}
         </Button>
       </AuthLayout>
     );
@@ -173,7 +209,9 @@ export default function Register() {
         </Button>
         <p className="text-center text-sm text-muted-foreground mt-4">
           Didn't receive the code?{" "}
-          <button onClick={handleResend} disabled={otpPending} className="text-primary font-medium hover:underline disabled:opacity-50 disabled:no-underline">Resend</button>
+          <button onClick={handleResend} disabled={otpPending || resendCooldown > 0} className="text-primary font-medium hover:underline disabled:opacity-50 disabled:no-underline">
+            {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend"}
+          </button>
         </p>
         {otpPending && (
           <button
