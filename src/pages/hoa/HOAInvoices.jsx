@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Check, Users } from "lucide-react";
+import { Loader2, Plus, Check, Users, DollarSign } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import BulkInvoiceDialog from "@/components/hoa/BulkInvoiceDialog";
 
@@ -22,6 +22,9 @@ export default function HOAInvoices() {
   const [showBulk, setShowBulk] = useState(false);
   const [form, setForm] = useState({ homeowner_id: "", amount: "", type: "dues", due_date: "", description: "" });
   const [creating, setCreating] = useState(false);
+  const [dues, setDues] = useState("");
+  const [savingDues, setSavingDues] = useState(false);
+  const [duesSaved, setDuesSaved] = useState(false);
 
   const loadData = async () => {
     const [invs, homes] = await Promise.all([
@@ -30,10 +33,19 @@ export default function HOAInvoices() {
     ]);
     setInvoices(invs);
     setHomeowners(homes);
+    setDues(community.monthly_dues ? String(community.monthly_dues) : "");
     setLoading(false);
   };
 
   useEffect(() => { if (community) loadData(); }, [community]);
+
+  const handleSaveDues = async () => {
+    setSavingDues(true);
+    await base44.entities.Community.update(community.id, { monthly_dues: dues ? parseFloat(dues) : 0 });
+    setSavingDues(false);
+    setDuesSaved(true);
+    setTimeout(() => setDuesSaved(false), 2000);
+  };
 
   const handleCreate = async () => {
     setCreating(true);
@@ -85,6 +97,25 @@ export default function HOAInvoices() {
           </div>
         }
       />
+
+      {/* Dues Setup */}
+      <div className="bg-card rounded-2xl warm-shadow p-6 mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center"><DollarSign className="w-5 h-5 text-primary" /></div>
+          <h2 className="font-semibold text-lg">Monthly Dues</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">Set your community's standard monthly dues. Used for guest payments and homeowner auto-pay.</p>
+        <div className="flex items-end gap-3 max-w-sm">
+          <div className="flex-1">
+            <Label>Monthly Dues ($)</Label>
+            <Input type="number" step="0.01" value={dues} onChange={e => setDues(e.target.value)} className="mt-1.5" placeholder="45.00" />
+          </div>
+          <Button onClick={handleSaveDues} disabled={savingDues}>
+            {savingDues ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : duesSaved ? <Check className="w-4 h-4 mr-2" /> : null}
+            {duesSaved ? "Saved" : "Save"}
+          </Button>
+        </div>
+      </div>
 
       {invoices.length === 0 ? (
         <div className="bg-card rounded-2xl warm-shadow p-12 text-center">

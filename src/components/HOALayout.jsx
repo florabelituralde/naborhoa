@@ -56,8 +56,7 @@ export default function HOALayout() {
     { path: "/hoa/requests", label: "Requests", icon: ClipboardList },
     { path: "/hoa/announcements", label: "Announcements", icon: Megaphone },
 
-    { path: "/hoa/members", label: "Members", icon: UserCheck, group: "People" },
-    ...(isAdmin ? [{ path: "/hoa/community", label: "Community", icon: Users, group: "People" }] : []),
+    { path: "/hoa/community", label: "Community", icon: Users, group: "People" },
     ...(isAdmin ? [{ path: "/hoa/board", label: "Board", icon: Contact, group: "People" }] : []),
 
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt, group: "Finances" },

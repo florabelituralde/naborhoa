@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Copy, Check, Users, Home, UserCog, Send, Upload, Images, X } from "lucide-react";
+import JoinRequestsSection from "@/components/JoinRequestsSection";
 
 export default function HOACommunity() {
   const { user, community } = useOutletContext();
@@ -20,7 +21,6 @@ export default function HOACommunity() {
   const [inviteRole, setInviteRole] = useState("homeowner");
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState("");
-  const [dues, setDues] = useState("");
   const [photoFile, setPhotoFile] = useState(null);
   const [savingSettings, setSavingSettings] = useState(false);
   const [gallery, setGallery] = useState([]);
@@ -34,7 +34,6 @@ export default function HOACommunity() {
     setHomeowners(data.homeowners || []);
     setStaff(data.staff || []);
     setProperties(data.properties || []);
-    setDues(community.monthly_dues ? String(community.monthly_dues) : "");
     setGallery(community.gallery || []);
     setLoading(false);
   };
@@ -76,7 +75,6 @@ export default function HOACommunity() {
       }
       const updatedGallery = [...gallery, ...newGalleryUrls];
       await base44.entities.Community.update(community.id, {
-        monthly_dues: dues ? parseFloat(dues) : 0,
         photo_url: photoUrl,
         gallery: updatedGallery,
       });
@@ -93,7 +91,7 @@ export default function HOACommunity() {
 
   return (
     <div className="p-4 sm:p-8 max-w-5xl mx-auto">
-      <PageHeader title="Community" subtitle="Manage members and settings" />
+      <PageHeader title="Community" subtitle="Manage members, requests, and settings" />
 
       {/* Join Code */}
       <div className="bg-primary/5 border-2 border-dashed border-primary/30 rounded-2xl p-6 mb-8 text-center">
@@ -106,15 +104,16 @@ export default function HOACommunity() {
         </div>
       </div>
 
+      {/* Membership Requests */}
+      <div className="mb-8">
+        <h2 className="font-semibold text-lg mb-4">Membership Requests</h2>
+        <JoinRequestsSection />
+      </div>
+
       {/* Community Settings */}
       <div className="bg-card rounded-2xl warm-shadow p-6 mb-8">
         <h2 className="font-semibold text-lg mb-4">Community Settings</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label>Monthly Dues ($)</Label>
-            <Input type="number" step="0.01" value={dues} onChange={e => setDues(e.target.value)} className="mt-1.5" placeholder="45.00" />
-            <p className="text-xs text-muted-foreground mt-1">Used for guest payments and auto-pay</p>
-          </div>
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <Label>Community Photo</Label>
             <div onClick={() => fileInputRef.current?.click()} className="mt-1.5 border-2 border-dashed border-border rounded-xl p-4 text-center cursor-pointer hover:border-primary transition-colors">
