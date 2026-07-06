@@ -2,12 +2,27 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Home, Loader2, Clock, XCircle, MapPin, RefreshCw } from "lucide-react";
+import { Home, Loader2, Clock, XCircle, MapPin, RefreshCw, Trash2 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function PendingApproval() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [request, setRequest] = useState(null);
+  const [canceling, setCanceling] = useState(false);
+
+  const handleCancel = async () => {
+    setCanceling(true);
+    try {
+      await base44.entities.JoinRequest.delete(request.id);
+      navigate("/join");
+    } catch {
+      setCanceling(false);
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -89,6 +104,33 @@ export default function PendingApproval() {
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Check status
               </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" className="w-full h-11 mt-2 text-destructive hover:text-destructive">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Cancel request
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Cancel join request?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Your pending request to join {request.community_name} will be withdrawn. You can search for and request another community afterward.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={canceling}>Keep request</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => { e.preventDefault(); handleCancel(); }}
+                      disabled={canceling}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {canceling ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                      Cancel request
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </>
           )}
         </div>
