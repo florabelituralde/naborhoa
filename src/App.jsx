@@ -30,6 +30,7 @@ import HOADocuments from '@/pages/hoa/HOADocuments';
 import HOACommunity from '@/pages/hoa/HOACommunity';
 import HOAEvents from '@/pages/hoa/HOAEvents';
 import HOABoard from '@/pages/hoa/HOABoard';
+import HOAHelp from '@/pages/hoa/HOAHelp';
 import HOAElections from '@/pages/hoa/HOAElections';
 import HomeDashboard from '@/pages/home/HomeDashboard';
 import HomeRequests from '@/pages/home/HomeRequests';
@@ -42,6 +43,7 @@ import HomePolls from '@/pages/home/HomePolls';
 import HomeDocuments from '@/pages/home/HomeDocuments';
 import HomeEvents from '@/pages/home/HomeEvents';
 import HomeBoard from '@/pages/home/HomeBoard';
+import HomeHelp from '@/pages/home/HomeHelp';
 import HomeElections from '@/pages/home/HomeElections';
 import CommunityLanding from '@/pages/public/CommunityLanding';
 import GuestChat from '@/pages/public/GuestChat';
@@ -105,6 +107,7 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/documents" element={<HOADocuments />} />
           <Route path="/hoa/community" element={<HOACommunity />} />
           <Route path="/hoa/board" element={<HOABoard />} />
+          <Route path="/hoa/help" element={<HOAHelp />} />
         </Route>
 
         <Route element={<HomeownerLayout />}>
@@ -120,6 +123,7 @@ const AuthenticatedApp = () => {
           <Route path="/home/elections" element={<HomeElections />} />
           <Route path="/home/documents" element={<HomeDocuments />} />
           <Route path="/home/board" element={<HomeBoard />} />
+          <Route path="/home/help" element={<HomeHelp />} />
         </Route>
       </Route>
 

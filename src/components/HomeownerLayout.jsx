@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
 import AIChatBubble from "@/components/AIChatBubble";
 import NotificationBell from "@/components/NotificationBell";
-import { LayoutDashboard, ClipboardList, Receipt, Wallet, Megaphone, Vote, FileText, Calendar, Contact, Trophy, Loader2 } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Receipt, Wallet, Megaphone, Vote, FileText, Calendar, Contact, Trophy, HelpCircle, Loader2 } from "lucide-react";
 
 export default function HomeownerLayout() {
   const navigate = useNavigate();
@@ -47,6 +47,7 @@ export default function HomeownerLayout() {
     { path: "/home/events", label: "Events", icon: Calendar },
     { path: "/home/documents", label: "Documents", icon: FileText },
     { path: "/home/board", label: "Board", icon: Contact },
+    { path: "/home/help", label: "Help & FAQ", icon: HelpCircle },
   ];
 
   return (
