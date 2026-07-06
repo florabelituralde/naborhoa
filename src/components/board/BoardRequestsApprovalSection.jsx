@@ -23,20 +23,12 @@ export default function BoardRequestsApprovalSection({ community, pendingMembers
     setBusyId(member.id);
     const role = roleChoices[member.id] || member.requested_board_role || "member_at_large";
     try {
-      await base44.entities.User.update(member.id, { board_member_status: "approved", requested_board_role: role });
-      await base44.entities.BoardMember.create({
-        community_id: community.id,
-        name: member.full_name,
+      const { data } = await base44.functions.invoke("review-board-access", {
+        member_id: member.id,
+        action: "approve",
         role,
-        email: member.email,
       });
-      await base44.entities.Notification.create({
-        community_id: community.id,
-        user_id: member.id,
-        type: "announcement",
-        title: "Board portal access approved",
-        body: "You now have access to the Board Hub.",
-      });
+      if (data?.error) throw new Error(data.error);
       setHiddenIds(prev => [...prev, member.id]);
       toast({ title: "Board access approved" });
       onChange();
@@ -49,7 +41,11 @@ export default function BoardRequestsApprovalSection({ community, pendingMembers
   const reject = async (member) => {
     setBusyId(member.id);
     try {
-      await base44.entities.User.update(member.id, { board_member_status: "rejected" });
+      const { data } = await base44.functions.invoke("review-board-access", {
+        member_id: member.id,
+        action: "reject",
+      });
+      if (data?.error) throw new Error(data.error);
       setHiddenIds(prev => [...prev, member.id]);
       toast({ title: "Request declined" });
       onChange();
