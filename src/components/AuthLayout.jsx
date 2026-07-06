@@ -3,8 +3,8 @@ import NaborLogo from "@/components/NaborLogo";
 
 export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen w-full bg-background px-4 py-8 flex flex-col items-center">
+      <div className="w-full max-w-md my-auto">
         <div className="text-center mb-10">
           <div className="flex justify-center mb-4">
             <NaborLogo iconClassName="w-14 h-14" textClassName="font-bold text-2xl text-foreground" />
