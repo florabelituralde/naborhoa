@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
 import { LayoutDashboard, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, Calendar, Contact, Trophy, HelpCircle, Loader2 } from "lucide-react";
+import { filterNavByPlan } from "@/lib/planAccess";
 
 export default function HOALayout() {
   const navigate = useNavigate();
@@ -52,9 +53,11 @@ export default function HOALayout() {
     navItems.push({ path: "/hoa/board", label: "Board", icon: Contact });
   }
 
+  const visibleNav = filterNavByPlan(navItems, community);
+
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar navItems={navItems} user={user} community={community} />
+      <Sidebar navItems={visibleNav} user={user} community={community} />
       <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
         <Outlet context={{ user, community }} />
       </main>

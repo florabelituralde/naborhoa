@@ -45,6 +45,7 @@ import HomeEvents from '@/pages/home/HomeEvents';
 import HomeBoard from '@/pages/home/HomeBoard';
 import HomeHelp from '@/pages/home/HomeHelp';
 import HomeElections from '@/pages/home/HomeElections';
+import PlanGate from '@/components/PlanGate';
 import CommunityLanding from '@/pages/public/CommunityLanding';
 import GuestChat from '@/pages/public/GuestChat';
 import GuestPay from '@/pages/public/GuestPay';
@@ -97,13 +98,13 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/dashboard" element={<HOADashboard />} />
           <Route path="/hoa/requests" element={<HOARequests />} />
           <Route path="/hoa/requests/:id" element={<HOARequestDetail />} />
-          <Route path="/hoa/request-types" element={<HOARequestTypes />} />
-          <Route path="/hoa/invoices" element={<HOAInvoices />} />
-          <Route path="/hoa/expenses" element={<HOAExpenses />} />
+          <Route path="/hoa/request-types" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequestTypes /></PlanGate>} />
+          <Route path="/hoa/invoices" element={<PlanGate module="invoices" homePath="/hoa/dashboard"><HOAInvoices /></PlanGate>} />
+          <Route path="/hoa/expenses" element={<PlanGate module="expenses" homePath="/hoa/dashboard"><HOAExpenses /></PlanGate>} />
           <Route path="/hoa/announcements" element={<HOAAnnouncements />} />
-          <Route path="/hoa/polls" element={<HOAPolls />} />
+          <Route path="/hoa/polls" element={<PlanGate module="polls" homePath="/hoa/dashboard"><HOAPolls /></PlanGate>} />
           <Route path="/hoa/events" element={<HOAEvents />} />
-          <Route path="/hoa/elections" element={<HOAElections />} />
+          <Route path="/hoa/elections" element={<PlanGate module="elections" homePath="/hoa/dashboard"><HOAElections /></PlanGate>} />
           <Route path="/hoa/documents" element={<HOADocuments />} />
           <Route path="/hoa/community" element={<HOACommunity />} />
           <Route path="/hoa/board" element={<HOABoard />} />
@@ -115,12 +116,12 @@ const AuthenticatedApp = () => {
           <Route path="/home/requests" element={<HomeRequests />} />
           <Route path="/home/requests/new" element={<HomeNewRequest />} />
           <Route path="/home/requests/:id" element={<HomeRequestDetail />} />
-          <Route path="/home/invoices" element={<HomeInvoices />} />
-          <Route path="/home/expenses" element={<HomeExpenses />} />
+          <Route path="/home/invoices" element={<PlanGate module="invoices" homePath="/home/dashboard"><HomeInvoices /></PlanGate>} />
+          <Route path="/home/expenses" element={<PlanGate module="expenses" homePath="/home/dashboard"><HomeExpenses /></PlanGate>} />
           <Route path="/home/announcements" element={<HomeAnnouncements />} />
-          <Route path="/home/polls" element={<HomePolls />} />
+          <Route path="/home/polls" element={<PlanGate module="polls" homePath="/home/dashboard"><HomePolls /></PlanGate>} />
           <Route path="/home/events" element={<HomeEvents />} />
-          <Route path="/home/elections" element={<HomeElections />} />
+          <Route path="/home/elections" element={<PlanGate module="elections" homePath="/home/dashboard"><HomeElections /></PlanGate>} />
           <Route path="/home/documents" element={<HomeDocuments />} />
           <Route path="/home/board" element={<HomeBoard />} />
           <Route path="/home/help" element={<HomeHelp />} />
