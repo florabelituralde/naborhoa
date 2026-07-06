@@ -18,11 +18,13 @@ const PERIODS = [
 // Generates one invoice per homeowner in a single action, plus a notification each.
 export default function BulkInvoiceDialog({ open, onOpenChange, community, homeowners, onDone }) {
   const monthly = community?.monthly_dues || 0;
+  const initialPeriod = PERIODS.find((p) => p.value === (community?.billing_cycle || "monthly")) || PERIODS[0];
+  const [frequency, setFrequency] = useState(initialPeriod.value);
   const [form, setForm] = useState({
-    amount: monthly ? String(monthly) : "",
+    amount: monthly ? String((monthly * initialPeriod.multiplier).toFixed(2)) : "",
     type: "dues",
     due_date: "",
-    description: "Monthly HOA dues",
+    description: initialPeriod.desc,
   });
   const [sending, setSending] = useState(false);
 
@@ -30,6 +32,7 @@ export default function BulkInvoiceDialog({ open, onOpenChange, community, homeo
   // monthly dues and update the description to match the chosen period.
   const applyFrequency = (freq) => {
     const period = PERIODS.find((p) => p.value === freq) || PERIODS[0];
+    setFrequency(freq);
     setForm((f) => ({
       ...f,
       amount: monthly ? String((monthly * period.multiplier).toFixed(2)) : f.amount,
@@ -89,7 +92,7 @@ export default function BulkInvoiceDialog({ open, onOpenChange, community, homeo
         <div className="space-y-4">
           <div>
             <Label>Billing Period</Label>
-            <Select value="monthly" onValueChange={applyFrequency}>
+            <Select value={frequency} onValueChange={applyFrequency}>
               <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {PERIODS.map((p) => (

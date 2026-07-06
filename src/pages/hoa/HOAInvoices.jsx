@@ -20,6 +20,8 @@ import BulkInvoiceDialog from "@/components/hoa/BulkInvoiceDialog";
 import ShareLinksPanel from "@/components/hoa/ShareLinksPanel";
 import CopyLinkButton from "@/components/CopyLinkButton";
 
+const CYCLE_MULT = { monthly: 1, quarterly: 3, annual: 12 };
+
 export default function HOAInvoices() {
   const { community } = useOutletContext();
   const [loading, setLoading] = useState(true);
@@ -30,6 +32,7 @@ export default function HOAInvoices() {
   const [form, setForm] = useState({ homeowner_id: "", amount: "", type: "dues", due_date: "", description: "" });
   const [creating, setCreating] = useState(false);
   const [dues, setDues] = useState("");
+  const [duesCycle, setDuesCycle] = useState("monthly");
   const [savingDues, setSavingDues] = useState(false);
   const [duesSaved, setDuesSaved] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
@@ -43,7 +46,10 @@ export default function HOAInvoices() {
       ]);
       setInvoices(invs);
       setHomeowners(homesRes?.homeowners || []);
-      setDues(community.monthly_dues ? String(community.monthly_dues) : "");
+      const cycle = community.billing_cycle || "monthly";
+      setDuesCycle(cycle);
+      const mult = CYCLE_MULT[cycle] || 1;
+      setDues(community.monthly_dues ? String((community.monthly_dues * mult).toFixed(2)) : "");
     } finally {
       setLoading(false);
     }
@@ -54,9 +60,22 @@ export default function HOAInvoices() {
     else setLoading(false);
   }, [community]);
 
+  const changeDuesCycle = (newCycle) => {
+    const oldMult = CYCLE_MULT[duesCycle] || 1;
+    const newMult = CYCLE_MULT[newCycle] || 1;
+    const monthlyEquiv = (parseFloat(dues) || 0) / oldMult;
+    setDuesCycle(newCycle);
+    setDues(monthlyEquiv ? String((monthlyEquiv * newMult).toFixed(2)) : "");
+  };
+
   const handleSaveDues = async () => {
     setSavingDues(true);
-    await base44.entities.Community.update(community.id, { monthly_dues: dues ? parseFloat(dues) : 0 });
+    const mult = CYCLE_MULT[duesCycle] || 1;
+    const monthlyEquivalent = dues ? parseFloat(dues) / mult : 0;
+    await base44.entities.Community.update(community.id, {
+      monthly_dues: Number(monthlyEquivalent.toFixed(2)),
+      billing_cycle: duesCycle,
+    });
     setSavingDues(false);
     setDuesSaved(true);
     setTimeout(() => setDuesSaved(false), 2000);
@@ -131,12 +150,23 @@ export default function HOAInvoices() {
       <div className="bg-card rounded-2xl warm-shadow p-6 mb-6">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center"><DollarSign className="w-5 h-5 text-primary" /></div>
-          <h2 className="font-semibold text-lg">Monthly Dues</h2>
+          <h2 className="font-semibold text-lg">HOA Dues</h2>
         </div>
-        <p className="text-sm text-muted-foreground mb-4">Set your community's standard monthly dues. Used for guest payments and homeowner auto-pay.</p>
-        <div className="flex items-end gap-3 max-w-sm">
+        <p className="text-sm text-muted-foreground mb-4">Set your community's standard dues and billing cycle. Used for bulk invoicing and homeowner auto-pay.</p>
+        <div className="flex flex-col sm:flex-row sm:items-end gap-3 max-w-lg">
           <div className="flex-1">
-            <Label>Monthly Dues ($)</Label>
+            <Label>Billing Cycle</Label>
+            <Select value={duesCycle} onValueChange={changeDuesCycle}>
+              <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="quarterly">Quarterly</SelectItem>
+                <SelectItem value="annual">Annual</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1">
+            <Label>Dues per cycle ($)</Label>
             <Input type="number" step="0.01" value={dues} onChange={e => setDues(e.target.value)} className="mt-1.5" placeholder="45.00" />
           </div>
           <Button onClick={handleSaveDues} disabled={savingDues}>
@@ -144,6 +174,11 @@ export default function HOAInvoices() {
             {duesSaved ? "Saved" : "Save"}
           </Button>
         </div>
+        {dues ? (
+          <p className="text-xs text-muted-foreground mt-3">
+            ≈ {formatCurrency(parseFloat(dues) / (CYCLE_MULT[duesCycle] || 1))} per month.
+          </p>
+        ) : null}
       </div>
 
       {invoices.length === 0 ? (
