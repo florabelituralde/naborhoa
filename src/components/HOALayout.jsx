@@ -58,7 +58,7 @@ export default function HOALayout() {
   // collapsible sections so the sidebar stays focused.
   const navItems = [
     { path: "/hoa/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/hoa/requests", label: "Requests", icon: ClipboardList },
+    { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "request_types" },
     { path: "/hoa/announcements", label: "Announcements", icon: Megaphone },
 
     { path: "/hoa/community", label: "Community", icon: Users, group: "People" },
@@ -83,7 +83,7 @@ export default function HOALayout() {
   // Key mobile destinations for the native-style bottom tab bar.
   const bottomNavItems = [
     { path: "/hoa/dashboard", label: "Home", icon: LayoutDashboard },
-    { path: "/hoa/requests", label: "Requests", icon: ClipboardList },
+    { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "request_types" },
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt },
     ...(isAdmin
       ? [{ path: "/hoa/account", label: "Account", icon: UserCircle }]
@@ -98,7 +98,7 @@ export default function HOALayout() {
           <Outlet context={{ user, community }} />
         </PageTransition>
       </main>
-      <BottomNav items={bottomNavItems} />
+      <BottomNav items={markNavLocks(bottomNavItems, community)} />
       <AIChatBubble user={user} community={community} />
     </div>
   );

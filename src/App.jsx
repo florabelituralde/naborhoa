@@ -119,8 +119,8 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/account" element={<HOAAccount />} />
           <Route path="/hoa/payment-settings" element={<HOAPaymentSettings />} />
           <Route path="/hoa/add-community" element={<HOAAddCommunity />} />
-          <Route path="/hoa/requests" element={<HOARequests />} />
-          <Route path="/hoa/requests/:id" element={<HOARequestDetail />} />
+          <Route path="/hoa/requests" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequests /></PlanGate>} />
+          <Route path="/hoa/requests/:id" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequestDetail /></PlanGate>} />
           <Route path="/hoa/request-types" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequestTypes /></PlanGate>} />
           <Route path="/hoa/invoices" element={<PlanGate module="invoices" homePath="/hoa/dashboard"><HOAInvoices /></PlanGate>} />
           <Route path="/hoa/expenses" element={<PlanGate module="expenses" homePath="/hoa/dashboard"><HOAExpenses /></PlanGate>} />
