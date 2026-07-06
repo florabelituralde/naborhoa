@@ -4,10 +4,11 @@ import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, Pencil, Trash2, Sparkles } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Sparkles, LibraryBig, BookmarkPlus } from "lucide-react";
 import { getRequestTypeIcon } from "@/lib/requestTypeIcon";
 import { DEFAULT_REQUEST_TYPES } from "@/lib/defaultRequestTypes";
 import RequestTypeEditor from "@/components/hoa/RequestTypeEditor";
+import TemplateLibraryDialog from "@/components/hoa/TemplateLibraryDialog";
 
 export default function HOARequestTypes() {
   const { community } = useOutletContext();
@@ -16,6 +17,8 @@ export default function HOARequestTypes() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [seeding, setSeeding] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [savingTemplateId, setSavingTemplateId] = useState(null);
 
   const load = () => {
     return base44.entities.RequestType.filter({ community_id: community.id }, "sort_order").then(setTypes);
@@ -44,6 +47,21 @@ export default function HOARequestTypes() {
     await load();
   };
 
+  const TEMPLATE_FIELDS = ["name", "description", "icon", "category", "requires_attachment", "attachment_label", "custom_fields"];
+
+  const saveAsTemplate = async (t) => {
+    setSavingTemplateId(t.id);
+    const data = { community_id: community.id };
+    TEMPLATE_FIELDS.forEach((k) => { if (t[k] !== undefined) data[k] = t[k]; });
+    await base44.entities.RequestTypeTemplate.create(data);
+    setSavingTemplateId(null);
+  };
+
+  const deployTemplate = async (tpl) => {
+    await base44.entities.RequestType.create({ ...tpl, community_id: community.id, active: true, sort_order: types.length });
+    await load();
+  };
+
   const toggleActive = async (t) => {
     await base44.entities.RequestType.update(t.id, { active: !t.active });
     await load();
@@ -62,7 +80,12 @@ export default function HOARequestTypes() {
       <PageHeader
         title="Request Types"
         subtitle="Control which requests residents can submit and what info they must provide"
-        action={<Button onClick={() => { setEditing(null); setEditorOpen(true); }}><Plus className="w-4 h-4 mr-2" /> New Type</Button>}
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setLibraryOpen(true)}><LibraryBig className="w-4 h-4 mr-2" /> Templates</Button>
+            <Button onClick={() => { setEditing(null); setEditorOpen(true); }}><Plus className="w-4 h-4 mr-2" /> New Type</Button>
+          </div>
+        }
       />
 
       {types.length === 0 ? (
@@ -100,6 +123,9 @@ export default function HOARequestTypes() {
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <Switch checked={t.active} onCheckedChange={() => toggleActive(t)} />
+                  <Button variant="ghost" size="icon" title="Save as template" onClick={() => saveAsTemplate(t)} disabled={savingTemplateId === t.id}>
+                    {savingTemplateId === t.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <BookmarkPlus className="w-4 h-4" />}
+                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => { setEditing(t); setEditorOpen(true); }}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="icon" className="text-destructive" onClick={() => remove(t)}><Trash2 className="w-4 h-4" /></Button>
                 </div>
@@ -110,6 +136,7 @@ export default function HOARequestTypes() {
       )}
 
       <RequestTypeEditor open={editorOpen} onOpenChange={setEditorOpen} initial={editing} onSave={handleSave} />
+      <TemplateLibraryDialog open={libraryOpen} onOpenChange={setLibraryOpen} community={community} onDeploy={deployTemplate} />
     </div>
   );
 }
