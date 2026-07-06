@@ -136,17 +136,21 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
       {open && (
         <div className="fixed inset-0 z-50 w-full h-full bg-card flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0 safe-top safe-x">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+          <div className="relative z-10 flex items-center justify-between gap-2 px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0 safe-top safe-x">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
                 <Sparkles className="w-4 h-4" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-semibold text-sm leading-tight">HOA Assistant</h3>
-                <p className="text-[11px] text-primary-foreground/80 leading-tight">{community.name}</p>
+                <p className="text-[11px] text-primary-foreground/80 leading-tight truncate">{community.name}</p>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/15" aria-label="Close">
+            <button
+              onClick={() => setOpen(false)}
+              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 active:bg-white/25 touch-manipulation"
+              aria-label="Close"
+            >
               <X className="w-5 h-5" />
             </button>
           </div>
