@@ -96,8 +96,14 @@
     text-size-adjust: 100%;
   }
 
-  /* Avoid horizontal overflow on small screens */
-  html, body {
+  /* Avoid horizontal overflow on small screens.
+     NOTE: overflow-x is applied to body only — putting it on html forces
+     overflow-y to compute to auto/hidden on mobile WebKit and breaks
+     vertical page scrolling (login page could not scroll). */
+  html {
+    overscroll-behavior-y: none;
+  }
+  body {
     overscroll-behavior-y: none;
     overflow-x: hidden;
     max-width: 100%;
