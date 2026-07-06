@@ -22,6 +22,7 @@ export default function AIChatBubble({ user, community }) {
   const [thinking, setThinking] = useState(false);
   const [docs, setDocs] = useState([]);
   const [hoaEmail, setHoaEmail] = useState(null);
+  const [ccEmails, setCcEmails] = useState([]);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -30,11 +31,17 @@ export default function AIChatBubble({ user, community }) {
       base44.entities.ChatMessage.filter({ community_id: community.id, user_id: user.id }, "created_date"),
       base44.entities.Document.filter({ community_id: community.id, is_public: true }),
       base44.entities.BoardMember.filter({ community_id: community.id }),
-    ]).then(([msgs, communityDocs, board]) => {
+      community.created_by_id ? base44.entities.User.filter({ id: community.created_by_id }).catch(() => []) : Promise.resolve([]),
+    ]).then(([msgs, communityDocs, board, managers]) => {
       setMessages(msgs);
       setDocs(communityDocs);
-      const president = board.find(b => b.role === "president" && b.email);
-      setHoaEmail((president || board.find(b => b.email))?.email || null);
+      // Primary recipient: the HOA contact managing this neighborhood page (community creator)
+      const manager = managers?.[0]?.email || null;
+      const boardEmails = board.map(b => b.email).filter(Boolean);
+      const primary = manager || boardEmails[0] || null;
+      setHoaEmail(primary);
+      // CC the board members (excluding the primary recipient to avoid duplicates)
+      setCcEmails(boardEmails.filter(e => e !== primary));
       setLoading(false);
     });
   }, [community, user]);
@@ -171,7 +178,7 @@ Homeowner question: ${question}`;
                     </div>
                     {cantAnswer && hoaEmail && (
                       <div className="ml-9 mb-3 max-w-[85%]">
-                        <ContactHOAPanel user={user} community={community} recipientEmail={hoaEmail} prefillQuestion={prevUserMsg?.content} />
+                        <ContactHOAPanel user={user} community={community} recipientEmail={hoaEmail} ccEmails={ccEmails} prefillQuestion={prevUserMsg?.content} />
                       </div>
                     )}
                   </div>

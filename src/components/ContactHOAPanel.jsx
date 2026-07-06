@@ -5,7 +5,7 @@ import { Loader2, Mail, CheckCircle2, Send } from "lucide-react";
 
 // Inline panel shown in the AI chat so a homeowner can email the HOA board
 // when the assistant can't answer their question.
-export default function ContactHOAPanel({ user, community, recipientEmail, prefillQuestion }) {
+export default function ContactHOAPanel({ user, community, recipientEmail, ccEmails = [], prefillQuestion }) {
   const [message, setMessage] = useState(prefillQuestion || "");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -14,18 +14,21 @@ export default function ContactHOAPanel({ user, community, recipientEmail, prefi
     if (!message.trim() || sending) return;
     setSending(true);
     try {
+      const ccLine = ccEmails.length ? `\nCC: ${ccEmails.join(", ")}` : "";
       const body = `A homeowner has submitted an inquiry via the ${community.name} assistant.
 
-From: ${user.full_name || "Homeowner"} (${user.email})
+From: ${user.full_name || "Homeowner"} (${user.email})${ccLine}
 
 Message:
 ${message}`;
-      await base44.integrations.Core.SendEmail({
-        to: recipientEmail,
-        subject: `Homeowner inquiry from ${user.full_name || user.email}`,
-        body,
-        from_name: community.name,
-      });
+      const subject = `Homeowner inquiry from ${user.full_name || user.email}`;
+      // Send to the HOA contact managing the neighborhood, and copy the board members.
+      const recipients = [recipientEmail, ...ccEmails].filter(Boolean);
+      await Promise.all(
+        recipients.map(to =>
+          base44.integrations.Core.SendEmail({ to, subject, body, from_name: community.name })
+        )
+      );
       setSent(true);
     } catch (err) {
       setSending(false);
