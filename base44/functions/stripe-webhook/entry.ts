@@ -3,15 +3,16 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
-  const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY"));
-  const sig = req.headers.get("stripe-signature") || "";
+  const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
   const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
-  if (!webhookSecret) {
-    console.error("stripe-webhook: STRIPE_WEBHOOK_SECRET not set");
-    return Response.json({ error: "Webhook not configured" }, { status: 500 });
+  if (!secretKey || !webhookSecret) {
+    console.error("stripe-webhook: Stripe secrets not configured");
+    return Response.json({ error: "Webhook not configured" }, { status: 503 });
   }
 
+  const stripe = new Stripe(secretKey);
+  const sig = req.headers.get("stripe-signature") || "";
   const rawBody = await req.text();
 
   let event;

@@ -14,13 +14,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Amount must be at least $0.50" }, { status: 400 });
     }
 
+    const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!secretKey) {
+      // Stripe not configured yet — frontend should fall back to Base44 Payments (create-checkout).
+      return Response.json({ error: "Stripe not configured", fallback: true }, { status: 503 });
+    }
+
     const community = await base44.asServiceRole.entities.Community.get(community_id);
 
     if (!community.stripe_account_id || !community.charges_enabled) {
       return Response.json({ error: "Stripe account not ready for charges" }, { status: 400 });
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY"));
+    const stripe = new Stripe(secretKey);
     const origin = req.headers.get("Origin") || req.headers.get("origin") || "";
 
     const unitAmount = Math.round(amount * 100);

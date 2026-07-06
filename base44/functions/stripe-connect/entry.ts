@@ -11,7 +11,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Missing community_id" }, { status: 400 });
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY"));
+    const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!secretKey) {
+      return Response.json(
+        { error: "Stripe isn't set up yet. Add your Stripe secret key to enable direct payouts." },
+        { status: 503 }
+      );
+    }
+
+    const stripe = new Stripe(secretKey);
     const origin = req.headers.get("Origin") || req.headers.get("origin") || "";
     const community = await base44.asServiceRole.entities.Community.get(community_id);
 
