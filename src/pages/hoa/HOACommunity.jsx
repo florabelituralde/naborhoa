@@ -5,8 +5,10 @@ import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Copy, Check, Users, Home, UserCog, Send, Upload, Images, X } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 import JoinRequestsSection from "@/components/JoinRequestsSection";
 
 export default function HOACommunity() {
@@ -25,6 +27,12 @@ export default function HOACommunity() {
   const [savingSettings, setSavingSettings] = useState(false);
   const [gallery, setGallery] = useState([]);
   const [galleryFiles, setGalleryFiles] = useState([]);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zip, setZip] = useState("");
+  const [savingDetails, setSavingDetails] = useState(false);
   const fileInputRef = useRef(null);
   const galleryInputRef = useRef(null);
 
@@ -38,7 +46,32 @@ export default function HOACommunity() {
     setLoading(false);
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => {
+    if (!community) return;
+    loadData();
+    setName(community.name || "");
+    setDescription(community.description || "");
+    setCity(community.city || "");
+    setState(community.state || "");
+    setZip(community.zip || "");
+  }, [community]);
+
+  const handleSaveDetails = async () => {
+    setSavingDetails(true);
+    try {
+      await base44.entities.Community.update(community.id, {
+        name: name.trim(),
+        description: description.trim(),
+        city: city.trim(),
+        state: state.trim(),
+        zip: zip.trim(),
+      });
+      toast({ title: "Saved", description: "Community details updated." });
+    } catch (err) {
+      toast({ title: "Error", description: err.message || "Failed to save", variant: "destructive" });
+    }
+    setSavingDetails(false);
+  };
 
   const copyCode = () => {
     navigator.clipboard.writeText(community.join_code);
@@ -109,6 +142,41 @@ export default function HOACommunity() {
         <h2 className="font-semibold text-lg mb-4">Membership Requests</h2>
         <JoinRequestsSection />
       </div>
+
+      {/* Community Details */}
+      {user.role === "hoa_admin" && (
+        <div className="bg-card rounded-2xl warm-shadow p-6 mb-8">
+          <h2 className="font-semibold text-lg mb-4">Community Details</h2>
+          <div className="space-y-4">
+            <div>
+              <Label>Community Name</Label>
+              <Input value={name} onChange={e => setName(e.target.value)} className="mt-1.5" placeholder="Maple Street HOA" />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea value={description} onChange={e => setDescription(e.target.value)} className="mt-1.5" rows={3} placeholder="Tell members about your community" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <Label>City</Label>
+                <Input value={city} onChange={e => setCity(e.target.value)} className="mt-1.5" placeholder="Austin" />
+              </div>
+              <div>
+                <Label>State</Label>
+                <Input value={state} onChange={e => setState(e.target.value)} className="mt-1.5" placeholder="TX" />
+              </div>
+              <div>
+                <Label>ZIP</Label>
+                <Input value={zip} onChange={e => setZip(e.target.value)} className="mt-1.5" placeholder="78701" />
+              </div>
+            </div>
+          </div>
+          <Button onClick={handleSaveDetails} disabled={savingDetails || !name.trim()} className="mt-6">
+            {savingDetails ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
+            Save Changes
+          </Button>
+        </div>
+      )}
 
       {/* Community Settings */}
       <div className="bg-card rounded-2xl warm-shadow p-6 mb-8">
