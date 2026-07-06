@@ -4,7 +4,6 @@ import PageHeader from "@/components/PageHeader";
 import {
   HelpCircle, ChevronDown, Home, ClipboardList, Receipt, Wallet, Megaphone,
   Vote, Trophy, Calendar, FileText, Contact, MessageCircle, ListChecks, Users, Sparkles, ArrowRight,
-  Image as ImageIcon,
 } from "lucide-react";
 
 // Role-aware Help & FAQ content. `role` is "homeowner" or "hoa".
@@ -60,7 +59,7 @@ export default function HelpContent({ role = "homeowner", communityName }) {
   );
 }
 
-function FAQSection({ icon: Icon, title, steps, image, link, linkLabel, defaultOpen }) {
+function FAQSection({ icon: Icon, title, steps, link, linkLabel, defaultOpen }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="bg-card rounded-2xl warm-shadow overflow-hidden">
@@ -76,20 +75,6 @@ function FAQSection({ icon: Icon, title, steps, image, link, linkLabel, defaultO
       </button>
       {open && (
         <div className="px-5 pb-5 pt-0">
-          {image ? (
-            <img
-              src={image}
-              alt={`Screenshot of ${title}`}
-              className="w-full rounded-xl border border-border mb-4 object-cover"
-            />
-          ) : link ? (
-            <div className="w-full rounded-xl border border-dashed border-border bg-muted/30 mb-4 py-6 px-4 flex items-center gap-3 text-muted-foreground">
-              <ImageIcon className="w-5 h-5 shrink-0" />
-              <span className="text-xs">
-                Tip: open <strong>this page</strong> using the link below to see exactly how it looks.
-              </span>
-            </div>
-          ) : null}
           <ol className="space-y-2.5 ml-1">
             {steps.map((step, i) => (
               <li key={i} className="flex gap-3 text-sm">
