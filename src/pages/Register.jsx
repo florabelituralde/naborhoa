@@ -11,6 +11,7 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import AppleIcon from "@/components/AppleIcon";
 import IntroPreview from "@/components/auth/IntroPreview";
+import LegalLinks from "@/components/LegalLinks";
 import { toast } from "@/components/ui/use-toast";
 
 export default function Register() {
@@ -274,6 +275,8 @@ export default function Register() {
           {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating account...</>) : ("Create account")}
         </Button>
       </form>
+
+      <LegalLinks className="mt-6" />
     </AuthLayout>
     </>
   );

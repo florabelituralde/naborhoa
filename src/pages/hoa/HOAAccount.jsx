@@ -4,6 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import { Loader2, User as UserIcon, Mail } from "lucide-react";
 import AccountDetailsSection from "@/components/hoa/AccountDetailsSection";
 import PlanBillingSection from "@/components/hoa/PlanBillingSection";
+import LegalLinks from "@/components/LegalLinks";
 
 export default function HOAAccount() {
   const { user, community } = useOutletContext();
@@ -28,6 +29,10 @@ export default function HOAAccount() {
       <div className="space-y-8">
         <AccountDetailsSection user={user} />
         <PlanBillingSection community={community} />
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-border">
+        <LegalLinks />
       </div>
     </div>
   );

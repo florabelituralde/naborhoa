@@ -10,6 +10,7 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import AppleIcon from "@/components/AppleIcon";
 import IntroPreview from "@/components/auth/IntroPreview";
+import LegalLinks from "@/components/LegalLinks";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -149,6 +150,8 @@ export default function Login() {
           )}
         </Button>
       </form>
+
+      <LegalLinks className="mt-6" />
     </AuthLayout>
     </>
   );

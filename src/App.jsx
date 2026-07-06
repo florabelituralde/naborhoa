@@ -57,6 +57,8 @@ import CommunityLanding from '@/pages/public/CommunityLanding';
 import GuestChat from '@/pages/public/GuestChat';
 import GuestPay from '@/pages/public/GuestPay';
 import PaymentThankYou from '@/pages/public/PaymentThankYou';
+import PrivacyPolicy from '@/pages/public/PrivacyPolicy';
+import TermsOfService from '@/pages/public/TermsOfService';
 import { Navigate } from 'react-router-dom';
 
 const AuthenticatedApp = () => {
@@ -95,6 +97,8 @@ const AuthenticatedApp = () => {
       <Route path="/c/:joinCode/chat" element={<GuestChat />} />
       <Route path="/c/:joinCode/pay" element={<GuestPay />} />
       <Route path="/pay/thank-you" element={<PaymentThankYou />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/" element={<RoleRouter />} />

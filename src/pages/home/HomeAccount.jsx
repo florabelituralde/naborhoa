@@ -8,6 +8,7 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import RequestBoardAccessCard from "@/components/board/RequestBoardAccessCard";
 import MoveOutDialog from "@/components/MoveOutDialog";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import LegalLinks from "@/components/LegalLinks";
 
 export default function HomeAccount() {
   const { user, community } = useOutletContext();
@@ -141,6 +142,10 @@ export default function HomeAccount() {
       {/* Account deletion — required by App Store guideline 5.1.1(v) */}
       <div className="mt-8">
         <DeleteAccountDialog user={user} />
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-border">
+        <LegalLinks />
       </div>
     </div>
   );

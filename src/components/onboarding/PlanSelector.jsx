@@ -104,6 +104,20 @@ export default function PlanSelector({ onSelect, onTrial, onFree, submitting }) 
         Secure checkout · Cancel anytime
       </p>
 
+      {/* Auto-renewal disclosure — required by App Store 3.1.2 & Play Store */}
+      <div className="mt-4 p-3 rounded-lg bg-muted/50 text-xs text-muted-foreground space-y-1">
+        <p>
+          <strong>Auto-renewing subscription.</strong> Your selected plan (${effectiveMonthly(PLANS.find(p => p.id === planId), cycle)}/mo
+          {cycle.id !== "monthly" && `, $${priceForCycle(PLANS.find(p => p.id === planId), cycle)} billed ${cycle.id}`})
+          renews automatically at the end of each {cycle.label.toLowerCase()} billing period until canceled.
+        </p>
+        <p>
+          Payment is charged securely through Base44 Payments to your payment method on file. You can
+          cancel anytime from your Account page — cancellation stops future renewals and takes effect
+          at the end of the current billing cycle.
+        </p>
+      </div>
+
       {onTrial && (
         <>
           <div className="relative my-5">
