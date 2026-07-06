@@ -130,9 +130,9 @@ export default function HomeDashboard() {
 
       {/* Board member request status */}
       {user?.board_member_status === "pending" && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mt-6 flex items-start gap-3">
-          <div className="shrink-0 w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-            <Clock className="w-5 h-5 text-amber-600" />
+        <div className="bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/25 rounded-2xl p-5 mt-6 flex items-start gap-3">
+          <div className="shrink-0 w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center">
+            <Clock className="w-5 h-5 text-amber-600 dark:text-amber-300" />
           </div>
           <div>
             <p className="font-semibold text-sm">Board access request pending</p>

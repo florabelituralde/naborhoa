@@ -40,9 +40,9 @@ export default function RequestBoardAccessCard({ user }) {
 
   if (status === "pending") {
     return (
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex items-center gap-4">
-        <div className="shrink-0 w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center">
-          <Clock className="w-5 h-5 text-amber-600" />
+      <div className="bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/25 rounded-2xl p-6 flex items-center gap-4">
+        <div className="shrink-0 w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center">
+          <Clock className="w-5 h-5 text-amber-600 dark:text-amber-300" />
         </div>
         <div>
           <p className="font-semibold">Board access request pending</p>

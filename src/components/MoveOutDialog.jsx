@@ -86,7 +86,7 @@ export default function MoveOutDialog() {
             <Textarea id="mo-notes" value={form.notes} onChange={e => set("notes", e.target.value)} placeholder="Anything the HOA should know" className="mt-1.5" rows={3} />
           </div>
 
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-500/10 dark:border-amber-500/25 dark:text-amber-200 text-xs">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>Once submitted, your membership and access to this community will be removed. This cannot be undone.</span>
           </div>

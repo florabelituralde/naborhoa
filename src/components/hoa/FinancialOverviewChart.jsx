@@ -54,7 +54,7 @@ export default function FinancialOverviewChart({ invoices = [], expenses = [] })
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">Net</p>
-            <p className={`font-semibold ${net >= 0 ? "text-green-600" : "text-destructive"}`}>{formatCurrency(net)}</p>
+            <p className={`font-semibold ${net >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive"}`}>{formatCurrency(net)}</p>
           </div>
         </div>
       </div>

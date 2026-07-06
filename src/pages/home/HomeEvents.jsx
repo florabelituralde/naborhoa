@@ -6,9 +6,9 @@ import { Loader2, Calendar, MapPin, Clock } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
 
 const TYPE_STYLES = {
-  meeting: "bg-blue-50 text-blue-700",
-  social: "bg-green-50 text-green-700",
-  deadline: "bg-red-50 text-red-700",
+  meeting: "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300",
+  social: "bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-300",
+  deadline: "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300",
 };
 
 export default function HomeEvents() {

@@ -62,7 +62,7 @@ export default function HomeAccount() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <StatCard icon={ClipboardList} value={openRequests} label="Active Requests" colorClass="bg-primary/10 text-primary" />
-        <StatCard icon={Receipt} value={formatCurrency(pendingTotal)} label="Outstanding Balance" colorClass="bg-amber-100 text-amber-700" />
+        <StatCard icon={Receipt} value={formatCurrency(pendingTotal)} label="Outstanding Balance" colorClass="bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" />
       </div>
 
       {/* Quick Actions */}

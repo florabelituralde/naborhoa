@@ -162,7 +162,7 @@ export default function HOAPaymentSettings() {
             </div>
 
             {acct.status !== "enabled" && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 text-amber-700 text-sm">
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 text-sm">
                 <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                 <span>Onboarding isn't complete. Finish setting up your bank details to start receiving payouts.</span>
               </div>

@@ -4,10 +4,10 @@ import { formatDateTime } from "@/lib/format";
 
 const ICONS = {
   created: { icon: Send, color: "bg-primary/10 text-primary" },
-  in_progress: { icon: Play, color: "bg-amber-100 text-amber-700" },
-  resolved: { icon: CheckCircle2, color: "bg-green-100 text-green-700" },
-  cancelled: { icon: XCircle, color: "bg-red-100 text-red-700" },
-  assigned: { icon: UserCheck, color: "bg-blue-50 text-blue-600" },
+  in_progress: { icon: Play, color: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" },
+  resolved: { icon: CheckCircle2, color: "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-300" },
+  cancelled: { icon: XCircle, color: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300" },
+  assigned: { icon: UserCheck, color: "bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300" },
   unassigned: { icon: UserX, color: "bg-muted text-muted-foreground" },
   note: { icon: FileText, color: "bg-accent text-accent-foreground" },
 };

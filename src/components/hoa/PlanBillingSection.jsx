@@ -8,7 +8,7 @@ import PlanSelector from "@/components/onboarding/PlanSelector";
 
 const STATUS_STYLES = {
   active: "bg-primary/10 text-primary",
-  pending: "bg-amber-100 text-amber-700",
+  pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   canceled: "bg-destructive/10 text-destructive",
   ended: "bg-muted text-muted-foreground",
 };

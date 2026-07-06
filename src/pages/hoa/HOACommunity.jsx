@@ -238,13 +238,13 @@ export default function HOACommunity() {
         </div>
         <div className="bg-card rounded-2xl warm-shadow p-6">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center"><Home className="w-5 h-5 text-amber-600" /></div>
+            <div className="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center"><Home className="w-5 h-5 text-amber-600 dark:text-amber-300" /></div>
             <div><p className="text-2xl font-bold">{properties.length}</p><p className="text-sm text-muted-foreground">Properties</p></div>
           </div>
         </div>
         <div className="bg-card rounded-2xl warm-shadow p-6">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center"><UserCog className="w-5 h-5 text-blue-600" /></div>
+            <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-500/15 flex items-center justify-center"><UserCog className="w-5 h-5 text-blue-600 dark:text-blue-300" /></div>
             <div><p className="text-2xl font-bold">{staff.length}</p><p className="text-sm text-muted-foreground">Staff</p></div>
           </div>
         </div>
@@ -292,7 +292,7 @@ export default function HOACommunity() {
             <div className="space-y-2">
               {staff.map(s => (
                 <div key={s.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                  <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-500/15 flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold shrink-0">
                     {s.full_name?.[0]?.toUpperCase()}
                   </div>
                   <p className="font-medium text-sm">{s.full_name}</p>

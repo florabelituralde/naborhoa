@@ -6,11 +6,11 @@ import { Loader2, FileText, Download } from "lucide-react";
 import { formatDate } from "@/lib/format";
 
 const CATEGORY_COLORS = {
-  bylaws: "bg-purple-50 text-purple-700",
-  rules: "bg-blue-50 text-blue-700",
-  minutes: "bg-amber-50 text-amber-700",
-  forms: "bg-green-50 text-green-700",
-  other: "bg-gray-100 text-gray-600",
+  bylaws: "bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300",
+  rules: "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300",
+  minutes: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  forms: "bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-300",
+  other: "bg-gray-100 text-gray-600 dark:bg-gray-500/15 dark:text-gray-400",
 };
 
 export default function HomeDocuments() {

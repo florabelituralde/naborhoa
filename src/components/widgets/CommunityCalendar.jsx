@@ -130,7 +130,7 @@ export default function CommunityCalendar({ invoices = [], events = [] }) {
                 to={item.kind === "invoice" ? "/home/invoices" : "/home/events"}
                 className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${item.kind === "invoice" ? "bg-amber-100 text-amber-700" : "bg-blue-50 text-blue-600"}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${item.kind === "invoice" ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" : "bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300"}`}>
                   {item.kind === "invoice" ? <Receipt className="w-4 h-4" /> : <CalendarClock className="w-4 h-4" />}
                 </div>
                 <div className="min-w-0 flex-1">

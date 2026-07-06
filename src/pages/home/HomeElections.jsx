@@ -65,7 +65,7 @@ export default function HomeElections() {
               <div key={el.id} className="bg-card rounded-2xl warm-shadow p-5">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h3 className="font-semibold text-lg">{el.title}</h3>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${el.status === "active" ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${el.status === "active" ? "bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-300" : "bg-gray-100 text-gray-600 dark:bg-gray-500/15 dark:text-gray-400"}`}>
                     {el.status}
                   </span>
                   {hasVoted && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary flex items-center gap-1"><Check className="w-3 h-3" /> Voted</span>}
