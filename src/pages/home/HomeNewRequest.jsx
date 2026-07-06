@@ -21,14 +21,15 @@ export default function HomeNewRequest() {
   const [answers, setAnswers] = useState({});
   const [files, setFiles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!community) return;
-    base44.entities.RequestType.filter({ community_id: community.id, active: true }, "sort_order").then(t => {
-      setTypes(t);
-      setLoading(false);
-    });
+    base44.entities.RequestType.filter({ community_id: community.id, active: true }, "sort_order")
+      .then(t => { setTypes(t); })
+      .catch(() => { setTypes([]); })
+      .finally(() => setLoading(false));
   }, [community]);
 
   const selectType = (t) => {
@@ -55,32 +56,38 @@ export default function HomeNewRequest() {
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    const uploaded = [];
-    for (const file of files) {
-      const result = await base44.integrations.Core.UploadFile({ file });
-      uploaded.push({ name: file.name, url: result.file_url });
-    }
+    setSubmitError(null);
+    try {
+      const uploaded = [];
+      for (const file of files) {
+        const result = await base44.integrations.Core.UploadFile({ file });
+        uploaded.push({ name: file.name, url: result.file_url });
+      }
 
-    await base44.entities.Request.create({
-      community_id: community.id,
-      homeowner_id: user.id,
-      property_id: user.property_id,
-      request_type_id: selectedType.id,
-      request_type_name: selectedType.name,
-      category: selectedType.category,
-      title: form.title,
-      description: form.description,
-      priority: form.priority,
-      contact_phone: form.contact_phone,
-      contact_email: form.contact_email,
-      attachments: uploaded,
-      image_url: uploaded[0]?.url || null,
-      custom_answers: (selectedType.custom_fields || [])
-        .filter(f => answers[f.label])
-        .map(f => ({ label: f.label, value: answers[f.label] })),
-      status: "submitted",
-    });
-    navigate("/home/requests");
+      await base44.entities.Request.create({
+        community_id: community.id,
+        homeowner_id: user.id,
+        property_id: user.property_id,
+        request_type_id: selectedType.id,
+        request_type_name: selectedType.name,
+        category: selectedType.category,
+        title: form.title,
+        description: form.description,
+        priority: form.priority,
+        contact_phone: form.contact_phone,
+        contact_email: form.contact_email,
+        attachments: uploaded,
+        image_url: uploaded[0]?.url || null,
+        custom_answers: (selectedType.custom_fields || [])
+          .filter(f => answers[f.label])
+          .map(f => ({ label: f.label, value: answers[f.label] })),
+        status: "submitted",
+      });
+      navigate("/home/requests");
+    } catch (err) {
+      setSubmitError(err?.message || "Something went wrong. Please try again.");
+      setSubmitting(false);
+    }
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -215,6 +222,11 @@ export default function HomeNewRequest() {
                 )}
               </div>
 
+              {submitError && (
+                <div className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
+                  {submitError}
+                </div>
+              )}
               <Button onClick={handleSubmit} disabled={requiredMissing() || submitting} className="w-full h-12">
                 {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                 Submit Request
