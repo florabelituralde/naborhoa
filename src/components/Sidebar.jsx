@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { LogOut, Menu, X, Lock } from "lucide-react";
 import NaborLogo from "@/components/NaborLogo";
+import NotificationBell from "@/components/NotificationBell";
 
 function SidebarContent({ navItems, user, community, onNavigate }) {
   const location = useLocation();
@@ -100,13 +101,16 @@ export default function Sidebar({ navItems, user, community }) {
         <Link to="/">
           <NaborLogo iconClassName="w-7 h-7" textClassName="font-bold text-sidebar-foreground" />
         </Link>
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="w-10 h-10 flex items-center justify-center rounded-lg text-sidebar-foreground hover:bg-sidebar-accent"
-          aria-label="Open menu"
-        >
-          <Menu className="w-6 h-6" />
-        </button>
+        <div className="flex items-center gap-1">
+          <NotificationBell user={user} />
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="w-10 h-10 flex items-center justify-center rounded-lg text-sidebar-foreground hover:bg-sidebar-accent"
+            aria-label="Open menu"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </div>
       </header>
 
       {/* Mobile drawer */}

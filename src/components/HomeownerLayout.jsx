@@ -59,7 +59,7 @@ export default function HomeownerLayout() {
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar navItems={visibleNav} user={user} community={community} />
       <main className="flex-1 overflow-y-auto pt-14 md:pt-0 relative">
-        <div className="absolute top-2 right-3 md:top-4 md:right-6 z-20">
+        <div className="hidden md:block absolute top-4 right-6 z-20">
           <NotificationBell user={user} />
         </div>
         <Outlet context={{ user, community }} />
