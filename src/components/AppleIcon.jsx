@@ -1,10 +1,17 @@
 import React from "react";
 
-// Official Apple logo (black) used for "Sign in with Apple" buttons.
+// Canonical Apple Inc. logo (Font Awesome Brands) used for "Sign in with Apple" buttons.
+// Native 384x512 viewBox ensures the full silhouette (body + leaf) always renders.
 export default function AppleIcon({ className = "w-5 h-5" }) {
   return (
-    <svg className={className} viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-      <path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516.024.034 1.52.087 2.475-1.258.955-1.345.762-2.391.728-2.43Zm3.314 11.733c-.048-.096-2.325-1.234-2.325-3.67 0-2.45 1.36-3.575 1.36-3.575s-1.137-.813-2.73-.813c-1.59 0-2.41.78-2.418.78-.01 0-1.274-.78-2.74-.78-1.595 0-2.73.813-2.73.813S1.5 6.29 1.5 8.29c0 1.59.78 2.747.78 2.747s.78 1.43 2.25 1.43c1.47 0 2.05-.716 2.05-.716s.583.716 2.067.716c1.47 0 2.25-1.43 2.25-1.43s.78-1.157.78-2.747c0-1.96-1.34-3.74-1.34-3.74z" />
+    <svg
+      className={className}
+      viewBox="0 0 384 512"
+      fill="currentColor"
+      aria-hidden="true"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25-.2 43-15.2 76-15.2 31.8 0 48.3 15.2 76.4 15.2 48.2-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.9-90.4zM266.1 95.1c24.8-28.9 22.7-57.6 22-67.4-22.2 1.3-47.9 14.9-62.6 31.6-16.4 18.4-26.2 41.4-24.1 67.4 24 1.7 46.1-10.6 64.7-31.6z" />
     </svg>
   );
 }
