@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
 import AIChatBubble from "@/components/AIChatBubble";
 import NotificationBell from "@/components/NotificationBell";
-import { LayoutDashboard, Wallet, Megaphone, Vote, FileText, Calendar, Contact, Trophy, HelpCircle, UserCircle, Loader2 } from "lucide-react";
+import { LayoutDashboard, LayoutGrid, Wallet, Megaphone, Vote, FileText, Calendar, Contact, Trophy, HelpCircle, UserCircle, Loader2 } from "lucide-react";
 import { markNavLocks } from "@/lib/planAccess";
 
 export default function HomeownerLayout() {
@@ -39,6 +39,9 @@ export default function HomeownerLayout() {
 
   const navItems = [
     { path: "/home/dashboard", label: "Community", icon: LayoutDashboard },
+    ...(user.board_member_status === "approved"
+      ? [{ path: "/home/board-hub", label: "Board Hub", icon: LayoutGrid }]
+      : []),
     { path: "/home/account", label: "My Account", icon: UserCircle },
     { path: "/home/expenses", label: "Community Finances", icon: Wallet },
     { path: "/home/announcements", label: "Announcements", icon: Megaphone },

@@ -8,6 +8,7 @@ import BoardAnnouncementSection from "@/components/board/BoardAnnouncementSectio
 import BoardEventSection from "@/components/board/BoardEventSection";
 import BoardPollResultsSection from "@/components/board/BoardPollResultsSection";
 import BoardGallerySection from "@/components/board/BoardGallerySection";
+import BoardRequestsApprovalSection from "@/components/board/BoardRequestsApprovalSection";
 
 export default function HOABoardHub() {
   const { user, community } = useOutletContext();
@@ -18,14 +19,16 @@ export default function HOABoardHub() {
   const [polls, setPolls] = useState([]);
   const [votes, setVotes] = useState([]);
   const [gallery, setGallery] = useState([]);
+  const [pendingMembers, setPendingMembers] = useState([]);
 
   const loadData = async () => {
-    const [reqs, anns, evs, p, v] = await Promise.all([
+    const [reqs, anns, evs, p, v, pending] = await Promise.all([
       base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 10),
       base44.entities.Event.filter({ community_id: community.id }, "start_time"),
       base44.entities.Poll.filter({ community_id: community.id }, "-created_date"),
       base44.entities.PollVote.filter({}),
+      base44.entities.User.filter({ community_id: community.id, board_member_status: "pending" }),
     ]);
     setRequests(reqs);
     setAnnouncements(anns);
@@ -33,6 +36,7 @@ export default function HOABoardHub() {
     setPolls(p);
     setVotes(v);
     setGallery(community.gallery || []);
+    setPendingMembers(pending);
     setLoading(false);
   };
 
@@ -45,6 +49,7 @@ export default function HOABoardHub() {
       <PageHeader title="Board Hub" subtitle="Everything the board needs in one place" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <BoardRequestsApprovalSection community={community} pendingMembers={pendingMembers} onChange={loadData} />
         <BoardRequestsSection requests={requests} />
         <BoardAnnouncementSection community={community} user={user} announcements={announcements} onChange={loadData} />
         <BoardEventSection community={community} user={user} events={events} onChange={loadData} />

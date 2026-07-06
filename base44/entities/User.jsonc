@@ -21,6 +21,26 @@
     },
     "phone": {
       "type": "string"
+    },
+    "board_member_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "none"
+    },
+    "requested_board_role": {
+      "type": "string",
+      "enum": [
+        "president",
+        "vice_president",
+        "treasurer",
+        "secretary",
+        "member_at_large"
+      ]
     }
   }
 }

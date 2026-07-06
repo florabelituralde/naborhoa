@@ -45,6 +45,7 @@ import HomePolls from '@/pages/home/HomePolls';
 import HomeDocuments from '@/pages/home/HomeDocuments';
 import HomeEvents from '@/pages/home/HomeEvents';
 import HomeBoard from '@/pages/home/HomeBoard';
+import HomeBoardHub from '@/pages/home/HomeBoardHub';
 import HomeHelp from '@/pages/home/HomeHelp';
 import HomeElections from '@/pages/home/HomeElections';
 import PlanGate from '@/components/PlanGate';
@@ -127,6 +128,7 @@ const AuthenticatedApp = () => {
           <Route path="/home/events" element={<HomeEvents />} />
           <Route path="/home/elections" element={<PlanGate module="elections" homePath="/home/dashboard"><HomeElections /></PlanGate>} />
           <Route path="/home/documents" element={<HomeDocuments />} />
+          <Route path="/home/board-hub" element={<HomeBoardHub />} />
           <Route path="/home/board" element={<HomeBoard />} />
           <Route path="/home/help" element={<HomeHelp />} />
         </Route>

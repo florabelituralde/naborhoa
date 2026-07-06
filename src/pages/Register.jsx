@@ -17,6 +17,7 @@ export default function Register() {
   const [fullName, setFullName] = useState("");
   const [orgName, setOrgName] = useState("");
   const [role, setRole] = useState("homeowner");
+  const [isBoardMember, setIsBoardMember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
@@ -59,6 +60,7 @@ export default function Register() {
           role,
           full_name: fullName,
           ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
+          ...(role === "homeowner" && isBoardMember ? { board_member_status: "pending" } : {}),
         });
       }
       window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
@@ -160,6 +162,20 @@ export default function Register() {
             </button>
           </div>
         </div>
+        {role === "homeowner" && (
+          <label className="flex items-start gap-3 p-3 rounded-xl border border-border cursor-pointer hover:border-primary/40 transition-colors">
+            <input
+              type="checkbox"
+              checked={isBoardMember}
+              onChange={(e) => setIsBoardMember(e.target.checked)}
+              className="w-4 h-4 mt-0.5 accent-primary shrink-0"
+            />
+            <span className="text-sm">
+              <span className="font-medium">I'm a board member</span>
+              <span className="block text-xs text-muted-foreground">Request access to the board portal. Your HOA manager will review and approve it.</span>
+            </span>
+          </label>
+        )}
         <div className="space-y-2">
           <Label htmlFor="name">{role === "hoa_admin" ? "Your Name" : "Full Name"}</Label>
           <div className="relative">

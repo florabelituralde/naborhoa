@@ -4,7 +4,7 @@ import StatusBadge from "@/components/StatusBadge";
 import { Vote } from "lucide-react";
 import { formatDate } from "@/lib/format";
 
-export default function BoardPollResultsSection({ polls, votes }) {
+export default function BoardPollResultsSection({ polls, votes, managePath = "/hoa/polls" }) {
   const getVoteCount = (pollId, optionIndex) =>
     votes.filter(v => v.poll_id === pollId && v.option_index === optionIndex).length;
 
@@ -14,7 +14,7 @@ export default function BoardPollResultsSection({ polls, votes }) {
         <h2 className="font-semibold text-lg flex items-center gap-2">
           <Vote className="w-5 h-5 text-primary" /> Poll Results
         </h2>
-        <Link to="/hoa/polls" className="text-sm text-primary font-medium hover:underline">Manage polls</Link>
+        <Link to={managePath} className="text-sm text-primary font-medium hover:underline">View polls</Link>
       </div>
       {polls.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">No polls yet</p>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import StatusBadge from "@/components/StatusBadge";
-import { Vote, Loader2, UserCircle, Calendar as CalendarIcon, Megaphone, Contact } from "lucide-react";
+import { Vote, Loader2, UserCircle, Calendar as CalendarIcon, Megaphone, Contact, ShieldCheck, Clock } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import AnnouncementsWidget from "@/components/widgets/AnnouncementsWidget";
 import AIChatWidget from "@/components/widgets/AIChatWidget";
@@ -120,6 +120,30 @@ export default function HomeDashboard() {
         <CommunityCalendar invoices={[]} events={events} />
         <AIChatWidget />
       </div>
+
+      {/* Board member request status */}
+      {user?.board_member_status === "pending" && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mt-6 flex items-start gap-3">
+          <div className="shrink-0 w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+            <Clock className="w-5 h-5 text-amber-600" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm">Board access request pending</p>
+            <p className="text-sm text-muted-foreground">Your HOA manager is reviewing your request to join the board portal. You'll be notified once it's approved.</p>
+          </div>
+        </div>
+      )}
+      {user?.board_member_status === "approved" && (
+        <Link to="/home/board-hub" className="bg-primary/5 border border-primary/20 rounded-2xl p-5 mt-6 flex items-center gap-3 hover:bg-primary/10 transition-colors">
+          <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm">You have board portal access</p>
+            <p className="text-sm text-muted-foreground">Open the Board Hub to manage requests, announcements, events, polls, and the gallery.</p>
+          </div>
+        </Link>
+      )}
 
       {/* Who to contact */}
       <div className="bg-accent/50 border border-accent rounded-2xl p-5 mt-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">

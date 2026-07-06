@@ -1,0 +1,95 @@
+import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, ShieldCheck, Check, X } from "lucide-react";
+
+const ROLE_LABELS = {
+  president: "President",
+  vice_president: "Vice President",
+  treasurer: "Treasurer",
+  secretary: "Secretary",
+  member_at_large: "Member at Large",
+};
+
+export default function BoardRequestsApprovalSection({ community, pendingMembers, onChange }) {
+  const [roleChoices, setRoleChoices] = useState({});
+  const [busyId, setBusyId] = useState(null);
+
+  const approve = async (member) => {
+    setBusyId(member.id);
+    const role = roleChoices[member.id] || member.requested_board_role || "member_at_large";
+    await base44.entities.User.update(member.id, { board_member_status: "approved", requested_board_role: role });
+    await base44.entities.BoardMember.create({
+      community_id: community.id,
+      name: member.full_name,
+      role,
+      email: member.email,
+    });
+    await base44.entities.Notification.create({
+      community_id: community.id,
+      user_id: member.id,
+      type: "announcement",
+      title: "Board portal access approved",
+      body: "You now have access to the Board Hub.",
+    });
+    setBusyId(null);
+    onChange();
+  };
+
+  const reject = async (member) => {
+    setBusyId(member.id);
+    await base44.entities.User.update(member.id, { board_member_status: "rejected" });
+    setBusyId(null);
+    onChange();
+  };
+
+  return (
+    <div className="bg-card rounded-2xl warm-shadow p-6">
+      <h2 className="font-semibold text-lg flex items-center gap-2 mb-4">
+        <ShieldCheck className="w-5 h-5 text-primary" /> Board Access Requests
+      </h2>
+      {pendingMembers.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">No pending requests</p>
+      ) : (
+        <div className="space-y-3">
+          {pendingMembers.map(member => (
+            <div key={member.id} className="p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold shrink-0">
+                  {member.full_name?.[0]?.toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-medium text-sm truncate">{member.full_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Select
+                  value={roleChoices[member.id] || member.requested_board_role || "member_at_large"}
+                  onValueChange={v => setRoleChoices({ ...roleChoices, [member.id]: v })}
+                >
+                  <SelectTrigger className="h-9 flex-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ROLE_LABELS).map(([val, label]) => (
+                      <SelectItem key={val} value={val}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => approve(member)} disabled={busyId === member.id} className="flex-1">
+                    {busyId === member.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
+                    Approve
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => reject(member)} disabled={busyId === member.id}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
