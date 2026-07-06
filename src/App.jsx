@@ -33,6 +33,7 @@ import HOABoard from '@/pages/hoa/HOABoard';
 import HOAHelp from '@/pages/hoa/HOAHelp';
 import HOAElections from '@/pages/hoa/HOAElections';
 import HomeDashboard from '@/pages/home/HomeDashboard';
+import HomeAccount from '@/pages/home/HomeAccount';
 import HomeRequests from '@/pages/home/HomeRequests';
 import HomeNewRequest from '@/pages/home/HomeNewRequest';
 import HomeRequestDetail from '@/pages/home/HomeRequestDetail';
@@ -113,6 +114,7 @@ const AuthenticatedApp = () => {
 
         <Route element={<HomeownerLayout />}>
           <Route path="/home/dashboard" element={<HomeDashboard />} />
+          <Route path="/home/account" element={<HomeAccount />} />
           <Route path="/home/requests" element={<HomeRequests />} />
           <Route path="/home/requests/new" element={<HomeNewRequest />} />
           <Route path="/home/requests/:id" element={<HomeRequestDetail />} />
