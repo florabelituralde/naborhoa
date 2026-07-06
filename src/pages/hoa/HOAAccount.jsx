@@ -9,7 +9,10 @@ import LegalLinks from "@/components/LegalLinks";
 export default function HOAAccount() {
   const { user, community } = useOutletContext();
 
-  if (!community) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  // Render the page as soon as we have the user. The plan/billing section
+  // depends on the community record, so it is gated separately — without this,
+  // a failed community fetch left the whole page stuck on a spinner (blank).
+  if (!user) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
     <div className="p-4 sm:p-8 max-w-3xl mx-auto">
@@ -28,7 +31,14 @@ export default function HOAAccount() {
 
       <div className="space-y-8">
         <AccountDetailsSection user={user} />
-        <PlanBillingSection community={community} />
+        {community ? (
+          <PlanBillingSection community={community} />
+        ) : (
+          <div className="bg-card rounded-2xl warm-shadow p-6">
+            <h2 className="font-semibold text-lg mb-2">Subscription &amp; Plan</h2>
+            <p className="text-sm text-muted-foreground">Loading your subscription details…</p>
+          </div>
+        )}
       </div>
 
       <div className="mt-8 pt-6 border-t border-border">
