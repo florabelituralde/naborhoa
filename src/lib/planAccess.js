@@ -62,6 +62,7 @@ export function hasModule(community, moduleId) {
 
 // Returns the gated module id for a nav item, or null if it's not gated.
 export function navItemModule(item) {
+  if (!item.path) return null;
   const segment = item.path.split("/").filter(Boolean).pop();
   return ROUTE_MODULE[segment] || null;
 }
