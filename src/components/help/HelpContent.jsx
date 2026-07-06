@@ -4,6 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import {
   HelpCircle, ChevronDown, Home, ClipboardList, Receipt, Wallet, Megaphone,
   Vote, Trophy, Calendar, FileText, Contact, MessageCircle, ListChecks, Users, Sparkles, ArrowRight,
+  Image as ImageIcon,
 } from "lucide-react";
 
 // Role-aware Help & FAQ content. `role` is "homeowner" or "hoa".
@@ -75,13 +76,20 @@ function FAQSection({ icon: Icon, title, steps, image, link, linkLabel, defaultO
       </button>
       {open && (
         <div className="px-5 pb-5 pt-0">
-          {image && (
+          {image ? (
             <img
               src={image}
-              alt={title}
+              alt={`Screenshot of ${title}`}
               className="w-full rounded-xl border border-border mb-4 object-cover"
             />
-          )}
+          ) : link ? (
+            <div className="w-full rounded-xl border border-dashed border-border bg-muted/30 mb-4 py-6 px-4 flex items-center gap-3 text-muted-foreground">
+              <ImageIcon className="w-5 h-5 shrink-0" />
+              <span className="text-xs">
+                Tip: open <strong>this page</strong> using the link below to see exactly how it looks.
+              </span>
+            </div>
+          ) : null}
           <ol className="space-y-2.5 ml-1">
             {steps.map((step, i) => (
               <li key={i} className="flex gap-3 text-sm">
@@ -113,7 +121,6 @@ const HOMEOWNER_SECTIONS = [
     title: "Submitting & tracking requests",
     link: "/home/requests/new",
     linkLabel: "Submit a new request",
-    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/0b830c811_generated_image.png",
     steps: [
       "Open <strong>My Requests</strong> from the sidebar and tap <strong>New Request</strong>.",
       "Choose the type of request (maintenance, fence modification, landscaping, etc.).",
@@ -128,7 +135,6 @@ const HOMEOWNER_SECTIONS = [
     title: "Paying your bills & dues",
     link: "/home/invoices",
     linkLabel: "Go to My Bills",
-    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/f8eff94cb_generated_image.png",
     steps: [
       "Go to <strong>My Bills</strong> to see all invoices, their amounts, and due dates.",
       "Tap a pending invoice and choose <strong>Pay</strong> to complete payment securely online.",
@@ -161,7 +167,6 @@ const HOMEOWNER_SECTIONS = [
     title: "Voting in polls & elections",
     link: "/home/polls",
     linkLabel: "Go to Polls",
-    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/32f042184_generated_image.png",
     steps: [
       "Open <strong>Polls</strong> to weigh in on community decisions before the deadline.",
       "Open <strong>Elections</strong> to review candidates and cast your vote for the board.",
@@ -187,7 +192,6 @@ const HOA_SECTIONS = [
     title: "Managing resident requests",
     link: "/hoa/requests",
     linkLabel: "Go to Requests",
-    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/0b830c811_generated_image.png",
     steps: [
       "Open <strong>Requests</strong> to see everything residents have submitted, filterable by status.",
       "Open a request to assign it to a staff member, start work, and mark it resolved.",
@@ -212,7 +216,6 @@ const HOA_SECTIONS = [
     title: "Invoicing & collecting dues",
     link: "/hoa/invoices",
     linkLabel: "Go to Invoices",
-    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/f8eff94cb_generated_image.png",
     steps: [
       "Open <strong>Invoices</strong> and tap <strong>New Invoice</strong> to bill a single homeowner.",
       "Use <strong>Bulk Invoice</strong> to send recurring monthly dues to every homeowner at once.",
