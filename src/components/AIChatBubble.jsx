@@ -106,7 +106,8 @@ Homeowner question: ${question}`;
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground warm-shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+          style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}
+          className="fixed right-5 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground warm-shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
           aria-label="Open HOA assistant"
         >
           <MessageCircle className="w-6 h-6" />
@@ -117,7 +118,7 @@ Homeowner question: ${question}`;
       {open && (
         <div className="fixed inset-0 z-50 w-full h-full bg-card flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0 safe-top safe-x">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                 <Sparkles className="w-4 h-4" />
@@ -206,7 +207,7 @@ Homeowner question: ${question}`;
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-border shrink-0">
+          <div className="p-3 border-t border-border shrink-0 safe-bottom safe-x">
             <div className="flex gap-2 max-w-2xl mx-auto">
               <input
                 type="text"

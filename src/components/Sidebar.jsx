@@ -146,7 +146,7 @@ export default function Sidebar({ navItems, user, community, communities, onSwit
       </aside>
 
       {/* Mobile top bar */}
-      <header className="md:hidden fixed top-0 inset-x-0 h-14 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4 z-40">
+      <header className="md:hidden fixed top-0 inset-x-0 h-14 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4 z-40 safe-x">
         <Link to="/">
           <NaborLogo iconClassName="w-7 h-7" textClassName="font-bold text-sidebar-foreground" />
         </Link>
@@ -166,7 +166,7 @@ export default function Sidebar({ navItems, user, community, communities, onSwit
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute top-0 left-0 h-full w-72 max-w-[85%] bg-sidebar border-r border-sidebar-border shadow-xl">
+          <aside className="absolute top-0 left-0 h-full w-72 max-w-[85%] bg-sidebar border-r border-sidebar-border shadow-xl safe-top">
             <button
               onClick={() => setMobileOpen(false)}
               className="absolute top-4 right-3 w-9 h-9 flex items-center justify-center rounded-lg text-sidebar-foreground hover:bg-sidebar-accent z-10"

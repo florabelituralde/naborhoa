@@ -1,0 +1,24 @@
+{
+  "name": "Nabor",
+  "short_name": "Nabor",
+  "description": "Your community, connected. Manage HOA requests, dues, announcements, events and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f4ee",
+  "theme_color": "#5c8065",
+  "icons": [
+    {
+      "src": "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/54ab2acf0_generated_image.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/54ab2acf0_generated_image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

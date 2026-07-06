@@ -90,6 +90,28 @@
   body {
     @apply bg-background text-foreground font-body;
     -webkit-font-smoothing: antialiased;
+    /* Prevent iOS text auto-resizing on orientation change */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Avoid horizontal overflow on small screens */
+  html, body {
+    overscroll-behavior-y: none;
+  }
+}
+
+@layer utilities {
+  /* Safe-area helpers for notched devices (iOS/Android app shells) */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 }
 
