@@ -14,19 +14,25 @@ export default function HomeownerLayout() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    base44.auth.me().then(u => {
-      if (!u.role || u.role !== "homeowner") {
-        navigate("/");
-        return;
+    (async () => {
+      try {
+        const u = await base44.auth.me();
+        if (!u.role || u.role !== "homeowner") {
+          navigate("/");
+          return;
+        }
+        if (!u.community_id) {
+          navigate("/join");
+          return;
+        }
+        setUser(u);
+        const c = await base44.entities.Community.get(u.community_id).catch(() => null);
+        setCommunity(c);
+        setLoading(false);
+      } catch {
+        navigate("/login");
       }
-      if (!u.community_id) {
-        navigate("/join");
-        return;
-      }
-      setUser(u);
-      base44.entities.Community.get(u.community_id).then(c => setCommunity(c)).catch(() => {});
-      setLoading(false);
-    }).catch(() => navigate("/login"));
+    })();
   }, []);
 
   if (loading || !user) {

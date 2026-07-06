@@ -18,7 +18,10 @@ export default function HomeAccount() {
   const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
-    if (!community) return;
+    if (!community) {
+      setLoading(false);
+      return;
+    }
     Promise.all([
       base44.entities.Request.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date"),
       base44.entities.Invoice.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date"),
@@ -27,8 +30,7 @@ export default function HomeAccount() {
       setRequests(reqs);
       setInvoices(invs);
       setSubscription(subs.length > 0 ? subs[0] : null);
-      setLoading(false);
-    });
+    }).finally(() => setLoading(false));
   }, [community, user]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
