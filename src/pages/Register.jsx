@@ -5,7 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2, Building2, Home, User } from "lucide-react";
+import { UserPlus, Mail, Lock, Loader2, Building2, Home, User, CheckCircle2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
@@ -24,6 +24,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [verified, setVerified] = useState(false);
   const [showIntro, setShowIntro] = useState(
     () => sessionStorage.getItem("naborIntroSeenRegister") !== "1"
   );
@@ -74,11 +75,14 @@ export default function Register() {
         ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
         ...(role === "homeowner" && isBoardMember ? { board_member_status: "pending" } : {}),
       });
-      // Logged in — route directly to the next setup step based on the role
-      // we just saved (HOA managers set up their community; homeowners join one).
-      // Using an explicit destination avoids a race where a fresh profile read
-      // hasn't picked up the just-saved role yet.
-      window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
+      // Logged in — show a brief confirmation, then route directly to the next
+      // setup step based on the role we just saved (HOA managers set up their
+      // community; homeowners join one). Using an explicit destination avoids a
+      // race where a fresh profile read hasn't picked up the just-saved role yet.
+      setVerified(true);
+      setTimeout(() => {
+        window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
+      }, 1200);
     } catch (err) {
       setError(err.message || "Invalid verification code");
       setLoading(false);
@@ -98,6 +102,26 @@ export default function Register() {
   const handleGoogle = () => {
     base44.auth.loginWithProvider("google", "/choose-role");
   };
+
+  if (verified) {
+    const isManager = role === "hoa_admin";
+    return (
+      <AuthLayout
+        icon={CheckCircle2}
+        title="You're all set!"
+        subtitle={isManager ? "Let's set up your community" : "Let's get you into your community"}
+      >
+        <div className="flex flex-col items-center text-center py-2">
+          <p className="text-sm text-muted-foreground mb-6">
+            {isManager
+              ? "Taking you to community setup — add your details, photos, and choose a plan."
+              : "Taking you to join your community with your community code."}
+          </p>
+          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+        </div>
+      </AuthLayout>
+    );
+  }
 
   if (showOtp) {
     return (
