@@ -104,6 +104,26 @@
 }
 
 @layer utilities {
+  /* WebView: disable text selection + tap highlight on interactive controls,
+     while preserving normal text selection in paragraphs/announcements. */
+  button,
+  a,
+  [role="button"],
+  [role="tab"],
+  label,
+  svg,
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Re-enable selection for readable content and form fields. */
+  p, span.selectable, .allow-select, input, textarea, [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
   /* Safe-area helpers for notched devices (iOS/Android app shells) */
   .safe-top {
     padding-top: env(safe-area-inset-top);

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -162,6 +163,19 @@ const AuthenticatedApp = () => {
 
 
 function App() {
+
+  // Observe the OS-level color scheme and mirror it onto <html> as `.dark`,
+  // so the app follows system dark mode inside iOS/Android WebViews.
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = (matches) => {
+      document.documentElement.classList.toggle('dark', matches);
+    };
+    apply(mq.matches);
+    const handler = (e) => apply(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   return (
     <AuthProvider>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import MobileTopHeader from "@/components/mobile/MobileTopHeader";
 import { Loader2, ArrowLeft, Check, X, Play, FileText } from "lucide-react";
 import { formatDate } from "@/lib/format";
 
@@ -91,8 +92,10 @@ export default function HOARequestDetail() {
   if (!request) return <div className="p-8 text-center text-muted-foreground">Request not found</div>;
 
   return (
+    <>
+    <MobileTopHeader title={request.title} backTo="/hoa/requests" />
     <div className="p-4 sm:p-8 max-w-3xl mx-auto">
-      <button onClick={() => navigate("/hoa/requests")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
+      <button onClick={() => navigate("/hoa/requests")} className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to Requests
       </button>
 
@@ -199,5 +202,6 @@ export default function HOARequestDetail() {
         </div>
       </div>
     </div>
+    </>
   );
 }

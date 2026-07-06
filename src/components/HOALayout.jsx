@@ -2,11 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
+import BottomNav from "@/components/mobile/BottomNav";
+import PageTransition from "@/components/mobile/PageTransition";
+import { useLocation } from "react-router-dom";
 import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, UserCheck, Calendar, Contact, Trophy, HelpCircle, Loader2, CreditCard } from "lucide-react";
 import { markNavLocks } from "@/lib/planAccess";
 
 export default function HOALayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [community, setCommunity] = useState(null);
   const [communities, setCommunities] = useState([]);
@@ -75,12 +79,25 @@ export default function HOALayout() {
 
   const visibleNav = markNavLocks(navItems, community);
 
+  // Key mobile destinations for the native-style bottom tab bar.
+  const bottomNavItems = [
+    { path: "/hoa/dashboard", label: "Home", icon: LayoutDashboard },
+    { path: "/hoa/requests", label: "Requests", icon: ClipboardList },
+    { path: "/hoa/invoices", label: "Invoices", icon: Receipt },
+    ...(isAdmin
+      ? [{ path: "/hoa/account", label: "Account", icon: UserCircle }]
+      : [{ path: "/hoa/help", label: "Help", icon: HelpCircle }]),
+  ];
+
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar navItems={visibleNav} user={user} community={community} communities={communities} onSwitchCommunity={handleSwitchCommunity} />
-      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
-        <Outlet context={{ user, community }} />
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0 pb-16 md:pb-0">
+        <PageTransition key={location.pathname}>
+          <Outlet context={{ user, community }} />
+        </PageTransition>
       </main>
+      <BottomNav items={bottomNavItems} />
     </div>
   );
 }

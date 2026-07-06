@@ -4,11 +4,15 @@ import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
 import AIChatBubble from "@/components/AIChatBubble";
 import NotificationBell from "@/components/NotificationBell";
-import { LayoutDashboard, LayoutGrid, Wallet, Receipt, Megaphone, Vote, FileText, Calendar, Contact, Trophy, HelpCircle, UserCircle, Loader2 } from "lucide-react";
+import BottomNav from "@/components/mobile/BottomNav";
+import PageTransition from "@/components/mobile/PageTransition";
+import { LayoutDashboard, LayoutGrid, Home, ClipboardList, Wallet, Receipt, Megaphone, Vote, FileText, Calendar, Contact, Trophy, HelpCircle, UserCircle, Loader2 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { markNavLocks } from "@/lib/planAccess";
 
 export default function HomeownerLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [community, setCommunity] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,15 +71,26 @@ export default function HomeownerLayout() {
 
   const visibleNav = markNavLocks(navItems, community);
 
+  // Key mobile destinations for the native-style bottom tab bar.
+  const bottomNavItems = [
+    { path: "/home/dashboard", label: "Home", icon: Home },
+    { path: "/home/requests", label: "Requests", icon: ClipboardList },
+    { path: "/home/invoices", label: "Bills", icon: Receipt },
+    { path: "/home/account", label: "Account", icon: UserCircle },
+  ];
+
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar navItems={visibleNav} user={user} community={community} />
-      <main className="flex-1 overflow-y-auto pt-14 md:pt-0 relative">
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0 pb-16 md:pb-0 relative">
         <div className="hidden md:block absolute top-4 right-6 z-20">
           <NotificationBell user={user} />
         </div>
-        <Outlet context={{ user, community }} />
+        <PageTransition key={location.pathname}>
+          <Outlet context={{ user, community }} />
+        </PageTransition>
       </main>
+      <BottomNav items={bottomNavItems} />
       <AIChatBubble user={user} community={community} />
     </div>
   );
