@@ -36,7 +36,6 @@ export default function Onboarding() {
       // Prefill the org/community name captured during registration.
       if (u.pending_org_name) {
         setOrg(o => ({ ...o, name: u.pending_org_name }));
-        setCommunity(c => ({ ...c, name: u.pending_org_name }));
       }
       setLoading(false);
     }).catch(() => navigate("/login"));
@@ -48,6 +47,7 @@ export default function Onboarding() {
       const orgRecord = await base44.entities.Organization.create(org);
       await base44.auth.updateMe({ organization_id: orgRecord.id });
       setUser({ ...user, organization_id: orgRecord.id });
+      setCommunity(c => ({ ...c, name: org.name }));
       setStep(2);
     } catch (err) {
       console.error(err);
@@ -230,13 +230,9 @@ export default function Onboarding() {
           {step === 2 && (
             <div className="bg-card rounded-2xl warm-shadow-md p-8">
               <h2 className="text-2xl font-bold mb-1">Create your community</h2>
-              <p className="text-muted-foreground mb-6">Set up the neighborhood you'll manage</p>
+              <p className="text-muted-foreground mb-6">Where is {org.name || "your community"} located?</p>
               {dupError && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{dupError}</div>}
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="commName">Community Name</Label>
-                  <Input id="commName" value={community.name} onChange={e => setCommunity({ ...community, name: e.target.value })} placeholder="Maple Street Estates" className="mt-1.5 h-11" />
-                </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="col-span-2">
                     <Label htmlFor="commCity">City</Label>
@@ -259,7 +255,7 @@ export default function Onboarding() {
                   <Button type="button" variant="outline" onClick={() => setStep(1)} className="h-12">
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back
                   </Button>
-                  <Button onClick={handleCommunityContinue} disabled={!community.name || submitting} className="flex-1 h-12">
+                  <Button onClick={handleCommunityContinue} disabled={!community.city || submitting} className="flex-1 h-12">
                     {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                     Continue <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>

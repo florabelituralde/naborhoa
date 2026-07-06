@@ -13,7 +13,7 @@ export default function HOADashboard() {
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState([]);
   const [invoices, setInvoices] = useState([]);
-  const [homeowners, setHomeowners] = useState([]);
+  const [homeownerCount, setHomeownerCount] = useState(0);
   const [announcements, setAnnouncements] = useState([]);
   const [expenses, setExpenses] = useState([]);
 
@@ -22,13 +22,13 @@ export default function HOADashboard() {
     Promise.all([
       base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
       base44.entities.Invoice.filter({ community_id: community.id }, "-created_date", 500),
-      base44.entities.User.filter({ community_id: community.id, role: "homeowner" }),
+      base44.functions.invoke("get-community-homeowners", {}).then(r => r.data?.count || 0).catch(() => 0),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 5),
       base44.entities.Expense.filter({ community_id: community.id }, "-created_date", 500),
-    ]).then(([reqs, invs, homes, anns, exps]) => {
+    ]).then(([reqs, invs, homeCount, anns, exps]) => {
       setRequests(reqs);
       setInvoices(invs);
-      setHomeowners(homes);
+      setHomeownerCount(homeCount);
       setAnnouncements(anns);
       setExpenses(exps);
       setLoading(false);
@@ -86,7 +86,7 @@ export default function HOADashboard() {
         <StatCard icon={ClipboardList} value={openRequests} label="Open Requests" colorClass="bg-primary/10 text-primary" />
         <StatCard icon={ClipboardList} value={inProgress} label="In Progress" colorClass="bg-amber-100 text-amber-700" />
         <StatCard icon={DollarSign} value={formatCurrency(pendingTotal)} label="Outstanding" colorClass="bg-blue-50 text-blue-600" />
-        <StatCard icon={Users} value={homeowners.length} label="Homeowners" colorClass="bg-green-50 text-green-600" />
+        <StatCard icon={Users} value={homeownerCount} label="Homeowners" colorClass="bg-green-50 text-green-600" />
       </div>
 
       <div className="mb-6">
