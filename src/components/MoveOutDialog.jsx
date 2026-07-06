@@ -39,15 +39,10 @@ export default function MoveOutDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="bg-card rounded-2xl warm-shadow p-6 hover:warm-shadow-md transition-all flex items-center gap-4 cursor-pointer border border-border">
-          <div className="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-            <LogOut className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="font-semibold">Moving Out / Selling</p>
-            <p className="text-sm text-muted-foreground">Notify the HOA and end your membership</p>
-          </div>
-        </div>
+        <button className="w-full flex items-center justify-center gap-2 rounded-xl bg-destructive text-destructive-foreground px-4 py-2.5 text-sm font-medium hover:bg-destructive/90 transition-colors">
+          <LogOut className="w-4 h-4" />
+          Moving Out / Selling
+        </button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
