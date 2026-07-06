@@ -106,7 +106,7 @@ export default function HomeNewRequest() {
           <PageHeader title="New Request" subtitle="Choose the type of request you'd like to submit" />
           {types.length === 0 ? (
             <div className="bg-card rounded-2xl warm-shadow p-12 text-center">
-              <p className="text-muted-foreground">Your HOA hasn't set up any request types yet. Please check back soon.</p>
+              <p className="text-muted-foreground">No request types are available yet. Please reach out to your HOA admins to enable requests for your community.</p>
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 gap-3">
