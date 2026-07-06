@@ -26,12 +26,12 @@ export function NaborMark({ className = "w-8 h-8" }) {
       aria-label="Nabor"
       role="img"
     >
-      {/* Solid roof */}
+      {/* Roof line */}
       <path
-        d="M6 19 L24 5 L42 19 Z"
-        fill="currentColor"
+        d="M6 19 L24 5 L42 19"
         stroke="currentColor"
-        strokeWidth="3"
+        strokeWidth="6.5"
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
       {/* Bold letter N */}
