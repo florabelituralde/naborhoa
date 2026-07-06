@@ -15,6 +15,7 @@ import LegalLinks from "@/components/LegalLinks";
 import { toast } from "@/components/ui/use-toast";
 import useRedirectIfAuthed from "@/hooks/useRedirectIfAuthed";
 import GuestAccess from "@/components/auth/GuestAccess";
+import { friendlyAuthError, isUnverifiedError } from "@/lib/authErrors";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -48,14 +49,14 @@ export default function Login() {
     setError("");
     setOtpLoading(true);
     try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
+      const result = await base44.auth.verifyOtp({ email: email.trim(), otpCode });
       if (!result?.access_token) {
         throw new Error("Verification failed. Please try again.");
       }
       base44.auth.setToken(result.access_token);
       window.location.href = "/";
     } catch (err) {
-      setError(err.message || "Verification failed. Please try again.");
+      setError(friendlyAuthError(err, "Verification failed. Please try again."));
     } finally {
       setOtpLoading(false);
     }
@@ -65,11 +66,11 @@ export default function Login() {
     if (resendCooldown > 0) return;
     setError("");
     try {
-      await base44.auth.resendOtp(email);
+      await base44.auth.resendOtp(email.trim());
       setResendCooldown(30);
       toast({ title: "Code sent", description: "Check your email for the new code." });
     } catch (err) {
-      setError(err.message || "Failed to resend code");
+      setError(friendlyAuthError(err, "Failed to resend code"));
     }
   };
 
@@ -86,23 +87,24 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await base44.auth.loginViaEmailPassword(email, password);
+      await base44.auth.loginViaEmailPassword(email.trim(), password);
       window.location.href = "/";
     } catch (err) {
-      const msg = err.message || "Invalid email or password";
       // If the account exists but the email was never verified, jump to the
       // OTP screen so the user can verify and get in without leaving login.
-      if (/verif/i.test(msg)) {
+      if (isUnverifiedError(err)) {
         setError("");
         setShowOtp(true);
         setOtpPending(true);
         try {
-          await base44.auth.resendOtp(email);
+          await base44.auth.resendOtp(email.trim());
           setResendCooldown(30);
-        } catch {}
+        } catch (resendErr) {
+          toast({ title: "Couldn't send code", description: friendlyAuthError(resendErr), variant: "destructive" });
+        }
         setOtpPending(false);
       } else {
-        setError(msg);
+        setError(friendlyAuthError(err, "Incorrect email or password. Please try again."));
       }
     } finally {
       setLoading(false);
@@ -119,7 +121,7 @@ export default function Login() {
 
   if (showOtp) {
     return (
-      <AuthLayout icon={Mail} title="Verify your email" subtitle={otpPending ? `Sending a code to ${email}…` : `We sent a code to ${email}`}>
+      <AuthLayout icon={Mail} title="Verify your email" subtitle={otpPending ? `Sending a code to ${email.trim()}…` : `We sent a code to ${email.trim()}`}>
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>
         )}

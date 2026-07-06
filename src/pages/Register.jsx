@@ -18,6 +18,7 @@ import { writeTrust } from "@/lib/deviceTrust";
 import BiometricEnrollment from "@/components/auth/BiometricEnrollment";
 import useRedirectIfAuthed from "@/hooks/useRedirectIfAuthed";
 import GuestAccess from "@/components/auth/GuestAccess";
+import { friendlyAuthError } from "@/lib/authErrors";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -87,19 +88,17 @@ export default function Register() {
     // progress instead of a frozen form while the register request runs.
     setShowOtp(true);
     setOtpPending(true);
+    setLoading(true);
     try {
-      await base44.auth.register({ email, password });
+      await base44.auth.register({ email: email.trim(), password });
       setOtpPending(false);
       setResendCooldown(30);
     } catch (err) {
       setShowOtp(false);
       setOtpPending(false);
-      const msg = err.message || "Registration failed";
-      if (/already|exist|registered/i.test(msg)) {
-        setError("An account with this email already exists. Try logging in instead.");
-      } else {
-        setError(msg);
-      }
+      setError(friendlyAuthError(err, "Registration failed. Please try again."));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,7 +106,7 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
+      const result = await base44.auth.verifyOtp({ email: email.trim(), otpCode });
       if (!result?.access_token) {
         throw new Error("Verification failed. Please try again.");
       }
@@ -138,7 +137,7 @@ export default function Register() {
         }
       })();
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(friendlyAuthError(err, "Something went wrong. Please try again."));
       setLoading(false);
     }
   };
@@ -147,11 +146,11 @@ export default function Register() {
     if (resendCooldown > 0) return;
     setError("");
     try {
-      await base44.auth.resendOtp(email);
+      await base44.auth.resendOtp(email.trim());
       setResendCooldown(30);
       toast({ title: "Code sent", description: "Check your email for the new code." });
     } catch (err) {
-      setError(err.message || "Failed to resend code");
+      setError(friendlyAuthError(err, "Failed to resend code"));
     }
   };
 
@@ -188,7 +187,7 @@ export default function Register() {
 
   if (showOtp) {
     return (
-      <AuthLayout icon={Mail} title="Verify your email" subtitle={otpPending ? `Sending a code to ${email}…` : `We sent a code to ${email}`}>
+      <AuthLayout icon={Mail} title="Verify your email" subtitle={otpPending ? `Sending a code to ${email.trim()}…` : `We sent a code to ${email.trim()}`}>
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>
         )}
