@@ -63,6 +63,14 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
     return () => window.removeEventListener("open-ai-chat", handleOpen);
   }, []);
 
+  // Close on Escape (keyboard fallback)
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   const sendMessage = async (question) => {
     if (!question.trim() || thinking) return;
     const userMsg = { role: "user", content: question, community_id: community.id, user_id: user.id };
@@ -147,8 +155,9 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
               </div>
             </div>
             <button
-              onClick={() => setOpen(false)}
-              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 active:bg-white/25 touch-manipulation"
+              type="button"
+              onPointerDown={(e) => { e.preventDefault(); setOpen(false); }}
+              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-white/15 hover:bg-white/25 active:bg-white/30 touch-manipulation"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
