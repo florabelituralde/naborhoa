@@ -105,6 +105,15 @@
 }
 
 @layer utilities {
+  /* Hide scrollbars visually while keeping scroll functionality. */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* WebView: disable text selection + tap highlight on interactive controls,
      while preserving normal text selection in paragraphs/announcements. */
   button,

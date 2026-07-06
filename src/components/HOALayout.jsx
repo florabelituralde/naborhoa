@@ -93,7 +93,7 @@ export default function HOALayout() {
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar navItems={visibleNav} user={user} community={community} communities={communities} onSwitchCommunity={handleSwitchCommunity} />
-      <main className="flex-1 overflow-y-auto pt-14 md:pt-0 pb-16 md:pb-0">
+      <main className="flex-1 overflow-y-auto no-scrollbar pt-14 md:pt-0 pb-16 md:pb-0">
         <PageTransition key={location.pathname}>
           <Outlet context={{ user, community }} />
         </PageTransition>
