@@ -30,7 +30,7 @@ export default function HomeAccount() {
       setRequests(reqs);
       setInvoices(invs);
       setSubscription(subs.length > 0 ? subs[0] : null);
-    }).finally(() => setLoading(false));
+    }).catch(() => {}).finally(() => setLoading(false));
   }, [community, user]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;

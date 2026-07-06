@@ -125,7 +125,7 @@ export default function HomeDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <CommunityCalendar invoices={[]} events={events} />
-        <AIChatWidget />
+        <AIChatWidget community={community} />
       </div>
 
       {/* Board member request status */}

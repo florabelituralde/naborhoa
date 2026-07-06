@@ -49,8 +49,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
       setBoardMembers(board);
       // CC the board members (excluding the primary recipient to avoid duplicates)
       setCcEmails(boardEmails.filter(e => e !== primary));
-      setLoading(false);
-    });
+    }).catch(() => {}).finally(() => setLoading(false));
   }, [community, user]);
 
   useEffect(() => {
