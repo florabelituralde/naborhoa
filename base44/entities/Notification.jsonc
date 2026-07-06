@@ -16,7 +16,8 @@
         "announcement",
         "poll_deadline",
         "payment_confirmed",
-        "election"
+        "election",
+        "membership_request"
       ]
     },
     "title": {

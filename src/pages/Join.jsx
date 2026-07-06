@@ -63,7 +63,7 @@ export default function Join() {
   const joinCommunity = async () => {
     setSubmitting(true);
     try {
-      await base44.entities.JoinRequest.create({
+      const created = await base44.entities.JoinRequest.create({
         community_id: community.id,
         community_name: community.name,
         homeowner_id: user.id,
@@ -72,6 +72,7 @@ export default function Join() {
         address: address,
         status: "pending",
       });
+      base44.functions.invoke("notify-join-request", { request_id: created.id }).catch(() => {});
       navigate("/pending-approval");
     } catch (err) {
       setError(err.message || "Failed to submit request");

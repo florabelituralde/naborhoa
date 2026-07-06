@@ -3,9 +3,10 @@ import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
-import { ClipboardList, DollarSign, Users, Loader2, Sparkles } from "lucide-react";
+import { ClipboardList, DollarSign, Users, Loader2, Sparkles, UserPlus } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import FinancialOverviewChart from "@/components/hoa/FinancialOverviewChart";
+import JoinRequestsSection from "@/components/JoinRequestsSection";
 import { isInTrial, trialDaysLeft } from "@/lib/planAccess";
 
 export default function HOADashboard() {
@@ -16,6 +17,7 @@ export default function HOADashboard() {
   const [members, setMembers] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [pendingJoins, setPendingJoins] = useState(0);
 
   useEffect(() => {
     if (!community) return;
@@ -25,12 +27,14 @@ export default function HOADashboard() {
       base44.functions.invoke("get-community-homeowners", {}).then(r => r.data?.members || []).catch(() => []),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 5),
       base44.entities.Expense.filter({ community_id: community.id }, "-created_date", 500),
-    ]).then(([reqs, invs, mems, anns, exps]) => {
+      base44.functions.invoke("get-join-requests", {}).then(r => (r.data?.requests || []).filter(x => x.status === "pending").length).catch(() => 0),
+    ]).then(([reqs, invs, mems, anns, exps, pending]) => {
       setRequests(reqs);
       setInvoices(invs);
       setMembers(mems);
       setAnnouncements(anns);
       setExpenses(exps);
+      setPendingJoins(pending);
       setLoading(false);
     });
   }, [community]);
@@ -84,9 +88,13 @@ export default function HOADashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard icon={ClipboardList} value={openRequests} label="Open Requests" colorClass="bg-primary/10 text-primary" />
-        <StatCard icon={ClipboardList} value={inProgress} label="In Progress" colorClass="bg-amber-100 text-amber-700" />
+        <StatCard icon={UserPlus} value={pendingJoins} label="Pending Requests" colorClass="bg-amber-100 text-amber-700" />
         <StatCard icon={DollarSign} value={formatCurrency(pendingTotal)} label="Outstanding" colorClass="bg-blue-50 text-blue-600" />
         <StatCard icon={Users} value={members.length} label="Homeowners" colorClass="bg-green-50 text-green-600" />
+      </div>
+
+      <div className="mb-6">
+        <JoinRequestsSection />
       </div>
 
       <div className="mb-6">
