@@ -11,6 +11,14 @@ import { Loader2, Upload, Check, RefreshCw, X, Download } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { exportPaymentStatement } from "@/lib/exportStatement";
 
+// Auto-pay frequency options. Amount is derived from the community's monthly dues.
+const FREQ_OPTIONS = [
+  { value: "MONTH", label: "Monthly", multiplier: 1 },
+  { value: "QUARTER", label: "Quarterly", multiplier: 3 },
+  { value: "YEAR", label: "Annual", multiplier: 12 },
+];
+const freqLabel = (v) => FREQ_OPTIONS.find((f) => f.value === v)?.label || "Monthly";
+
 export default function HomeInvoices() {
   const { user, community } = useOutletContext();
   const [loading, setLoading] = useState(true);
@@ -55,12 +63,13 @@ export default function HomeInvoices() {
   const handleSetupAutopay = async () => {
     setSettingUpAutopay(true);
     try {
-      const amount = autopayFreq === "MONTH" ? (community.monthly_dues || 45) : (community.monthly_dues || 45) * 12;
+      const opt = FREQ_OPTIONS.find((f) => f.value === autopayFreq) || FREQ_OPTIONS[0];
+      const amount = (community.monthly_dues || 45) * opt.multiplier;
       const res = await base44.functions.invoke("create-checkout", {
         community_id: community.id,
         join_code: community.join_code,
         amount,
-        description: `HOA Dues Auto-Pay (${autopayFreq === "MONTH" ? "Monthly" : "Annual"}) - ${community.name}`,
+        description: `HOA Dues Auto-Pay (${opt.label}) - ${community.name}`,
         frequency: autopayFreq,
         homeowner_id: user.id,
       });
@@ -104,7 +113,7 @@ export default function HomeInvoices() {
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"><RefreshCw className="w-5 h-5 text-primary" /></div>
               <div>
                 <p className="font-semibold">Auto-Pay Active</p>
-                <p className="text-sm text-muted-foreground">{subscription.frequency === "MONTH" ? "Monthly" : "Annual"} • ${(subscription.amount || 0).toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">{freqLabel(subscription.frequency)} • ${(subscription.amount || 0).toFixed(2)}</p>
               </div>
             </div>
             <Button variant="outline" size="sm" onClick={handleCancelAutopay}><X className="w-4 h-4 mr-1" /> Cancel</Button>
@@ -201,15 +210,17 @@ export default function HomeInvoices() {
           <DialogHeader><DialogTitle>Set Up Auto-Pay</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">Choose your payment frequency. Your dues will be automatically charged each cycle.</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => setAutopayFreq("MONTH")} className={`p-4 rounded-xl border-2 text-center transition-all ${autopayFreq === "MONTH" ? "border-primary bg-primary/5" : "border-border"}`}>
-                <p className="font-semibold">${(community?.monthly_dues || 45).toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">Monthly</p>
-              </button>
-              <button onClick={() => setAutopayFreq("YEAR")} className={`p-4 rounded-xl border-2 text-center transition-all ${autopayFreq === "YEAR" ? "border-primary bg-primary/5" : "border-border"}`}>
-                <p className="font-semibold">${((community?.monthly_dues || 45) * 12).toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">Annual</p>
-              </button>
+            <div className="grid grid-cols-3 gap-3">
+              {FREQ_OPTIONS.map((f) => (
+                <button
+                  key={f.value}
+                  onClick={() => setAutopayFreq(f.value)}
+                  className={`p-4 rounded-xl border-2 text-center transition-all ${autopayFreq === f.value ? "border-primary bg-primary/5" : "border-border"}`}
+                >
+                  <p className="font-semibold">${((community?.monthly_dues || 45) * f.multiplier).toFixed(2)}</p>
+                  <p className="text-xs text-muted-foreground">{f.label}</p>
+                </button>
+              ))}
             </div>
             <Button onClick={handleSetupAutopay} disabled={settingUpAutopay} className="w-full">
               {settingUpAutopay && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

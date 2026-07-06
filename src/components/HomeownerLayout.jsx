@@ -37,20 +37,25 @@ export default function HomeownerLayout() {
     );
   }
 
+  // Top-level items are the everyday essentials; the rest are grouped into
+  // collapsible sections so the sidebar stays focused.
   const navItems = [
     { path: "/home/dashboard", label: "Community", icon: LayoutDashboard },
     ...(user.board_member_status === "approved"
       ? [{ path: "/home/board-hub", label: "Board Hub", icon: LayoutGrid }]
       : []),
-    { path: "/home/account", label: "My Account", icon: UserCircle },
-    { path: "/home/expenses", label: "Community Finances", icon: Wallet },
     { path: "/home/announcements", label: "Announcements", icon: Megaphone },
-    { path: "/home/polls", label: "Polls", icon: Vote },
-    { path: "/home/elections", label: "Elections", icon: Trophy },
-    { path: "/home/events", label: "Events", icon: Calendar },
-    { path: "/home/documents", label: "Documents", icon: FileText },
-    { path: "/home/board", label: "Board", icon: Contact },
-    { path: "/home/help", label: "Help & FAQ", icon: HelpCircle },
+    { path: "/home/account", label: "My Account", icon: UserCircle },
+
+    { path: "/home/expenses", label: "Community Finances", icon: Wallet, group: "Finances" },
+
+    { path: "/home/polls", label: "Polls", icon: Vote, group: "Get Involved" },
+    { path: "/home/elections", label: "Elections", icon: Trophy, group: "Get Involved" },
+    { path: "/home/events", label: "Events", icon: Calendar, group: "Get Involved" },
+
+    { path: "/home/documents", label: "Documents", icon: FileText, group: "Resources" },
+    { path: "/home/board", label: "Board", icon: Contact, group: "Resources" },
+    { path: "/home/help", label: "Help & FAQ", icon: HelpCircle, group: "Resources" },
   ];
 
   const visibleNav = markNavLocks(navItems, community);

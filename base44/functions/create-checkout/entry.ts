@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     const WIX_API_KEY = Deno.env.get("WIX_PAYMENTS_API_KEY");
     const WIX_SITE_ID = Deno.env.get("WIX_PAYMENTS_SITE_ID");
 
-    const isSubscription = frequency === "MONTH" || frequency === "YEAR";
+    const isSubscription = frequency === "MONTH" || frequency === "QUARTER" || frequency === "YEAR";
 
     const item = {
       name: description || "HOA Dues Payment",
@@ -27,12 +27,17 @@ Deno.serve(async (req) => {
     };
 
     if (isSubscription) {
+      // Wix has no native quarterly frequency — model it as MONTH with interval 3.
+      const settings =
+        frequency === "QUARTER"
+          ? { frequency: "MONTH", interval: 3 }
+          : { frequency };
+      const freqLabel =
+        frequency === "MONTH" ? "monthly" : frequency === "QUARTER" ? "quarterly" : "annual";
       item.subscriptionInfo = {
-        subscriptionSettings: {
-          frequency: frequency,
-        },
+        subscriptionSettings: settings,
         title: description || "HOA Dues Auto-Pay",
-        description: `Automatic ${frequency === "MONTH" ? "monthly" : "annual"} HOA dues payment`,
+        description: `Automatic ${freqLabel} HOA dues payment`,
       };
     }
 

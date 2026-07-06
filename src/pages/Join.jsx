@@ -4,7 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Home, Loader2, Check, Search, MapPin } from "lucide-react";
+import { Home, Loader2, Check, Search, MapPin, KeyRound } from "lucide-react";
+import JoinByCode from "@/components/JoinByCode";
 
 export default function Join() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function Join() {
   const [searched, setSearched] = useState(false);
   const [searching, setSearching] = useState(false);
   const [community, setCommunity] = useState(null);
+  const [mode, setMode] = useState("code");
   const [address, setAddress] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -98,7 +100,27 @@ export default function Join() {
           {!community ? (
             <div className="bg-card rounded-2xl warm-shadow-md p-8">
               <h2 className="text-2xl font-bold mb-1">Find your community</h2>
-              <p className="text-muted-foreground mb-6">Search by neighborhood name, city, state, or zip code</p>
+              <p className="text-muted-foreground mb-6">Enter your community's join code, or search by name or location</p>
+
+              <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-muted mb-6">
+                <button
+                  onClick={() => { setMode("code"); setError(""); }}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${mode === "code" ? "bg-card warm-shadow text-foreground" : "text-muted-foreground"}`}
+                >
+                  <KeyRound className="w-4 h-4" /> Join Code
+                </button>
+                <button
+                  onClick={() => { setMode("search"); setError(""); }}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${mode === "search" ? "bg-card warm-shadow text-foreground" : "text-muted-foreground"}`}
+                >
+                  <Search className="w-4 h-4" /> Search
+                </button>
+              </div>
+
+              {mode === "code" ? (
+                <JoinByCode onFound={(c) => { setCommunity(c); setError(""); }} />
+              ) : (
+              <>
               {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
               <div className="space-y-4">
                 <div>
@@ -131,6 +153,8 @@ export default function Join() {
                   ))}
                 </div>
               )}
+              </>
+              )}
             </div>
           ) : (
             <div className="bg-card rounded-2xl warm-shadow-md overflow-hidden">
@@ -162,7 +186,7 @@ export default function Join() {
                   Request to Join
                 </Button>
                 <button onClick={() => { setCommunity(null); setError(""); setResults([]); setSearched(false); }} className="w-full text-sm text-muted-foreground hover:text-foreground">
-                  Back to search
+                  Choose a different community
                 </button>
               </div>
               </div>

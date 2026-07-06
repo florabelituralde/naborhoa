@@ -1,13 +1,75 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { LogOut, Menu, X, Lock } from "lucide-react";
+import { LogOut, Menu, X, Lock, ChevronDown } from "lucide-react";
 import NaborLogo from "@/components/NaborLogo";
 import NotificationBell from "@/components/NotificationBell";
 import CommunitySwitcher from "@/components/CommunitySwitcher";
 
+function NavLinkItem({ item, active, onNavigate }) {
+  if (item.locked) {
+    return (
+      <div
+        title="Not available on your community's plan"
+        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground/60 cursor-not-allowed select-none"
+      >
+        <item.icon className="w-5 h-5" />
+        <span className="flex-1">{item.label}</span>
+        <Lock className="w-4 h-4" />
+      </div>
+    );
+  }
+  return (
+    <Link
+      to={item.path}
+      onClick={onNavigate}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${active ? "bg-primary text-primary-foreground warm-shadow" : "text-sidebar-foreground hover:bg-sidebar-accent"}`}
+    >
+      <item.icon className="w-5 h-5" />
+      {item.label}
+    </Link>
+  );
+}
+
+function NavGroup({ title, items, pathname, onNavigate }) {
+  const hasActive = items.some((i) => i.path === pathname);
+  const [open, setOpen] = useState(hasActive);
+
+  useEffect(() => {
+    if (hasActive) setOpen(true);
+  }, [hasActive]);
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-2 px-3 pt-4 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <span className="flex-1 text-left">{title}</span>
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? "" : "-rotate-90"}`} />
+      </button>
+      {open && (
+        <div className="space-y-1">
+          {items.map((item) => (
+            <NavLinkItem key={item.path} item={item} active={pathname === item.path} onNavigate={onNavigate} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SidebarContent({ navItems, user, community, communities, onSwitchCommunity, onNavigate }) {
   const location = useLocation();
+
+  const topLevel = navItems.filter((i) => !i.group);
+  const groupOrder = [];
+  const grouped = {};
+  navItems.forEach((i) => {
+    if (!i.group) return;
+    if (!grouped[i.group]) { grouped[i.group] = []; groupOrder.push(i.group); }
+    grouped[i.group].push(i);
+  });
 
   const handleLogout = async () => {
     await base44.auth.logout();
@@ -37,33 +99,12 @@ function SidebarContent({ navItems, user, community, communities, onSwitchCommun
       ) : null}
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navItems.map(item => {
-          const active = location.pathname === item.path;
-          if (item.locked) {
-            return (
-              <div
-                key={item.path}
-                title="Not available on your community's plan"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground/60 cursor-not-allowed select-none"
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="flex-1">{item.label}</span>
-                <Lock className="w-4 h-4" />
-              </div>
-            );
-          }
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={onNavigate}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${active ? "bg-primary text-primary-foreground warm-shadow" : "text-sidebar-foreground hover:bg-sidebar-accent"}`}
-            >
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </Link>
-          );
-        })}
+        {topLevel.map((item) => (
+          <NavLinkItem key={item.path} item={item} active={location.pathname === item.path} onNavigate={onNavigate} />
+        ))}
+        {groupOrder.map((title) => (
+          <NavGroup key={title} title={title} items={grouped[title]} pathname={location.pathname} onNavigate={onNavigate} />
+        ))}
       </nav>
 
       <div className="px-3 py-4 border-t border-sidebar-border">

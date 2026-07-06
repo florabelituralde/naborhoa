@@ -48,25 +48,30 @@ export default function HOALayout() {
     );
   }
 
+  const isAdmin = user.role === "hoa_admin";
+  // Top-level items are the everyday essentials; the rest are grouped into
+  // collapsible sections so the sidebar stays focused.
   const navItems = [
     { path: "/hoa/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/hoa/members", label: "Members", icon: UserCheck },
     { path: "/hoa/requests", label: "Requests", icon: ClipboardList },
-    { path: "/hoa/request-types", label: "Request Types", icon: ListChecks },
-    { path: "/hoa/invoices", label: "Invoices", icon: Receipt },
-    { path: "/hoa/expenses", label: "Expenses", icon: Wallet },
     { path: "/hoa/announcements", label: "Announcements", icon: Megaphone },
-    { path: "/hoa/polls", label: "Polls", icon: Vote },
-    { path: "/hoa/elections", label: "Elections", icon: Trophy },
-    { path: "/hoa/events", label: "Events", icon: Calendar },
-    { path: "/hoa/documents", label: "Documents", icon: FileText },
-    { path: "/hoa/help", label: "Help & FAQ", icon: HelpCircle },
+
+    { path: "/hoa/members", label: "Members", icon: UserCheck, group: "People" },
+    ...(isAdmin ? [{ path: "/hoa/community", label: "Community", icon: Users, group: "People" }] : []),
+    ...(isAdmin ? [{ path: "/hoa/board", label: "Board", icon: Contact, group: "People" }] : []),
+
+    { path: "/hoa/invoices", label: "Invoices", icon: Receipt, group: "Finances" },
+    { path: "/hoa/expenses", label: "Expenses", icon: Wallet, group: "Finances" },
+
+    { path: "/hoa/polls", label: "Polls", icon: Vote, group: "Community" },
+    { path: "/hoa/elections", label: "Elections", icon: Trophy, group: "Community" },
+    { path: "/hoa/events", label: "Events", icon: Calendar, group: "Community" },
+    { path: "/hoa/documents", label: "Documents", icon: FileText, group: "Community" },
+
+    { path: "/hoa/request-types", label: "Request Types", icon: ListChecks, group: "Settings" },
+    ...(isAdmin ? [{ path: "/hoa/account", label: "My Account", icon: UserCircle, group: "Settings" }] : []),
+    { path: "/hoa/help", label: "Help & FAQ", icon: HelpCircle, group: "Settings" },
   ];
-  if (user.role === "hoa_admin") {
-    navItems.splice(1, 0, { path: "/hoa/account", label: "My Account", icon: UserCircle });
-    navItems.push({ path: "/hoa/community", label: "Community", icon: Users });
-    navItems.push({ path: "/hoa/board", label: "Board", icon: Contact });
-  }
 
   const visibleNav = markNavLocks(navItems, community);
 
