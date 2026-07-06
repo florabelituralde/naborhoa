@@ -31,12 +31,18 @@ export default function HOABoard() {
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
-    const mems = await base44.entities.BoardMember.filter({ community_id: community.id });
-    setMembers(mems);
-    setLoading(false);
+    try {
+      const mems = await base44.entities.BoardMember.filter({ community_id: community.id });
+      setMembers(mems);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community]);
 
   const openAdd = () => {
     setEditingId(null);

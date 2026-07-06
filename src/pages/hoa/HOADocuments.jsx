@@ -30,12 +30,18 @@ export default function HOADocuments() {
   const fileInputRef = useRef(null);
 
   const loadData = async () => {
-    const docs = await base44.entities.Document.filter({ community_id: community.id }, "-created_date");
-    setDocuments(docs);
-    setLoading(false);
+    try {
+      const docs = await base44.entities.Document.filter({ community_id: community.id }, "-created_date");
+      setDocuments(docs);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community]);
 
   const handleUpload = async () => {
     setUploading(true);

@@ -26,12 +26,18 @@ export default function HOAEvents() {
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
-    const evs = await base44.entities.Event.filter({ community_id: community.id }, "start_time");
-    setEvents(evs);
-    setLoading(false);
+    try {
+      const evs = await base44.entities.Event.filter({ community_id: community.id }, "start_time");
+      setEvents(evs);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community]);
 
   const handleCreate = async () => {
     setCreating(true);

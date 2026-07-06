@@ -20,12 +20,18 @@ export default function HOAAnnouncements() {
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
-    const anns = await base44.entities.Announcement.filter({ community_id: community.id }, "-created_date");
-    setAnnouncements(anns);
-    setLoading(false);
+    try {
+      const anns = await base44.entities.Announcement.filter({ community_id: community.id }, "-created_date");
+      setAnnouncements(anns);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community]);
 
   const handleCreate = async () => {
     setCreating(true);

@@ -29,17 +29,23 @@ export default function HOAInvoices() {
   const [duesSaved, setDuesSaved] = useState(false);
 
   const loadData = async () => {
-    const [invs, homes] = await Promise.all([
-      base44.entities.Invoice.filter({ community_id: community.id }, "-created_date"),
-      base44.entities.User.filter({ community_id: community.id, role: "homeowner" }),
-    ]);
-    setInvoices(invs);
-    setHomeowners(homes);
-    setDues(community.monthly_dues ? String(community.monthly_dues) : "");
-    setLoading(false);
+    try {
+      const [invs, homes] = await Promise.all([
+        base44.entities.Invoice.filter({ community_id: community.id }, "-created_date"),
+        base44.entities.User.filter({ community_id: community.id, role: "homeowner" }),
+      ]);
+      setInvoices(invs);
+      setHomeowners(homes);
+      setDues(community.monthly_dues ? String(community.monthly_dues) : "");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community]);
 
   const handleSaveDues = async () => {
     setSavingDues(true);

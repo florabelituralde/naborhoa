@@ -22,16 +22,22 @@ export default function HOAPolls() {
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
-    const [p, v] = await Promise.all([
-      base44.entities.Poll.filter({ community_id: community.id }, "-created_date"),
-      base44.entities.PollVote.filter({}),
-    ]);
-    setPolls(p);
-    setVotes(v);
-    setLoading(false);
+    try {
+      const [p, v] = await Promise.all([
+        base44.entities.Poll.filter({ community_id: community.id }, "-created_date"),
+        base44.entities.PollVote.filter({}),
+      ]);
+      setPolls(p);
+      setVotes(v);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community]);
 
   const getVoteCount = (pollId, optionIndex) =>
     votes.filter(v => v.poll_id === pollId && v.option_index === optionIndex).length;

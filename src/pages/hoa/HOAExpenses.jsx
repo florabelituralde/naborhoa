@@ -25,12 +25,18 @@ export default function HOAExpenses() {
   const [saving, setSaving] = useState(false);
 
   const loadData = async () => {
-    const list = await base44.entities.Expense.filter({ community_id: community.id }, "-expense_date");
-    setExpenses(list);
-    setLoading(false);
+    try {
+      const list = await base44.entities.Expense.filter({ community_id: community.id }, "-expense_date");
+      setExpenses(list);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community]);
 
   const handleCreate = async () => {
     setSaving(true);

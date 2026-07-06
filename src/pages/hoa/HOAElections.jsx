@@ -21,17 +21,23 @@ export default function HOAElections() {
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
-    const els = await base44.entities.Election.filter({ community_id: community.id }, "-created_date");
-    setElections(els);
-    const voteMap = {};
-    for (const el of els) {
-      voteMap[el.id] = await base44.entities.ElectionVote.filter({ election_id: el.id });
+    try {
+      const els = await base44.entities.Election.filter({ community_id: community.id }, "-created_date");
+      setElections(els);
+      const voteMap = {};
+      for (const el of els) {
+        voteMap[el.id] = await base44.entities.ElectionVote.filter({ election_id: el.id });
+      }
+      setVotes(voteMap);
+    } finally {
+      setLoading(false);
     }
-    setVotes(voteMap);
-    setLoading(false);
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community]);
 
   const addCandidate = () => setForm({ ...form, candidates: [...form.candidates, { name: "", bio: "", statement: "" }] });
   const removeCandidate = (i) => setForm({ ...form, candidates: form.candidates.filter((_, idx) => idx !== i) });

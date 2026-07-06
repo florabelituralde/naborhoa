@@ -11,11 +11,14 @@ export default function HomeAnnouncements() {
   const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
-    if (!community) return;
-    base44.entities.Announcement.filter({ community_id: community.id }, "-created_date").then(anns => {
-      setAnnouncements(anns);
+    if (!community) {
       setLoading(false);
-    });
+      return;
+    }
+    setLoading(true);
+    base44.entities.Announcement.filter({ community_id: community.id }, "-created_date")
+      .then(anns => setAnnouncements(anns))
+      .finally(() => setLoading(false));
   }, [community]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;

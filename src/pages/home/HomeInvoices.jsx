@@ -33,14 +33,20 @@ export default function HomeInvoices() {
   const [settingUpAutopay, setSettingUpAutopay] = useState(false);
 
   const loadData = async () => {
-    const invs = await base44.entities.Invoice.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date");
-    setInvoices(invs);
-    const subs = await base44.entities.Subscription.filter({ community_id: community.id, homeowner_id: user.id, status: "active" });
-    setSubscription(subs.length > 0 ? subs[0] : null);
-    setLoading(false);
+    try {
+      const invs = await base44.entities.Invoice.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date");
+      setInvoices(invs);
+      const subs = await base44.entities.Subscription.filter({ community_id: community.id, homeowner_id: user.id, status: "active" });
+      setSubscription(subs.length > 0 ? subs[0] : null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community, user]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community, user]);
 
   const handlePay = async () => {
     setPaying(true);

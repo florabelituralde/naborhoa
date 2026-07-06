@@ -25,8 +25,11 @@ export default function HOARequestTypes() {
   };
 
   useEffect(() => {
-    if (!community) return;
-    load().then(() => setLoading(false));
+    if (!community) {
+      setLoading(false);
+      return;
+    }
+    load().finally(() => setLoading(false));
   }, [community]);
 
   const seedDefaults = async () => {

@@ -15,22 +15,28 @@ export default function HomeElections() {
   const [voting, setVoting] = useState(null);
 
   const loadData = async () => {
-    const els = await base44.entities.Election.filter({ community_id: community.id }, "-created_date");
-    setElections(els);
-    const myV = {};
-    const allV = {};
-    for (const el of els) {
-      const vts = await base44.entities.ElectionVote.filter({ election_id: el.id });
-      allV[el.id] = vts;
-      const mine = vts.find(v => v.voter_id === user.id);
-      if (mine) myV[el.id] = mine.candidate_index;
+    try {
+      const els = await base44.entities.Election.filter({ community_id: community.id }, "-created_date");
+      setElections(els);
+      const myV = {};
+      const allV = {};
+      for (const el of els) {
+        const vts = await base44.entities.ElectionVote.filter({ election_id: el.id });
+        allV[el.id] = vts;
+        const mine = vts.find(v => v.voter_id === user.id);
+        if (mine) myV[el.id] = mine.candidate_index;
+      }
+      setMyVotes(myV);
+      setVotes(allV);
+    } finally {
+      setLoading(false);
     }
-    setMyVotes(myV);
-    setVotes(allV);
-    setLoading(false);
   };
 
-  useEffect(() => { if (community && user) loadData(); }, [community, user]);
+  useEffect(() => {
+    if (community && user) loadData();
+    else setLoading(false);
+  }, [community, user]);
 
   const handleVote = async (el, candidateIndex) => {
     setVoting(`${el.id}-${candidateIndex}`);

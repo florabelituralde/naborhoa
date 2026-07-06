@@ -15,11 +15,14 @@ export default function HOARequests() {
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    if (!community) return;
-    base44.entities.Request.filter({ community_id: community.id }, "-created_date").then(reqs => {
-      setRequests(reqs);
+    if (!community) {
       setLoading(false);
-    });
+      return;
+    }
+    setLoading(true);
+    base44.entities.Request.filter({ community_id: community.id }, "-created_date")
+      .then(reqs => setRequests(reqs))
+      .finally(() => setLoading(false));
   }, [community]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;

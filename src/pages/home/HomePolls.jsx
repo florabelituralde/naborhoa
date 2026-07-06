@@ -13,16 +13,22 @@ export default function HomePolls() {
   const [votes, setVotes] = useState([]);
 
   const loadData = async () => {
-    const [p, v] = await Promise.all([
-      base44.entities.Poll.filter({ community_id: community.id }, "-created_date"),
-      base44.entities.PollVote.filter({ voter_id: user.id }),
-    ]);
-    setPolls(p);
-    setVotes(v);
-    setLoading(false);
+    try {
+      const [p, v] = await Promise.all([
+        base44.entities.Poll.filter({ community_id: community.id }, "-created_date"),
+        base44.entities.PollVote.filter({ voter_id: user.id }),
+      ]);
+      setPolls(p);
+      setVotes(v);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community, user]);
+  useEffect(() => {
+    if (community) loadData();
+    else setLoading(false);
+  }, [community, user]);
 
   const hasVoted = (pollId) => votes.some(v => v.poll_id === pollId);
   const userVote = (pollId) => votes.find(v => v.poll_id === pollId);

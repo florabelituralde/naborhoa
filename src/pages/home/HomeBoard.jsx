@@ -21,11 +21,14 @@ export default function HomeBoard() {
   const [members, setMembers] = useState([]);
 
   useEffect(() => {
-    if (!community) return;
-    base44.entities.BoardMember.filter({ community_id: community.id }).then(mems => {
-      setMembers(mems);
+    if (!community) {
       setLoading(false);
-    });
+      return;
+    }
+    setLoading(true);
+    base44.entities.BoardMember.filter({ community_id: community.id })
+      .then(mems => setMembers(mems))
+      .finally(() => setLoading(false));
   }, [community]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;

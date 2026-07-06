@@ -39,7 +39,10 @@ export default function HOADashboard() {
   }, [community]);
 
   useEffect(() => {
-    if (!community) return;
+    if (!community) {
+      setLoading(false);
+      return;
+    }
     loadData().finally(() => setLoading(false));
   }, [community, loadData]);
 
