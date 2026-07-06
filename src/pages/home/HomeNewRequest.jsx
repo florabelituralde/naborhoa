@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ArrowLeft, Upload, FileText, X, ChevronRight } from "lucide-react";
+import MobileTopHeader from "@/components/mobile/MobileTopHeader";
 import { getRequestTypeIcon } from "@/lib/requestTypeIcon";
 
 export default function HomeNewRequest() {
@@ -92,11 +93,15 @@ export default function HomeNewRequest() {
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
+  const handleBack = () => selectedType ? setSelectedType(null) : navigate("/home/requests");
+
   return (
+    <>
+    <MobileTopHeader title={selectedType?.name || "New Request"} onBack={handleBack} />
     <div className="p-4 sm:p-8 max-w-2xl mx-auto">
       <button
-        onClick={() => selectedType ? setSelectedType(null) : navigate("/home/requests")}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
+        onClick={handleBack}
+        className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
       >
         <ArrowLeft className="w-4 h-4" /> {selectedType ? "Choose a different type" : "Back to Requests"}
       </button>
@@ -236,5 +241,6 @@ export default function HomeNewRequest() {
         </>
       )}
     </div>
+    </>
   );
 }
