@@ -59,7 +59,7 @@ export default function HOARequests() {
                 </div>
                 <p className="text-sm text-muted-foreground truncate">{req.description}</p>
                 <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                  <span className="capitalize">{req.category}</span>
+                  <span>{req.request_type_name || (req.category || "").replace("_", " ")}</span>
                   <span className="capitalize">Priority: {req.priority}</span>
                 </div>
               </div>

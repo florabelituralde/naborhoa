@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ArrowLeft, Check, X, Play } from "lucide-react";
+import { Loader2, ArrowLeft, Check, X, Play, FileText } from "lucide-react";
 import { formatDate } from "@/lib/format";
 
 export default function HOARequestDetail() {
@@ -73,15 +73,44 @@ export default function HOARequestDetail() {
         <p className="text-muted-foreground mb-6">{request.description}</p>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
-          <div><span className="text-muted-foreground">Category: </span><span className="font-medium capitalize">{request.category}</span></div>
+          {request.request_type_name && <div><span className="text-muted-foreground">Type: </span><span className="font-medium">{request.request_type_name}</span></div>}
+          <div><span className="text-muted-foreground">Category: </span><span className="font-medium capitalize">{(request.category || "").replace("_", " ")}</span></div>
           <div><span className="text-muted-foreground">Priority: </span><span className="font-medium capitalize">{request.priority}</span></div>
           <div><span className="text-muted-foreground">Submitted: </span><span className="font-medium">{formatDate(request.created_date)}</span></div>
           <div><span className="text-muted-foreground">Homeowner: </span><span className="font-medium">{homeowner?.full_name || "Unknown"}</span></div>
+          {request.contact_phone && <div><span className="text-muted-foreground">Phone: </span><a href={`tel:${request.contact_phone}`} className="font-medium text-primary">{request.contact_phone}</a></div>}
+          {request.contact_email && <div><span className="text-muted-foreground">Email: </span><a href={`mailto:${request.contact_email}`} className="font-medium text-primary">{request.contact_email}</a></div>}
         </div>
 
-        {request.image_url && (
-          <div className="mt-4">
-            <img src={request.image_url} alt="Request" className="rounded-xl max-h-64 object-cover" />
+        {request.custom_answers?.length > 0 && (
+          <div className="mt-6 border-t border-border pt-4 grid sm:grid-cols-2 gap-3 text-sm">
+            {request.custom_answers.map((a, i) => (
+              <div key={i}><span className="text-muted-foreground">{a.label}: </span><span className="font-medium">{a.value}</span></div>
+            ))}
+          </div>
+        )}
+
+        {(request.attachments?.length > 0 || request.image_url) && (
+          <div className="mt-6 border-t border-border pt-4">
+            <p className="text-sm text-muted-foreground mb-2">Attachments</p>
+            <div className="flex flex-wrap gap-3">
+              {(request.attachments?.length > 0
+                ? request.attachments
+                : [{ name: "Attachment", url: request.image_url }]
+              ).map((att, i) => {
+                const isImage = /\.(png|jpe?g|gif|webp|bmp)$/i.test(att.url || "");
+                return isImage ? (
+                  <a key={i} href={att.url} target="_blank" rel="noreferrer">
+                    <img src={att.url} alt={att.name} className="rounded-xl h-28 w-28 object-cover border border-border" />
+                  </a>
+                ) : (
+                  <a key={i} href={att.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm hover:border-primary">
+                    <FileText className="w-4 h-4 text-primary" />
+                    <span className="truncate max-w-[160px]">{att.name}</span>
+                  </a>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

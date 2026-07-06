@@ -11,6 +11,12 @@
     "homeowner_id": {
       "type": "string"
     },
+    "request_type_id": {
+      "type": "string"
+    },
+    "request_type_name": {
+      "type": "string"
+    },
     "title": {
       "type": "string"
     },
@@ -52,6 +58,42 @@
     },
     "image_url": {
       "type": "string"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "custom_answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
     },
     "resolution_notes": {
       "type": "string"

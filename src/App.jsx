@@ -21,6 +21,7 @@ import HomeownerLayout from '@/components/HomeownerLayout';
 import HOADashboard from '@/pages/hoa/HOADashboard';
 import HOARequests from '@/pages/hoa/HOARequests';
 import HOARequestDetail from '@/pages/hoa/HOARequestDetail';
+import HOARequestTypes from '@/pages/hoa/HOARequestTypes';
 import HOAInvoices from '@/pages/hoa/HOAInvoices';
 import HOAExpenses from '@/pages/hoa/HOAExpenses';
 import HOAAnnouncements from '@/pages/hoa/HOAAnnouncements';
@@ -94,6 +95,7 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/dashboard" element={<HOADashboard />} />
           <Route path="/hoa/requests" element={<HOARequests />} />
           <Route path="/hoa/requests/:id" element={<HOARequestDetail />} />
+          <Route path="/hoa/request-types" element={<HOARequestTypes />} />
           <Route path="/hoa/invoices" element={<HOAInvoices />} />
           <Route path="/hoa/expenses" element={<HOAExpenses />} />
           <Route path="/hoa/announcements" element={<HOAAnnouncements />} />

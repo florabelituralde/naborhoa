@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
-import { LayoutDashboard, ClipboardList, Receipt, Wallet, Megaphone, Vote, FileText, Users, Calendar, Contact, Trophy, Loader2 } from "lucide-react";
+import { LayoutDashboard, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, Calendar, Contact, Trophy, Loader2 } from "lucide-react";
 
 export default function HOALayout() {
   const navigate = useNavigate();
@@ -37,6 +37,7 @@ export default function HOALayout() {
   const navItems = [
     { path: "/hoa/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/hoa/requests", label: "Requests", icon: ClipboardList },
+    { path: "/hoa/request-types", label: "Request Types", icon: ListChecks },
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt },
     { path: "/hoa/expenses", label: "Expenses", icon: Wallet },
     { path: "/hoa/announcements", label: "Announcements", icon: Megaphone },

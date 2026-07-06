@@ -1,0 +1,87 @@
+{
+  "name": "RequestType",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string",
+      "default": "Wrench"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "maintenance",
+        "repair",
+        "plan_review",
+        "other"
+      ],
+      "default": "maintenance"
+    },
+    "requires_attachment": {
+      "type": "boolean",
+      "default": false
+    },
+    "attachment_label": {
+      "type": "string",
+      "default": "Attachments (photos, plans, documents)"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "sort_order": {
+      "type": "number",
+      "default": 0
+    },
+    "custom_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "textarea",
+              "number",
+              "select"
+            ],
+            "default": "text"
+          },
+          "required": {
+            "type": "boolean",
+            "default": false
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          }
+        },
+        "required": [
+          "label",
+          "type"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "community_id",
+    "name",
+    "category"
+  ]
+}

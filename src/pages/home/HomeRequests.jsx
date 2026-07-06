@@ -49,7 +49,7 @@ export default function HomeRequests() {
                 </div>
                 <p className="text-sm text-muted-foreground truncate">{req.description}</p>
                 <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                  <span className="capitalize">{req.category}</span>
+                  <span>{req.request_type_name || (req.category || "").replace("_", " ")}</span>
                   <span>{formatDate(req.created_date)}</span>
                 </div>
               </div>
