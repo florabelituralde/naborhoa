@@ -15,6 +15,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [orgName, setOrgName] = useState("");
   const [role, setRole] = useState("homeowner");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,6 +27,10 @@ export default function Register() {
     setError("");
     if (!fullName.trim()) {
       setError("Please enter your name");
+      return;
+    }
+    if (role === "hoa_admin" && !orgName.trim()) {
+      setError("Please enter your company or neighborhood name");
       return;
     }
     if (password !== confirmPassword) {
@@ -50,7 +55,11 @@ export default function Register() {
       const result = await base44.auth.verifyOtp({ email, otpCode });
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
-        await base44.auth.updateMe({ role, full_name: fullName });
+        await base44.auth.updateMe({
+          role,
+          full_name: fullName,
+          ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
+        });
       }
       window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
     } catch (err) {
@@ -152,12 +161,22 @@ export default function Register() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
+          <Label htmlFor="name">{role === "hoa_admin" ? "Your Name" : "Full Name"}</Label>
           <div className="relative">
             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <Input id="name" type="text" placeholder="Jane Smith" value={fullName} onChange={(e) => setFullName(e.target.value)} className="pl-10 h-12" required />
           </div>
         </div>
+        {role === "hoa_admin" && (
+          <div className="space-y-2">
+            <Label htmlFor="orgName">Company / Neighborhood Name</Label>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+              <Input id="orgName" type="text" placeholder="Maple Street HOA" value={orgName} onChange={(e) => setOrgName(e.target.value)} className="pl-10 h-12" required />
+            </div>
+            <p className="text-xs text-muted-foreground">You'll set up your community details next.</p>
+          </div>
+        )}
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <div className="relative">

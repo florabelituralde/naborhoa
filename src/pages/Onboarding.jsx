@@ -5,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, Home, ArrowRight, Loader2, Check } from "lucide-react";
+import { Building2, Home, ArrowRight, ArrowLeft, Loader2, Check } from "lucide-react";
 import PlanSelector from "@/components/onboarding/PlanSelector";
+import CommunityPhotosStep from "@/components/onboarding/CommunityPhotosStep";
+import CommunityDocumentsStep from "@/components/onboarding/CommunityDocumentsStep";
+
+const TOTAL_STEPS = 6;
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -16,13 +20,23 @@ export default function Onboarding() {
   const [submitting, setSubmitting] = useState(false);
   const [org, setOrg] = useState({ name: "", type: "standalone_hoa", description: "" });
   const [community, setCommunity] = useState({ name: "", address: "", city: "", state: "", description: "" });
+  const [photos, setPhotos] = useState({ photo_url: "", logo_url: "", gallery: [] });
+  const [docs, setDocs] = useState([]);
   const [joinCode, setJoinCode] = useState("");
   const [communityId, setCommunityId] = useState("");
 
   useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
-      if (u.community_id) navigate("/hoa/dashboard");
+      if (u.community_id) {
+        navigate("/hoa/dashboard");
+        return;
+      }
+      // Prefill the org/community name captured during registration.
+      if (u.pending_org_name) {
+        setOrg(o => ({ ...o, name: u.pending_org_name }));
+        setCommunity(c => ({ ...c, name: u.pending_org_name }));
+      }
       setLoading(false);
     }).catch(() => navigate("/login"));
   }, []);
@@ -40,19 +54,38 @@ export default function Onboarding() {
     setSubmitting(false);
   };
 
-  const handleCreateCommunity = async () => {
+  // Creates the community (with photos) and any staged documents, then advances to plan selection.
+  const handleFinishCommunity = async () => {
     setSubmitting(true);
     try {
       const code = Math.random().toString(36).substring(2, 8).toUpperCase();
       const commRecord = await base44.entities.Community.create({
         ...community,
+        photo_url: photos.photo_url || undefined,
+        logo_url: photos.logo_url || undefined,
+        gallery: photos.gallery || [],
         organization_id: user.organization_id,
         join_code: code,
       });
       await base44.auth.updateMe({ community_id: commRecord.id });
+
+      if (docs.length > 0) {
+        await base44.entities.Document.bulkCreate(
+          docs.map(d => ({
+            community_id: commRecord.id,
+            title: d.title,
+            category: d.category,
+            file_url: d.file_url,
+            file_type: d.file_type,
+            uploaded_by_id: user.id,
+            is_public: true,
+          }))
+        );
+      }
+
       setJoinCode(code);
       setCommunityId(commRecord.id);
-      setStep(3);
+      setStep(5);
     } catch (err) {
       console.error(err);
     }
@@ -79,7 +112,7 @@ export default function Onboarding() {
     }
   };
 
-  const handleSkipPlan = () => setStep(4);
+  const handleSkipPlan = () => setStep(6);
 
   if (loading) {
     return (
@@ -99,14 +132,14 @@ export default function Onboarding() {
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className={`w-full ${step === 3 ? "max-w-4xl" : "max-w-lg"}`}>
-          <div className="flex items-center justify-center gap-2 mb-10">
-            {[1, 2, 3, 4].map(s => (
+        <div className={`w-full ${step === 5 ? "max-w-4xl" : "max-w-lg"}`}>
+          <div className="flex items-center justify-center gap-1.5 mb-10">
+            {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(s => (
               <React.Fragment key={s}>
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${step >= s ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${step >= s ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
                   {step > s ? <Check className="w-4 h-4" /> : s}
                 </div>
-                {s < 4 && <div className={`w-10 h-0.5 transition-all ${step > s ? "bg-primary" : "bg-muted"}`} />}
+                {s < TOTAL_STEPS && <div className={`w-6 h-0.5 transition-all ${step > s ? "bg-primary" : "bg-muted"}`} />}
               </React.Fragment>
             ))}
           </div>
@@ -134,7 +167,7 @@ export default function Onboarding() {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="orgName">Organization Name</Label>
+                  <Label htmlFor="orgName">Company / Organization Name</Label>
                   <Input id="orgName" value={org.name} onChange={e => setOrg({ ...org, name: e.target.value })} placeholder="Maple Street HOA" className="mt-1.5 h-11" />
                 </div>
                 <div>
@@ -176,15 +209,38 @@ export default function Onboarding() {
                   <Label htmlFor="commDesc">Description (optional)</Label>
                   <Textarea id="commDesc" value={community.description} onChange={e => setCommunity({ ...community, description: e.target.value })} className="mt-1.5" rows={3} />
                 </div>
-                <Button onClick={handleCreateCommunity} disabled={!community.name || submitting} className="w-full h-12">
-                  {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArrowRight className="w-4 h-4 mr-2" />}
-                  Create Community
-                </Button>
+                <div className="flex gap-3">
+                  <Button type="button" variant="outline" onClick={() => setStep(1)} className="h-12">
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Back
+                  </Button>
+                  <Button onClick={() => setStep(3)} disabled={!community.name} className="flex-1 h-12">
+                    Continue <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
               </div>
             </div>
           )}
 
           {step === 3 && (
+            <CommunityPhotosStep
+              value={photos}
+              onChange={setPhotos}
+              onNext={() => setStep(4)}
+              onBack={() => setStep(2)}
+            />
+          )}
+
+          {step === 4 && (
+            <CommunityDocumentsStep
+              value={docs}
+              onChange={setDocs}
+              onFinish={handleFinishCommunity}
+              onBack={() => setStep(3)}
+              submitting={submitting}
+            />
+          )}
+
+          {step === 5 && (
             <div>
               <PlanSelector onSelect={handleSelectPlan} submitting={submitting} />
               <button
@@ -197,7 +253,7 @@ export default function Onboarding() {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 6 && (
             <div className="bg-card rounded-2xl warm-shadow-md p-8 text-center">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Check className="w-8 h-8 text-primary" />
