@@ -1,5 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Lock } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 // Native-style bottom tab bar shown only on mobile (widths under md).
 // `items` is an array of { path, label, icon }.
@@ -10,6 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 export default function BottomNav({ items }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Remembers the last-visited path within each tab root.
   const stacksRef = useRef({});
@@ -34,6 +37,14 @@ export default function BottomNav({ items }) {
   }, [location.pathname, location.search, items]);
 
   const handleTab = (item) => {
+    // Locked tabs aren't available on the community's plan.
+    if (item.locked) {
+      toast({
+        title: "Not available on your plan",
+        description: `${item.label} isn't included in your community's current plan.`,
+      });
+      return;
+    }
     // Action tabs (e.g. AI Chat) run a callback instead of navigating.
     if (item.action) {
       item.action();
@@ -55,18 +66,23 @@ export default function BottomNav({ items }) {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-card/95 backdrop-blur border-t border-border safe-bottom no-select">
       <div className="flex items-stretch justify-around">
         {items.map((item) => {
-          const active = !item.action && isActive(item.path);
+          const active = !item.action && !item.locked && isActive(item.path);
           const Icon = item.icon;
           return (
             <button
               key={item.path || item.label}
               type="button"
               onClick={() => handleTab(item)}
-              className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors ${
-                active ? "text-primary" : "text-muted-foreground"
+              className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors ${
+                item.locked ? "text-muted-foreground/50" : active ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              <Icon className={`w-5 h-5 ${active ? "scale-110" : ""} transition-transform`} />
+              <div className="relative">
+                <Icon className={`w-5 h-5 ${active ? "scale-110" : ""} transition-transform`} />
+                {item.locked && (
+                  <Lock className="w-3 h-3 absolute -top-1 -right-2 text-muted-foreground/70" />
+                )}
+              </div>
               <span className="text-[10px] font-medium leading-none">{item.label}</span>
             </button>
           );

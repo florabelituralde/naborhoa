@@ -62,6 +62,8 @@ export function hasModule(community, moduleId) {
 
 // Returns the gated module id for a nav item, or null if it's not gated.
 export function navItemModule(item) {
+  // An explicit module wins (used for action items with no path, e.g. AI Chat).
+  if (item.module) return item.module;
   if (!item.path) return null;
   const segment = item.path.split("/").filter(Boolean).pop();
   return ROUTE_MODULE[segment] || null;
