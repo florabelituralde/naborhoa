@@ -17,6 +17,7 @@ import { validatePassword, PASSWORD_RULES } from "@/lib/passwordPolicy";
 import { writeTrust } from "@/lib/deviceTrust";
 import BiometricEnrollment from "@/components/auth/BiometricEnrollment";
 import useRedirectIfAuthed from "@/hooks/useRedirectIfAuthed";
+import GuestAccess from "@/components/auth/GuestAccess";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -305,6 +306,7 @@ export default function Register() {
         </Button>
       </form>
 
+      <GuestAccess />
       <LegalLinks className="mt-6" />
     </AuthLayout>
     </>

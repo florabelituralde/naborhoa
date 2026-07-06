@@ -12,6 +12,7 @@ import AppleIcon from "@/components/AppleIcon";
 import IntroPreview from "@/components/auth/IntroPreview";
 import LegalLinks from "@/components/LegalLinks";
 import useRedirectIfAuthed from "@/hooks/useRedirectIfAuthed";
+import GuestAccess from "@/components/auth/GuestAccess";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -155,6 +156,7 @@ export default function Login() {
         </Button>
       </form>
 
+      <GuestAccess />
       <LegalLinks className="mt-6" />
     </AuthLayout>
     </>
