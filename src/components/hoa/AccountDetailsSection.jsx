@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Mail, KeyRound, Loader2, Check } from "lucide-react";
+import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 
 export default function AccountDetailsSection({ user }) {
   const [sending, setSending] = useState(false);
@@ -55,6 +56,9 @@ export default function AccountDetailsSection({ user }) {
           )}
         </div>
       </div>
+
+      {/* Account deletion — required by App Store guideline 5.1.1(v) */}
+      <DeleteAccountDialog user={user} />
     </div>
   );
 }
