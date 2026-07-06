@@ -18,19 +18,29 @@ export default function HomeAccount() {
   const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
-    if (!community) {
+    if (!community || !user) {
       setLoading(false);
       return;
     }
+    let done = false;
+    const finish = () => { if (!done) { done = true; setLoading(false); } };
+
+    // Wrap each call individually so one failure can't block the others.
+    const safe = (p) => p.catch(() => []);
+
     Promise.all([
-      base44.entities.Request.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date"),
-      base44.entities.Invoice.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date"),
-      base44.entities.Subscription.filter({ community_id: community.id, homeowner_id: user.id, status: "active" }),
+      safe(base44.entities.Request.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date")),
+      safe(base44.entities.Invoice.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date")),
+      safe(base44.entities.Subscription.filter({ community_id: community.id, homeowner_id: user.id, status: "active" })),
     ]).then(([reqs, invs, subs]) => {
-      setRequests(reqs);
-      setInvoices(invs);
-      setSubscription(subs.length > 0 ? subs[0] : null);
-    }).catch(() => {}).finally(() => setLoading(false));
+      setRequests(reqs || []);
+      setInvoices(invs || []);
+      setSubscription(subs && subs.length > 0 ? subs[0] : null);
+    }).finally(finish);
+
+    // Safety net: never let the page hang on a spinner indefinitely.
+    const timeout = setTimeout(finish, 6000);
+    return () => clearTimeout(timeout);
   }, [community, user]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
