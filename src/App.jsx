@@ -19,6 +19,7 @@ import Join from '@/pages/Join';
 import HOALayout from '@/components/HOALayout';
 import HomeownerLayout from '@/components/HomeownerLayout';
 import HOADashboard from '@/pages/hoa/HOADashboard';
+import HOAAccount from '@/pages/hoa/HOAAccount';
 import HOARequests from '@/pages/hoa/HOARequests';
 import HOARequestDetail from '@/pages/hoa/HOARequestDetail';
 import HOARequestTypes from '@/pages/hoa/HOARequestTypes';
@@ -100,6 +101,7 @@ const AuthenticatedApp = () => {
 
         <Route element={<HOALayout />}>
           <Route path="/hoa/dashboard" element={<HOADashboard />} />
+          <Route path="/hoa/account" element={<HOAAccount />} />
           <Route path="/hoa/requests" element={<HOARequests />} />
           <Route path="/hoa/requests/:id" element={<HOARequestDetail />} />
           <Route path="/hoa/request-types" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequestTypes /></PlanGate>} />
