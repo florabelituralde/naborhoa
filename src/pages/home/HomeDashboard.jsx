@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import StatusBadge from "@/components/StatusBadge";
-import { Vote, MessageCircle, Loader2, Plus, Calendar as CalendarIcon, Megaphone } from "lucide-react";
+import { Vote, Loader2, UserCircle, Calendar as CalendarIcon, Megaphone } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import AnnouncementsWidget from "@/components/widgets/AnnouncementsWidget";
 import AIChatWidget from "@/components/widgets/AIChatWidget";
@@ -68,9 +68,9 @@ export default function HomeDashboard() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Link to="/home/requests/new" className="bg-primary text-primary-foreground rounded-2xl p-6 hover:warm-shadow-md transition-all flex items-center gap-4">
-          <Plus className="w-8 h-8" />
-          <div><p className="font-semibold">New Request</p><p className="text-sm text-primary-foreground/80">Submit a maintenance or repair</p></div>
+        <Link to="/home/account" className="bg-primary text-primary-foreground rounded-2xl p-6 hover:warm-shadow-md transition-all flex items-center gap-4">
+          <UserCircle className="w-8 h-8" />
+          <div><p className="font-semibold">My Account</p><p className="text-sm text-primary-foreground/80">Requests, bills & profile</p></div>
         </Link>
         <Link to="/home/announcements" className="bg-card rounded-2xl warm-shadow p-6 hover:warm-shadow-md transition-all flex items-center gap-4">
           <Megaphone className="w-8 h-8 text-primary" />
