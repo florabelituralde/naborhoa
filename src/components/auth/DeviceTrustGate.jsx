@@ -6,6 +6,7 @@ import AuthLayout from "@/components/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { readTrust, writeTrust } from "@/lib/deviceTrust";
+import { isTestEnvironment } from "@/lib/testMode";
 
 export default function DeviceTrustGate() {
   const [status, setStatus] = useState("checking"); // checking | trusted | untrusted
@@ -16,6 +17,13 @@ export default function DeviceTrustGate() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // In the Test database, skip device verification so the Base44 Testing Agent
+    // can run end-to-end flows (it can't read an emailed code). Production is
+    // unaffected — isTestEnvironment() is only ever true against the Test DB.
+    if (isTestEnvironment()) {
+      setStatus("trusted");
+      return;
+    }
     (async () => {
       try {
         const u = await base44.auth.me();
