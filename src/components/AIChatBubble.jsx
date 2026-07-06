@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Send, MessageCircle, Sparkles, X } from "lucide-react";
+import { Loader2, Send, MessageCircle, Sparkles, X, Mail } from "lucide-react";
+import ContactHOAPanel from "@/components/ContactHOAPanel";
+
+const NO_ANSWER_MARKER = "contact your HOA board";
 
 const SUGGESTED_QUESTIONS = [
   "What are the pool hours?",
@@ -18,6 +21,7 @@ export default function AIChatBubble({ user, community }) {
   const [loading, setLoading] = useState(true);
   const [thinking, setThinking] = useState(false);
   const [docs, setDocs] = useState([]);
+  const [hoaEmail, setHoaEmail] = useState(null);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -25,9 +29,12 @@ export default function AIChatBubble({ user, community }) {
     Promise.all([
       base44.entities.ChatMessage.filter({ community_id: community.id, user_id: user.id }, "created_date"),
       base44.entities.Document.filter({ community_id: community.id, is_public: true }),
-    ]).then(([msgs, communityDocs]) => {
+      base44.entities.BoardMember.filter({ community_id: community.id }),
+    ]).then(([msgs, communityDocs, board]) => {
       setMessages(msgs);
       setDocs(communityDocs);
+      const president = board.find(b => b.role === "president" && b.email);
+      setHoaEmail((president || board.find(b => b.email))?.email || null);
       setLoading(false);
     });
   }, [community, user]);
@@ -145,20 +152,31 @@ Homeowner question: ${question}`;
                   </div>
                 )}
 
-                {messages.map((msg, i) => (
-                  <div key={msg.id || i} className={`flex gap-2 mb-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${msg.role === "user" ? "bg-primary" : "bg-primary/10"}`}>
-                      {msg.role === "user" ? (
-                        <span className="text-primary-foreground text-xs font-semibold">{user?.full_name?.[0]?.toUpperCase()}</span>
-                      ) : (
-                        <Sparkles className="w-3.5 h-3.5 text-primary" />
-                      )}
+                {messages.map((msg, i) => {
+                  const cantAnswer = msg.role === "assistant" && msg.content?.toLowerCase().includes(NO_ANSWER_MARKER);
+                  const prevUserMsg = [...messages.slice(0, i)].reverse().find(m => m.role === "user");
+                  return (
+                  <div key={msg.id || i}>
+                    <div className={`flex gap-2 mb-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${msg.role === "user" ? "bg-primary" : "bg-primary/10"}`}>
+                        {msg.role === "user" ? (
+                          <span className="text-primary-foreground text-xs font-semibold">{user?.full_name?.[0]?.toUpperCase()}</span>
+                        ) : (
+                          <Sparkles className="w-3.5 h-3.5 text-primary" />
+                        )}
+                      </div>
+                      <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      </div>
                     </div>
-                    <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                    </div>
+                    {cantAnswer && hoaEmail && (
+                      <div className="ml-9 mb-3 max-w-[85%]">
+                        <ContactHOAPanel user={user} community={community} recipientEmail={hoaEmail} prefillQuestion={prevUserMsg?.content} />
+                      </div>
+                    )}
                   </div>
-                ))}
+                  );
+                })}
 
                 {thinking && (
                   <div className="flex gap-2 mb-3">
@@ -195,6 +213,12 @@ Homeowner question: ${question}`;
                 <Send className="w-4 h-4" />
               </Button>
             </div>
+            {hoaEmail && (
+              <p className="max-w-2xl mx-auto mt-2 text-[11px] text-muted-foreground flex items-center justify-center gap-1">
+                <Mail className="w-3 h-3" /> Need a person? Contact the HOA at{" "}
+                <a href={`mailto:${hoaEmail}`} className="text-primary hover:underline">{hoaEmail}</a>
+              </p>
+            )}
           </div>
         </div>
       )}
