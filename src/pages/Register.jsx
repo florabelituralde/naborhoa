@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { UserPlus, Mail, Lock, Loader2, Building2, Home, User } from "lucide-rea
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import IntroPreview from "@/components/auth/IntroPreview";
 import { toast } from "@/components/ui/use-toast";
 
 export default function Register() {
@@ -22,6 +24,14 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [showIntro, setShowIntro] = useState(
+    () => sessionStorage.getItem("naborIntroSeen") !== "1"
+  );
+
+  const dismissIntro = () => {
+    sessionStorage.setItem("naborIntroSeen", "1");
+    setShowIntro(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -115,6 +125,10 @@ export default function Register() {
   }
 
   return (
+    <>
+    <AnimatePresence>
+      {showIntro && <IntroPreview onDismiss={dismissIntro} />}
+    </AnimatePresence>
     <AuthLayout
       icon={UserPlus}
       title="Create your account"
@@ -219,5 +233,6 @@ export default function Register() {
         </Button>
       </form>
     </AuthLayout>
+    </>
   );
 }
