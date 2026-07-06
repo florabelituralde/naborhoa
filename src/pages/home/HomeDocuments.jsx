@@ -40,7 +40,7 @@ export default function HomeDocuments() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {documents.map(doc => (
-            <div key={doc.id} className="bg-card rounded-2xl warm-shadow p-5">
+            <div key={doc.id} className="bg-card rounded-2xl warm-shadow p-5 flex flex-col">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5 text-primary" />
@@ -55,15 +55,16 @@ export default function HomeDocuments() {
                     <span className="text-xs text-muted-foreground">{formatDate(doc.created_date)}</span>
                   </div>
                 </div>
-                <a
-                  href={doc.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary p-2"
-                >
-                  <Download className="w-5 h-5" />
-                </a>
               </div>
+              <a
+                href={doc.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium px-4 py-2 hover:bg-primary/90 transition-colors"
+              >
+                <Download className="w-4 h-4" /> Download
+              </a>
             </div>
           ))}
         </div>

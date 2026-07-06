@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Upload, Check, RefreshCw, X } from "lucide-react";
+import { Loader2, Upload, Check, RefreshCw, X, Download } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { exportPaymentStatement } from "@/lib/exportStatement";
 
 export default function HomeInvoices() {
   const { user, community } = useOutletContext();
@@ -83,7 +84,17 @@ export default function HomeInvoices() {
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl mx-auto">
-      <PageHeader title="My Bills" subtitle="View invoices and mark payments" />
+      <PageHeader
+        title="My Bills"
+        subtitle="View invoices and mark payments"
+        action={
+          invoices.length > 0 ? (
+            <Button variant="outline" onClick={() => exportPaymentStatement({ community, user, invoices })}>
+              <Download className="w-4 h-4 mr-2" /> Export Statement
+            </Button>
+          ) : null
+        }
+      />
 
       {/* Auto-Pay Section */}
       {subscription ? (
