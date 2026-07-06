@@ -6,7 +6,7 @@ import AIChatBubble from "@/components/AIChatBubble";
 import NotificationBell from "@/components/NotificationBell";
 import BottomNav from "@/components/mobile/BottomNav";
 import PageTransition from "@/components/mobile/PageTransition";
-import { LayoutDashboard, LayoutGrid, Home, ClipboardList, Wallet, Receipt, Megaphone, Vote, FileText, Calendar, Contact, Trophy, HelpCircle, UserCircle, Loader2 } from "lucide-react";
+import { LayoutDashboard, LayoutGrid, Home, ClipboardList, Wallet, Receipt, Megaphone, Vote, FileText, Calendar, Contact, Trophy, HelpCircle, UserCircle, Sparkles, Loader2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { markNavLocks } from "@/lib/planAccess";
 
@@ -55,6 +55,7 @@ export default function HomeownerLayout() {
       ? [{ path: "/home/board-hub", label: "Board Hub", icon: LayoutGrid }]
       : []),
     { path: "/home/announcements", label: "Announcements", icon: Megaphone },
+    { label: "AI Chat", icon: Sparkles, action: () => window.dispatchEvent(new Event("open-ai-chat")) },
     { path: "/home/account", label: "My Account", icon: UserCircle },
 
     { path: "/home/invoices", label: "My Bills", icon: Receipt, group: "Finances" },
@@ -76,6 +77,7 @@ export default function HomeownerLayout() {
     { path: "/home/dashboard", label: "Home", icon: Home },
     { path: "/home/requests", label: "Requests", icon: ClipboardList },
     { path: "/home/invoices", label: "Bills", icon: Receipt },
+    { label: "AI Chat", icon: Sparkles, action: () => window.dispatchEvent(new Event("open-ai-chat")) },
     { path: "/home/account", label: "Account", icon: UserCircle },
   ];
 
@@ -91,7 +93,7 @@ export default function HomeownerLayout() {
         </PageTransition>
       </main>
       <BottomNav items={bottomNavItems} />
-      <AIChatBubble user={user} community={community} />
+      <AIChatBubble user={user} community={community} hideButton />
     </div>
   );
 }

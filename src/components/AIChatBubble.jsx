@@ -14,7 +14,7 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 // Floating AI assistant. Answers strictly from the community's HOA-provided documents.
-export default function AIChatBubble({ user, community }) {
+export default function AIChatBubble({ user, community, hideButton = false }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -123,7 +123,7 @@ export default function AIChatBubble({ user, community }) {
   return (
     <>
       {/* Floating toggle button */}
-      {!open && (
+      {!open && !hideButton && (
         <button
           onClick={() => setOpen(true)}
           className="fixed right-5 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-5 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground warm-shadow-lg flex items-center justify-center hover:scale-105 transition-transform"

@@ -34,6 +34,11 @@ export default function BottomNav({ items }) {
   }, [location.pathname, location.search, items]);
 
   const handleTab = (item) => {
+    // Action tabs (e.g. AI Chat) run a callback instead of navigating.
+    if (item.action) {
+      item.action();
+      return;
+    }
     if (isActive(item.path)) {
       // Re-tapping the current tab: reset to its root.
       if (location.pathname !== item.path) {
@@ -50,11 +55,11 @@ export default function BottomNav({ items }) {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-card/95 backdrop-blur border-t border-border safe-bottom no-select">
       <div className="flex items-stretch justify-around">
         {items.map((item) => {
-          const active = isActive(item.path);
+          const active = !item.action && isActive(item.path);
           const Icon = item.icon;
           return (
             <button
-              key={item.path}
+              key={item.path || item.label}
               type="button"
               onClick={() => handleTab(item)}
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors ${
