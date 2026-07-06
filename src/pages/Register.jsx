@@ -30,6 +30,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
+  const [otpPending, setOtpPending] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [verified, setVerified] = useState(false);
   const [showIntro, setShowIntro] = useState(
@@ -63,14 +64,17 @@ export default function Register() {
       setError("Please choose a stronger password (see the requirements below).");
       return;
     }
-    setLoading(true);
+    // Transition to the email-code screen immediately so the user sees
+    // progress instead of a frozen form while the register request runs.
+    setShowOtp(true);
+    setOtpPending(true);
     try {
       await base44.auth.register({ email, password });
-      setShowOtp(true);
+      setOtpPending(false);
     } catch (err) {
+      setShowOtp(false);
+      setOtpPending(false);
       setError(err.message || "Registration failed");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -151,7 +155,7 @@ export default function Register() {
 
   if (showOtp) {
     return (
-      <AuthLayout icon={Mail} title="Verify your email" subtitle={`We sent a code to ${email}`}>
+      <AuthLayout icon={Mail} title="Verify your email" subtitle={otpPending ? `Sending a code to ${email}…` : `We sent a code to ${email}`}>
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>
         )}
@@ -167,12 +171,12 @@ export default function Register() {
             </InputOTPGroup>
           </InputOTP>
         </div>
-        <Button className="w-full h-12 font-medium" onClick={handleVerify} disabled={loading || otpCode.length < 6}>
-          {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Verifying...</>) : ("Verify")}
+        <Button className="w-full h-12 font-medium" onClick={handleVerify} disabled={loading || otpPending || otpCode.length < 6}>
+          {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Verifying...</>) : otpPending ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending code…</>) : ("Verify")}
         </Button>
         <p className="text-center text-sm text-muted-foreground mt-4">
           Didn't receive the code?{" "}
-          <button onClick={handleResend} className="text-primary font-medium hover:underline">Resend</button>
+          <button onClick={handleResend} disabled={otpPending} className="text-primary font-medium hover:underline disabled:opacity-50 disabled:no-underline">Resend</button>
         </p>
       </AuthLayout>
     );
