@@ -3,8 +3,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
-  const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
-  const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  const secretKey = Deno.env.get("Stripe_api_key");
+  const webhookSecret = Deno.env.get("Stripe_webhook");
 
   if (!secretKey || !webhookSecret) {
     console.error("stripe-webhook: Stripe secrets not configured");

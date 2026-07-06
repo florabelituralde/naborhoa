@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Amount must be at least $0.50" }, { status: 400 });
     }
 
-    const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    const secretKey = Deno.env.get("Stripe_api_key");
     if (!secretKey) {
       // Stripe not configured yet — frontend should fall back to Base44 Payments (create-checkout).
       return Response.json({ error: "Stripe not configured", fallback: true }, { status: 503 });

@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Not authorized for this community" }, { status: 403 });
     }
 
-    const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    const secretKey = Deno.env.get("Stripe_api_key");
     if (!secretKey) {
       return Response.json(
         { error: "Stripe isn't set up yet. Add your Stripe secret key to enable direct payouts." },
