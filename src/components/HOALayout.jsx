@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
 import BottomNav from "@/components/mobile/BottomNav";
 import PageTransition from "@/components/mobile/PageTransition";
+import AIChatBubble from "@/components/AIChatBubble";
 import { useLocation } from "react-router-dom";
 import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, UserCheck, Calendar, Contact, Trophy, HelpCircle, Loader2, CreditCard } from "lucide-react";
 import { markNavLocks } from "@/lib/planAccess";
@@ -98,6 +99,7 @@ export default function HOALayout() {
         </PageTransition>
       </main>
       <BottomNav items={bottomNavItems} />
+      <AIChatBubble user={user} community={community} />
     </div>
   );
 }
