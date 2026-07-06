@@ -24,6 +24,7 @@ export default function Onboarding() {
   const [docs, setDocs] = useState([]);
   const [joinCode, setJoinCode] = useState("");
   const [communityId, setCommunityId] = useState("");
+  const [dupError, setDupError] = useState("");
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -50,6 +51,33 @@ export default function Onboarding() {
       setStep(2);
     } catch (err) {
       console.error(err);
+    }
+    setSubmitting(false);
+  };
+
+  // Blocks continuing past the details step if a community already exists in the same city/state.
+  const handleCommunityContinue = async () => {
+    setDupError("");
+    setSubmitting(true);
+    try {
+      const city = community.city.trim().toLowerCase();
+      const state = community.state.trim().toLowerCase();
+      if (city) {
+        const existing = await base44.entities.Community.list();
+        const clash = existing.find(c =>
+          (c.city || "").trim().toLowerCase() === city &&
+          (c.state || "").trim().toLowerCase() === state
+        );
+        if (clash) {
+          setDupError(`A community already exists in ${community.city}${community.state ? ", " + community.state : ""} ("${clash.name}"). Only one community per location is allowed.`);
+          setSubmitting(false);
+          return;
+        }
+      }
+      setStep(3);
+    } catch (err) {
+      console.error(err);
+      setDupError("Could not verify location. Please try again.");
     }
     setSubmitting(false);
   };
@@ -186,6 +214,7 @@ export default function Onboarding() {
             <div className="bg-card rounded-2xl warm-shadow-md p-8">
               <h2 className="text-2xl font-bold mb-1">Create your community</h2>
               <p className="text-muted-foreground mb-6">Set up the neighborhood you'll manage</p>
+              {dupError && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{dupError}</div>}
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="commName">Community Name</Label>
@@ -213,7 +242,8 @@ export default function Onboarding() {
                   <Button type="button" variant="outline" onClick={() => setStep(1)} className="h-12">
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back
                   </Button>
-                  <Button onClick={() => setStep(3)} disabled={!community.name} className="flex-1 h-12">
+                  <Button onClick={handleCommunityContinue} disabled={!community.name || submitting} className="flex-1 h-12">
+                    {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                     Continue <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>

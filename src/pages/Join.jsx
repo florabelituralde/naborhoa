@@ -102,14 +102,18 @@ export default function Join() {
               {searched && results.length > 0 && (
                 <div className="mt-6 space-y-2">
                   {results.map(c => (
-                    <button key={c.id} onClick={() => { setCommunity(c); setError(""); }} className="w-full text-left p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-colors">
-                      <div className="flex items-start gap-3">
+                    <button key={c.id} onClick={() => { setCommunity(c); setError(""); }} className="w-full text-left rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-colors overflow-hidden">
+                      {c.photo_url && (
+                        <img src={c.photo_url} alt={c.name} className="w-full h-28 object-cover" />
+                      )}
+                      <div className="flex items-start gap-3 p-4">
                         <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <p className="font-medium">{c.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {[c.address, c.city, c.state].filter(Boolean).join(", ")}
+                          <p className="text-xs font-medium text-primary">
+                            {[c.city, c.state].filter(Boolean).join(", ") || "Location not set"}
                           </p>
+                          {c.address && <p className="text-xs text-muted-foreground">{c.address}</p>}
                           {c.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{c.description}</p>}
                         </div>
                       </div>
@@ -119,15 +123,23 @@ export default function Join() {
               )}
             </div>
           ) : (
-            <div className="bg-card rounded-2xl warm-shadow-md p-8">
+            <div className="bg-card rounded-2xl warm-shadow-md overflow-hidden">
+              {community.photo_url && (
+                <img src={community.photo_url} alt={community.name} className="w-full h-40 object-cover" />
+              )}
+              <div className="p-8">
               <div className="text-center mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <Home className="w-7 h-7 text-primary" />
-                </div>
+                {!community.photo_url && (
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Home className="w-7 h-7 text-primary" />
+                  </div>
+                )}
                 <h2 className="text-xl font-bold">{community.name}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {[community.address, community.city, community.state].filter(Boolean).join(", ")}
+                <p className="text-sm font-medium text-primary flex items-center justify-center gap-1 mt-1">
+                  <MapPin className="w-4 h-4" />
+                  {[community.city, community.state].filter(Boolean).join(", ") || "Location not set"}
                 </p>
+                {community.address && <p className="text-xs text-muted-foreground">{community.address}</p>}
               </div>
               {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
               <div className="space-y-4">
@@ -142,6 +154,7 @@ export default function Join() {
                 <button onClick={() => { setCommunity(null); setError(""); setResults([]); setSearched(false); }} className="w-full text-sm text-muted-foreground hover:text-foreground">
                   Back to search
                 </button>
+              </div>
               </div>
             </div>
           )}
