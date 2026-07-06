@@ -29,14 +29,11 @@ export default function HOACommunity() {
   const galleryInputRef = useRef(null);
 
   const loadData = async () => {
-    const [homes, staffList, props] = await Promise.all([
-      base44.entities.User.filter({ community_id: community.id, role: "homeowner" }),
-      base44.entities.User.filter({ community_id: community.id, role: "hoa_staff" }),
-      base44.entities.Property.filter({ community_id: community.id }),
-    ]);
-    setHomeowners(homes);
-    setStaff(staffList);
-    setProperties(props);
+    const res = await base44.functions.invoke("get-community-homeowners", {});
+    const data = res.data || {};
+    setHomeowners(data.homeowners || []);
+    setStaff(data.staff || []);
+    setProperties(data.properties || []);
     setDues(community.monthly_dues ? String(community.monthly_dues) : "");
     setGallery(community.gallery || []);
     setLoading(false);

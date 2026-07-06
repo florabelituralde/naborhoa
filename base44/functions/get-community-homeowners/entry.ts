@@ -13,19 +13,43 @@ Deno.serve(async (req) => {
     const communityId = user.community_id;
     if (!communityId) return Response.json({ error: 'No community' }, { status: 400 });
 
-    const homeowners = await base44.asServiceRole.entities.User.filter({
-      community_id: communityId,
-      role: 'homeowner',
-    });
+    const [allUsers, properties] = await Promise.all([
+      base44.asServiceRole.entities.User.filter({ community_id: communityId }),
+      base44.asServiceRole.entities.Property.filter({ community_id: communityId }),
+    ]);
 
-    const members = homeowners.map((h) => ({
-      id: h.id,
-      full_name: h.full_name,
-      email: h.email,
-      created_date: h.created_date,
+    const homeowners = allUsers
+      .filter((h) => h.role === 'homeowner')
+      .map((h) => ({
+        id: h.id,
+        full_name: h.full_name,
+        email: h.email,
+        property_id: h.property_id,
+        created_date: h.created_date,
+      }));
+
+    const staff = allUsers
+      .filter((s) => s.role === 'hoa_staff' || s.role === 'hoa_admin')
+      .map((s) => ({
+        id: s.id,
+        full_name: s.full_name,
+        email: s.email,
+        role: s.role,
+      }));
+
+    const props = properties.map((p) => ({
+      id: p.id,
+      address: p.address,
+      owner_id: p.owner_id,
     }));
 
-    return Response.json({ count: members.length, members });
+    return Response.json({
+      count: homeowners.length,
+      members: homeowners,
+      homeowners,
+      staff,
+      properties: props,
+    });
   } catch (error) {
     console.error('get-community-homeowners error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
