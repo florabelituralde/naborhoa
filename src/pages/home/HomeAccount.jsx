@@ -3,7 +3,7 @@ import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
-import { ClipboardList, Receipt, Loader2, Plus, History, RefreshCw, User as UserIcon, Mail } from "lucide-react";
+import { ClipboardList, Receipt, Loader2, Plus, History, RefreshCw, User as UserIcon, Mail, Bell } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import RequestBoardAccessCard from "@/components/board/RequestBoardAccessCard";
 
@@ -61,7 +61,7 @@ export default function HomeAccount() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Link to="/home/requests/new" className="bg-primary text-primary-foreground rounded-2xl p-6 hover:warm-shadow-md transition-all flex items-center gap-4">
           <Plus className="w-8 h-8" />
           <div><p className="font-semibold">New Request</p><p className="text-sm text-primary-foreground/80">Submit a maintenance or repair</p></div>
@@ -69,6 +69,10 @@ export default function HomeAccount() {
         <Link to="/home/invoices" className="bg-card rounded-2xl warm-shadow p-6 hover:warm-shadow-md transition-all flex items-center gap-4">
           <Receipt className="w-8 h-8 text-primary" />
           <div><p className="font-semibold">Pay Bills</p><p className="text-sm text-muted-foreground">View and pay invoices</p></div>
+        </Link>
+        <Link to="/home/notifications" className="bg-card rounded-2xl warm-shadow p-6 hover:warm-shadow-md transition-all flex items-center gap-4">
+          <Bell className="w-8 h-8 text-primary" />
+          <div><p className="font-semibold">Notifications</p><p className="text-sm text-muted-foreground">Reminders and updates</p></div>
         </Link>
       </div>
 
