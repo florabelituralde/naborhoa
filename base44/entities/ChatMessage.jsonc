@@ -33,7 +33,12 @@
         },
         {
           "user_condition": {
-            "role": "admin"
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
           }
         }
       ]
@@ -45,7 +50,12 @@
         },
         {
           "user_condition": {
-            "role": "admin"
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
           }
         }
       ]
@@ -57,7 +67,12 @@
         },
         {
           "user_condition": {
-            "role": "admin"
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
           }
         }
       ]
@@ -69,7 +84,12 @@
         },
         {
           "user_condition": {
-            "role": "admin"
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
           }
         }
       ]

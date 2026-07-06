@@ -41,9 +41,18 @@
   ],
   "rls": {
     "create": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
+          }
+        }
+      ]
     },
     "read": {
       "$or": [
@@ -52,7 +61,12 @@
         },
         {
           "user_condition": {
-            "role": "admin"
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
           }
         }
       ]
@@ -64,15 +78,29 @@
         },
         {
           "user_condition": {
-            "role": "admin"
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
           }
         }
       ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
+          }
+        }
+      ]
     }
   }
 }
