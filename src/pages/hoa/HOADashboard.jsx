@@ -87,13 +87,13 @@ export default function HOADashboard() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={ClipboardList} value={openRequests} label="Open Requests" colorClass="bg-primary/10 text-primary" />
-        <StatCard icon={UserPlus} value={pendingJoins} label="Pending Requests" colorClass="bg-amber-100 text-amber-700" />
-        <StatCard icon={DollarSign} value={formatCurrency(pendingTotal)} label="Outstanding" colorClass="bg-blue-50 text-blue-600" />
-        <StatCard icon={Users} value={members.length} label="Homeowners" colorClass="bg-green-50 text-green-600" />
+        <StatCard icon={ClipboardList} value={openRequests} label="Open Requests" colorClass="bg-primary/10 text-primary" to="/hoa/requests" />
+        <StatCard icon={UserPlus} value={pendingJoins} label="Pending Requests" colorClass="bg-amber-100 text-amber-700" onClick={() => document.getElementById("membership-requests")?.scrollIntoView({ behavior: "smooth" })} />
+        <StatCard icon={DollarSign} value={formatCurrency(pendingTotal)} label="Outstanding" colorClass="bg-blue-50 text-blue-600" to="/hoa/invoices" />
+        <StatCard icon={Users} value={members.length} label="Homeowners" colorClass="bg-green-50 text-green-600" to="/hoa/community" />
       </div>
 
-      <div className="mb-6">
+      <div id="membership-requests" className="mb-6 scroll-mt-6">
         <JoinRequestsSection />
       </div>
 
@@ -171,18 +171,22 @@ export default function HOADashboard() {
   );
 }
 
-function StatCard({ icon: Icon, value, label, colorClass }) {
-  return (
-    <div className="bg-card rounded-2xl warm-shadow p-6">
-      <div className="flex items-center gap-3">
-        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${colorClass}`}>
-          <Icon className="w-5 h-5" />
-        </div>
-        <div>
-          <p className="text-2xl font-bold">{value}</p>
-          <p className="text-sm text-muted-foreground">{label}</p>
-        </div>
+function StatCard({ icon: Icon, value, label, colorClass, to, onClick }) {
+  const interactive = Boolean(to || onClick);
+  const inner = (
+    <div className="flex items-center gap-3">
+      <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${colorClass}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div>
+        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
       </div>
     </div>
   );
+  const className = `bg-card rounded-2xl warm-shadow p-6 block w-full text-left ${interactive ? "hover:warm-shadow-md hover:-translate-y-0.5 transition-all cursor-pointer" : ""}`;
+
+  if (to) return <Link to={to} className={className}>{inner}</Link>;
+  if (onClick) return <button type="button" onClick={onClick} className={className}>{inner}</button>;
+  return <div className={className}>{inner}</div>;
 }
