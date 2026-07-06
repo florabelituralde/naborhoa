@@ -5,6 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 import { ClipboardList, Receipt, Loader2, Plus, History, RefreshCw, User as UserIcon, Mail } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
+import RequestBoardAccessCard from "@/components/board/RequestBoardAccessCard";
 
 export default function HomeAccount() {
   const { user, community } = useOutletContext();
@@ -46,6 +47,11 @@ export default function HomeAccount() {
           <p className="font-semibold text-lg truncate flex items-center gap-2"><UserIcon className="w-4 h-4 text-muted-foreground" />{user?.full_name}</p>
           <p className="text-sm text-muted-foreground truncate flex items-center gap-2"><Mail className="w-4 h-4" />{user?.email}</p>
         </div>
+      </div>
+
+      {/* Board access */}
+      <div className="mb-8">
+        <RequestBoardAccessCard user={user} />
       </div>
 
       {/* Stats */}
