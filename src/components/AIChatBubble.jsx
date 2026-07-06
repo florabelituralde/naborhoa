@@ -126,8 +126,7 @@ export default function AIChatBubble({ user, community }) {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}
-          className="fixed right-5 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground warm-shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+          className="fixed right-5 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-5 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground warm-shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
           aria-label="Open HOA assistant"
         >
           <MessageCircle className="w-6 h-6" />
