@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { KeyRound, ChevronDown, ChevronUp } from "lucide-react";
@@ -45,6 +45,10 @@ export default function GuestAccess() {
       )}
       <p className="mt-2 text-xs text-muted-foreground">
         Pay dues or ask the HOA assistant without creating an account.
+      </p>
+      <p className="mt-1 text-xs">
+        Don't have a code?{" "}
+        <Link to="/pay" className="text-primary font-medium hover:underline">Find your community by address</Link>
       </p>
     </div>
   );

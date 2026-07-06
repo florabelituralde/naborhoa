@@ -57,6 +57,7 @@ import DeviceTrustGate from '@/components/auth/DeviceTrustGate';
 import CommunityLanding from '@/pages/public/CommunityLanding';
 import GuestChat from '@/pages/public/GuestChat';
 import GuestPay from '@/pages/public/GuestPay';
+import GuestPayPortal from '@/pages/public/GuestPayPortal';
 import PaymentThankYou from '@/pages/public/PaymentThankYou';
 import PrivacyPolicy from '@/pages/public/PrivacyPolicy';
 import TermsOfService from '@/pages/public/TermsOfService';
@@ -97,6 +98,7 @@ const AuthenticatedApp = () => {
       <Route path="/c/:joinCode" element={<CommunityLanding />} />
       <Route path="/c/:joinCode/chat" element={<GuestChat />} />
       <Route path="/c/:joinCode/pay" element={<GuestPay />} />
+      <Route path="/pay" element={<GuestPayPortal />} />
       <Route path="/pay/thank-you" element={<PaymentThankYou />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
