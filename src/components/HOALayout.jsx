@@ -6,7 +6,7 @@ import BottomNav from "@/components/mobile/BottomNav";
 import PageTransition from "@/components/mobile/PageTransition";
 import AIChatBubble from "@/components/AIChatBubble";
 import { useLocation } from "react-router-dom";
-import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, UserCheck, Calendar, Contact, Trophy, HelpCircle, Loader2, CreditCard } from "lucide-react";
+import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, UserCheck, Calendar, Contact, Trophy, HelpCircle, Loader2, CreditCard, Sparkles } from "lucide-react";
 import { markNavLocks } from "@/lib/planAccess";
 
 export default function HOALayout() {
@@ -60,6 +60,7 @@ export default function HOALayout() {
     { path: "/hoa/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "request_types" },
     { path: "/hoa/announcements", label: "Announcements", icon: Megaphone },
+    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
 
     { path: "/hoa/community", label: "Community", icon: Users, group: "People" },
     ...(isAdmin ? [{ path: "/hoa/board", label: "Board", icon: Contact, group: "People" }] : []),
@@ -85,6 +86,7 @@ export default function HOALayout() {
     { path: "/hoa/dashboard", label: "Home", icon: LayoutDashboard },
     { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "request_types" },
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt },
+    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
     ...(isAdmin
       ? [{ path: "/hoa/account", label: "Account", icon: UserCircle }]
       : [{ path: "/hoa/help", label: "Help", icon: HelpCircle }]),
@@ -99,7 +101,7 @@ export default function HOALayout() {
         </PageTransition>
       </main>
       <BottomNav items={markNavLocks(bottomNavItems, community)} />
-      <AIChatBubble user={user} community={community} />
+      <AIChatBubble user={user} community={community} hideButton />
     </div>
   );
 }
