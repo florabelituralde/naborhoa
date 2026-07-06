@@ -82,22 +82,6 @@ export default function HomeDashboard() {
         </Link>
       </div>
 
-      {/* Who to contact */}
-      <div className="bg-accent/50 border border-accent rounded-2xl p-5 mb-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-        <div className="flex items-start gap-3 flex-1">
-          <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Contact className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <p className="font-semibold text-sm">Questions? Here's who to contact</p>
-            <p className="text-sm text-muted-foreground">Reach out to your HOA board for anything about the community. You can also ask the assistant below — it can email the board directly if it can't help.</p>
-          </div>
-        </div>
-        <Link to="/home/board" className="shrink-0 inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium px-4 py-2 hover:bg-primary/90 transition-colors">
-          View Board Contacts
-        </Link>
-      </div>
-
       {/* Sliding Gallery — before announcements */}
       {community?.gallery?.length > 0 && (
         <div className="mb-6">
@@ -135,6 +119,22 @@ export default function HomeDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <CommunityCalendar invoices={[]} events={events} />
         <AIChatWidget />
+      </div>
+
+      {/* Who to contact */}
+      <div className="bg-accent/50 border border-accent rounded-2xl p-5 mt-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+        <div className="flex items-start gap-3 flex-1">
+          <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Contact className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm">Questions? Here's who to contact</p>
+            <p className="text-sm text-muted-foreground">Reach out to your HOA board for anything about the community. You can also ask the assistant above — it can email the board directly if it can't help.</p>
+          </div>
+        </div>
+        <Link to="/home/board" className="shrink-0 inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium px-4 py-2 hover:bg-primary/90 transition-colors">
+          View Board Contacts
+        </Link>
       </div>
     </div>
   );
