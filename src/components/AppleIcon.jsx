@@ -3,7 +3,7 @@ import React from "react";
 // Official Apple logo (black) used for "Sign in with Apple" buttons.
 export default function AppleIcon({ className = "w-5 h-5" }) {
   return (
-    <svg className={className} viewBox="0 0 20 17" fill="currentColor" aria-hidden="true">
+    <svg className={className} viewBox="0 -4 21 21" fill="currentColor" aria-hidden="true">
       <path d="M17.05 12.04c-.03-2.95 2.42-4.37 2.53-4.44-1.38-2.02-3.53-2.3-4.29-2.33-1.83-.19-3.58 1.07-4.51 1.07-.94 0-2.36-1.05-3.89-1.02C4.93 5.35 3.3 6.45 2.41 8.12 1.27 10.36 1.94 13.2 3.06 14.78c.55.77 1.2 1.64 2.05 1.61.83-.03 1.14-.53 2.14-.53 1 0 1.28.53 2.15.51.89-.01 1.45-.78 1.99-1.56.63-.89.89-1.75.9-1.8-.02-.01-1.72-.66-1.74-2.6zM14.6 4.59c.9-1.1 1.51-2.62 1.34-4.14-1.3.05-2.87.86-3.8 1.96-.83.97-1.56 2.51-1.36 4 .95.07 1.92-.48 3.82-1.82z" />
     </svg>
   );
