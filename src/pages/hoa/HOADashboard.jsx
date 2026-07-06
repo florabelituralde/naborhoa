@@ -5,6 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 import { ClipboardList, DollarSign, Users, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
+import FinancialOverviewChart from "@/components/hoa/FinancialOverviewChart";
 
 export default function HOADashboard() {
   const { user, community } = useOutletContext();
@@ -13,19 +14,22 @@ export default function HOADashboard() {
   const [invoices, setInvoices] = useState([]);
   const [homeowners, setHomeowners] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [expenses, setExpenses] = useState([]);
 
   useEffect(() => {
     if (!community) return;
     Promise.all([
       base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
-      base44.entities.Invoice.filter({ community_id: community.id }, "-created_date", 50),
+      base44.entities.Invoice.filter({ community_id: community.id }, "-created_date", 500),
       base44.entities.User.filter({ community_id: community.id, role: "homeowner" }),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 5),
-    ]).then(([reqs, invs, homes, anns]) => {
+      base44.entities.Expense.filter({ community_id: community.id }, "-created_date", 500),
+    ]).then(([reqs, invs, homes, anns, exps]) => {
       setRequests(reqs);
       setInvoices(invs);
       setHomeowners(homes);
       setAnnouncements(anns);
+      setExpenses(exps);
       setLoading(false);
     });
   }, [community]);
@@ -47,6 +51,10 @@ export default function HOADashboard() {
         <StatCard icon={ClipboardList} value={inProgress} label="In Progress" colorClass="bg-amber-100 text-amber-700" />
         <StatCard icon={DollarSign} value={formatCurrency(pendingTotal)} label="Outstanding" colorClass="bg-blue-50 text-blue-600" />
         <StatCard icon={Users} value={homeowners.length} label="Homeowners" colorClass="bg-green-50 text-green-600" />
+      </div>
+
+      <div className="mb-6">
+        <FinancialOverviewChart invoices={invoices} expenses={expenses} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
