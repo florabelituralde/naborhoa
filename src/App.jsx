@@ -39,7 +39,6 @@ import HomeExpenses from '@/pages/home/HomeExpenses';
 import HomeAnnouncements from '@/pages/home/HomeAnnouncements';
 import HomePolls from '@/pages/home/HomePolls';
 import HomeDocuments from '@/pages/home/HomeDocuments';
-import HomeAIChat from '@/pages/home/HomeAIChat';
 import HomeEvents from '@/pages/home/HomeEvents';
 import HomeBoard from '@/pages/home/HomeBoard';
 import HomeElections from '@/pages/home/HomeElections';
@@ -119,7 +118,6 @@ const AuthenticatedApp = () => {
           <Route path="/home/elections" element={<HomeElections />} />
           <Route path="/home/documents" element={<HomeDocuments />} />
           <Route path="/home/board" element={<HomeBoard />} />
-          <Route path="/home/chat" element={<HomeAIChat />} />
         </Route>
       </Route>
 

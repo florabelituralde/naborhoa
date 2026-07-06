@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
-import { LayoutDashboard, ClipboardList, Receipt, Wallet, Megaphone, Vote, FileText, MessageCircle, Calendar, Contact, Trophy, Loader2 } from "lucide-react";
+import AIChatBubble from "@/components/AIChatBubble";
+import { LayoutDashboard, ClipboardList, Receipt, Wallet, Megaphone, Vote, FileText, Calendar, Contact, Trophy, Loader2 } from "lucide-react";
 
 export default function HomeownerLayout() {
   const navigate = useNavigate();
@@ -45,7 +46,6 @@ export default function HomeownerLayout() {
     { path: "/home/events", label: "Events", icon: Calendar },
     { path: "/home/documents", label: "Documents", icon: FileText },
     { path: "/home/board", label: "Board", icon: Contact },
-    { path: "/home/chat", label: "AI Assistant", icon: MessageCircle },
   ];
 
   return (
@@ -54,6 +54,7 @@ export default function HomeownerLayout() {
       <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
         <Outlet context={{ user, community }} />
       </main>
+      <AIChatBubble user={user} community={community} />
     </div>
   );
 }
