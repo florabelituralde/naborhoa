@@ -19,6 +19,9 @@
     "property_id": {
       "type": "string"
     },
+    "pending_org_name": {
+      "type": "string"
+    },
     "phone": {
       "type": "string"
     },

@@ -69,9 +69,12 @@ export default function Register() {
         throw new Error("Verification failed. Please try again.");
       }
       base44.auth.setToken(result.access_token);
+      // Persist the role and setup context. This MUST succeed — routing after
+      // login depends entirely on role/community_id, so a failure here would
+      // strand the user. Let it throw so the error surfaces instead of
+      // advancing to the confirmation screen with an unsaved role.
       await base44.auth.updateMe({
         role,
-        full_name: fullName,
         ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
         ...(role === "homeowner" && isBoardMember ? { board_member_status: "pending" } : {}),
       });
