@@ -15,7 +15,7 @@ function safeOrigin(req: Request): string {
       return raw;
     }
   } catch (_) { /* invalid or missing Origin */ }
-  return Deno.env.get("APP_BASE_URL") || "https://app.base44.app";
+  return "https://app.base44.app";
 }
 
 Deno.serve(async (req) => {
@@ -40,10 +40,31 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Stripe account not ready for charges" }, { status: 400 });
     }
 
+    // When paying a specific invoice, trust the stored invoice amount — never the
+    // client-supplied amount — so the charge can't be tampered with. Also verify
+    // the invoice belongs to this community and isn't already settled.
+    let chargeAmount = amount;
+    let chargeDescription = description;
+    if (invoice_id) {
+      const invoice = await base44.asServiceRole.entities.Invoice.get(invoice_id).catch(() => null);
+      if (!invoice || invoice.community_id !== community_id) {
+        return Response.json({ error: "Invoice not found" }, { status: 404 });
+      }
+      if (invoice.status === "paid" || invoice.status === "confirmed") {
+        return Response.json({ error: "This bill has already been paid." }, { status: 409 });
+      }
+      chargeAmount = invoice.amount;
+      chargeDescription = description || invoice.description || "HOA Payment";
+    }
+
+    if (chargeAmount < 0.50) {
+      return Response.json({ error: "Amount must be at least $0.50" }, { status: 400 });
+    }
+
     const stripe = new Stripe(secretKey);
     const origin = safeOrigin(req);
 
-    const unitAmount = Math.round(amount * 100);
+    const unitAmount = Math.round(chargeAmount * 100);
     const fee = Math.round((unitAmount * PLATFORM_FEE_BPS) / 10000);
 
     // Build the list of allowed payment method types from the community's
@@ -60,7 +81,7 @@ Deno.serve(async (req) => {
         {
           price_data: {
             currency: "usd",
-            product_data: { name: description || "HOA Payment" },
+            product_data: { name: chargeDescription || "HOA Payment" },
             unit_amount: unitAmount,
           },
           quantity: 1,
@@ -87,12 +108,7 @@ Deno.serve(async (req) => {
     });
 
     if (invoice_id) {
-      // Verify the invoice belongs to this community before mutating it, so an
-      // arbitrary invoice_id can't be linked to another community's checkout.
-      const invoice = await base44.asServiceRole.entities.Invoice.get(invoice_id);
-      if (!invoice || invoice.community_id !== community_id) {
-        return Response.json({ error: "Invoice not found" }, { status: 404 });
-      }
+      // Invoice ownership + settled-status already verified above.
       await base44.asServiceRole.entities.Invoice.update(invoice_id, {
         wix_checkout_id: session.id, // reuse field to store the Stripe session id
         status: "pending",

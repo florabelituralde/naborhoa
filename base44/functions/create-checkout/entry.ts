@@ -11,7 +11,7 @@ function safeOrigin(req: Request): string {
       return raw;
     }
   } catch (_) { /* invalid or missing Origin */ }
-  return Deno.env.get("APP_BASE_URL") || "https://app.base44.app";
+  return "https://app.base44.app";
 }
 
 Deno.serve(async (req) => {
@@ -24,20 +24,37 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    if (amount < 0.50) {
-      return Response.json({ error: "Amount must be at least $0.50" }, { status: 400 });
-    }
-
     const origin = safeOrigin(req);
     const WIX_API_KEY = Deno.env.get("WIX_PAYMENTS_API_KEY");
     const WIX_SITE_ID = Deno.env.get("WIX_PAYMENTS_SITE_ID");
 
     const isSubscription = frequency === "MONTH" || frequency === "QUARTER" || frequency === "YEAR";
 
+    // When paying a specific invoice, trust the stored invoice amount — never the
+    // client-supplied amount — and verify ownership + settled status up front.
+    let existingInvoice = null;
+    let chargeAmount = amount;
+    let chargeDescription = description;
+    if (invoice_id && !isSubscription) {
+      existingInvoice = await base44.asServiceRole.entities.Invoice.get(invoice_id).catch(() => null);
+      if (!existingInvoice || existingInvoice.community_id !== community_id) {
+        return Response.json({ error: "Invoice not found" }, { status: 404 });
+      }
+      if (existingInvoice.status === "paid" || existingInvoice.status === "confirmed") {
+        return Response.json({ error: "This bill has already been paid." }, { status: 409 });
+      }
+      chargeAmount = existingInvoice.amount;
+      chargeDescription = description || existingInvoice.description || "HOA Dues Payment";
+    }
+
+    if (chargeAmount < 0.50) {
+      return Response.json({ error: "Amount must be at least $0.50" }, { status: 400 });
+    }
+
     const item = {
-      name: description || "HOA Dues Payment",
+      name: chargeDescription || "HOA Dues Payment",
       quantity: 1,
-      price: amount.toFixed(2),
+      price: chargeAmount.toFixed(2),
     };
 
     if (isSubscription) {
@@ -91,13 +108,8 @@ Deno.serve(async (req) => {
         status: "pending",
       });
     } else if (invoice_id) {
-      // Paying a specific existing invoice (dues, fine, fee, or assessment) as a guest.
-      // Verify the invoice actually belongs to this community before mutating it,
-      // so an arbitrary invoice_id can't be linked to someone else's checkout.
-      const invoice = await base44.asServiceRole.entities.Invoice.get(invoice_id);
-      if (!invoice || invoice.community_id !== community_id) {
-        return Response.json({ error: "Invoice not found" }, { status: 404 });
-      }
+      // Paying a specific existing invoice — ownership + settled status already
+      // verified above; charge amount was taken from the stored invoice.
       await base44.asServiceRole.entities.Invoice.update(invoice_id, {
         wix_checkout_id: checkoutId,
         status: "pending",
