@@ -25,7 +25,7 @@ export default function HomeNewRequest() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (!community) return;
+    if (!community) { setLoading(false); return; }
     base44.entities.RequestType.filter({ community_id: community.id, active: true }, "sort_order")
       .then(t => { setTypes(t); })
       .catch(() => { setTypes([]); })
