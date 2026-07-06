@@ -4,6 +4,20 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 // Platform fee taken from each resident payment (in basis points). 300 = 3%.
 const PLATFORM_FEE_BPS = 300;
 
+// Only trust the request Origin when it points at one of our own domains.
+// Otherwise fall back to a safe canonical URL so redirect targets can't be
+// spoofed via a forged Origin header (open-redirect protection).
+function safeOrigin(req: Request): string {
+  const raw = req.headers.get("Origin") || req.headers.get("origin") || "";
+  try {
+    const host = new URL(raw).hostname;
+    if (host === "localhost" || host.endsWith(".base44.app") || host.endsWith(".base44.com")) {
+      return raw;
+    }
+  } catch (_) { /* invalid or missing Origin */ }
+  return Deno.env.get("APP_BASE_URL") || "https://app.base44.app";
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -27,7 +41,7 @@ Deno.serve(async (req) => {
     }
 
     const stripe = new Stripe(secretKey);
-    const origin = req.headers.get("Origin") || req.headers.get("origin") || "";
+    const origin = safeOrigin(req);
 
     const unitAmount = Math.round(amount * 100);
     const fee = Math.round((unitAmount * PLATFORM_FEE_BPS) / 10000);
@@ -73,6 +87,12 @@ Deno.serve(async (req) => {
     });
 
     if (invoice_id) {
+      // Verify the invoice belongs to this community before mutating it, so an
+      // arbitrary invoice_id can't be linked to another community's checkout.
+      const invoice = await base44.asServiceRole.entities.Invoice.get(invoice_id);
+      if (!invoice || invoice.community_id !== community_id) {
+        return Response.json({ error: "Invoice not found" }, { status: 404 });
+      }
       await base44.asServiceRole.entities.Invoice.update(invoice_id, {
         wix_checkout_id: session.id, // reuse field to store the Stripe session id
         status: "pending",
