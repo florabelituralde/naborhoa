@@ -19,7 +19,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [org, setOrg] = useState({ name: "", type: "standalone_hoa", description: "" });
-  const [community, setCommunity] = useState({ name: "", address: "", city: "", state: "", description: "" });
+  const [community, setCommunity] = useState({ name: "", city: "", state: "", zip: "", description: "" });
   const [photos, setPhotos] = useState({ photo_url: "", logo_url: "", gallery: [] });
   const [docs, setDocs] = useState([]);
   const [joinCode, setJoinCode] = useState("");
@@ -237,19 +237,19 @@ export default function Onboarding() {
                   <Label htmlFor="commName">Community Name</Label>
                   <Input id="commName" value={community.name} onChange={e => setCommunity({ ...community, name: e.target.value })} placeholder="Maple Street Estates" className="mt-1.5 h-11" />
                 </div>
-                <div>
-                  <Label htmlFor="commAddr">Street Address</Label>
-                  <Input id="commAddr" value={community.address} onChange={e => setCommunity({ ...community, address: e.target.value })} placeholder="123 Main St" className="mt-1.5 h-11" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2">
                     <Label htmlFor="commCity">City</Label>
-                    <Input id="commCity" value={community.city} onChange={e => setCommunity({ ...community, city: e.target.value })} className="mt-1.5 h-11" />
+                    <Input id="commCity" value={community.city} onChange={e => setCommunity({ ...community, city: e.target.value })} placeholder="Austin" className="mt-1.5 h-11" />
                   </div>
                   <div>
                     <Label htmlFor="commState">State</Label>
-                    <Input id="commState" value={community.state} onChange={e => setCommunity({ ...community, state: e.target.value })} className="mt-1.5 h-11" />
+                    <Input id="commState" value={community.state} onChange={e => setCommunity({ ...community, state: e.target.value })} placeholder="TX" className="mt-1.5 h-11" />
                   </div>
+                </div>
+                <div>
+                  <Label htmlFor="commZip">Zip Code</Label>
+                  <Input id="commZip" value={community.zip} onChange={e => setCommunity({ ...community, zip: e.target.value })} placeholder="78701" className="mt-1.5 h-11" />
                 </div>
                 <div>
                   <Label htmlFor="commDesc">Description (optional)</Label>

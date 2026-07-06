@@ -11,13 +11,13 @@
     "join_code": {
       "type": "string"
     },
-    "address": {
-      "type": "string"
-    },
     "city": {
       "type": "string"
     },
     "state": {
+      "type": "string"
+    },
+    "zip": {
       "type": "string"
     },
     "description": {

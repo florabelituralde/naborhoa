@@ -95,7 +95,7 @@ export default function CommunityLanding() {
             <h1 className="text-4xl font-bold mb-2">{community.name}</h1>
             <p className="flex items-center gap-1.5 text-white/90">
               <MapPin className="w-4 h-4" />
-              {[community.address, community.city, community.state].filter(Boolean).join(", ")}
+              {[[community.city, community.state].filter(Boolean).join(", "), community.zip].filter(Boolean).join(" ")}
             </p>
           </div>
         </div>

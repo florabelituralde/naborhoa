@@ -38,7 +38,7 @@ export default function Join() {
             (c.name || "").toLowerCase().includes(q) ||
             (c.city || "").toLowerCase().includes(q) ||
             (c.state || "").toLowerCase().includes(q) ||
-            (c.address || "").toLowerCase().includes(q)
+            (c.zip || "").toLowerCase().includes(q)
           )
         : all;
       setResults(filtered);
@@ -87,12 +87,12 @@ export default function Join() {
           {!community ? (
             <div className="bg-card rounded-2xl warm-shadow-md p-8">
               <h2 className="text-2xl font-bold mb-1">Find your community</h2>
-              <p className="text-muted-foreground mb-6">Search by neighborhood name, city, or state</p>
+              <p className="text-muted-foreground mb-6">Search by neighborhood name, city, state, or zip code</p>
               {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="search">Search</Label>
-                  <Input id="search" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && searchCommunities()} placeholder="e.g. Oakwood Hills, Austin, TX" className="mt-1.5 h-12" autoFocus />
+                  <Input id="search" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && searchCommunities()} placeholder="e.g. Oakwood Hills, Austin, or 78701" className="mt-1.5 h-12" autoFocus />
                 </div>
                 <Button onClick={searchCommunities} disabled={searching} className="w-full h-12">
                   {searching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
@@ -111,9 +111,8 @@ export default function Join() {
                         <div>
                           <p className="font-medium">{c.name}</p>
                           <p className="text-xs font-medium text-primary">
-                            {[c.city, c.state].filter(Boolean).join(", ") || "Location not set"}
+                            {[[c.city, c.state].filter(Boolean).join(", "), c.zip].filter(Boolean).join(" ") || "Location not set"}
                           </p>
-                          {c.address && <p className="text-xs text-muted-foreground">{c.address}</p>}
                           {c.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{c.description}</p>}
                         </div>
                       </div>
@@ -137,9 +136,8 @@ export default function Join() {
                 <h2 className="text-xl font-bold">{community.name}</h2>
                 <p className="text-sm font-medium text-primary flex items-center justify-center gap-1 mt-1">
                   <MapPin className="w-4 h-4" />
-                  {[community.city, community.state].filter(Boolean).join(", ") || "Location not set"}
+                  {[[community.city, community.state].filter(Boolean).join(", "), community.zip].filter(Boolean).join(" ") || "Location not set"}
                 </p>
-                {community.address && <p className="text-xs text-muted-foreground">{community.address}</p>}
               </div>
               {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
               <div className="space-y-4">
