@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,14 @@ import { Loader2, ShieldCheck, Clock, ShieldQuestion } from "lucide-react";
 export default function RequestBoardAccessCard({ user }) {
   const [status, setStatus] = useState(user?.board_member_status || "none");
   const [submitting, setSubmitting] = useState(false);
+
+  // The user object from context can be stale (e.g. after an admin approves the
+  // request). Re-fetch the live status so an approved request stops showing "pending".
+  useEffect(() => {
+    base44.auth.me()
+      .then(u => setStatus(u.board_member_status || "none"))
+      .catch(() => {});
+  }, []);
 
   const requestAccess = async () => {
     setSubmitting(true);
