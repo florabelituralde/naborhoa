@@ -64,19 +64,21 @@ export default function Register() {
     setLoading(true);
     try {
       const result = await base44.auth.verifyOtp({ email, otpCode });
-      if (result?.access_token) {
-        base44.auth.setToken(result.access_token);
-        await base44.auth.updateMe({
-          role,
-          full_name: fullName,
-          ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
-          ...(role === "homeowner" && isBoardMember ? { board_member_status: "pending" } : {}),
-        });
+      if (!result?.access_token) {
+        throw new Error("Verification failed. Please try again.");
       }
-      window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
+      base44.auth.setToken(result.access_token);
+      await base44.auth.updateMe({
+        role,
+        full_name: fullName,
+        ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
+        ...(role === "homeowner" && isBoardMember ? { board_member_status: "pending" } : {}),
+      });
+      // Logged in — send to the app root; RoleRouter routes to the right
+      // next step (HOA onboarding or homeowner community join).
+      window.location.href = "/";
     } catch (err) {
       setError(err.message || "Invalid verification code");
-    } finally {
       setLoading(false);
     }
   };
