@@ -20,9 +20,17 @@ export default function Join() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    base44.auth.me().then(u => {
+    base44.auth.me().then(async u => {
       setUser(u);
-      if (u.community_id) navigate("/home/dashboard");
+      if (u.community_id) {
+        navigate("/home/dashboard");
+        return;
+      }
+      const pending = await base44.entities.JoinRequest.filter({ homeowner_id: u.id, status: "pending" });
+      if (pending.length > 0) {
+        navigate("/pending-approval");
+        return;
+      }
       setLoading(false);
     }).catch(() => navigate("/login"));
   }, []);
@@ -53,15 +61,18 @@ export default function Join() {
   const joinCommunity = async () => {
     setSubmitting(true);
     try {
-      const property = await base44.entities.Property.create({
+      await base44.entities.JoinRequest.create({
         community_id: community.id,
+        community_name: community.name,
+        homeowner_id: user.id,
+        homeowner_name: user.full_name,
+        homeowner_email: user.email,
         address: address,
-        owner_id: user.id,
+        status: "pending",
       });
-      await base44.auth.updateMe({ community_id: community.id, property_id: property.id });
-      navigate("/home/dashboard");
+      navigate("/pending-approval");
     } catch (err) {
-      setError(err.message || "Failed to join community");
+      setError(err.message || "Failed to submit request");
     }
     setSubmitting(false);
   };
@@ -145,9 +156,10 @@ export default function Join() {
                   <Label htmlFor="addr">Your Property Address</Label>
                   <Input id="addr" value={address} onChange={e => setAddress(e.target.value)} placeholder="456 Oak Lane" className="mt-1.5 h-11" autoFocus />
                 </div>
+                <p className="text-xs text-muted-foreground">Your request will be reviewed by the HOA admin or a board member before you're granted access.</p>
                 <Button onClick={joinCommunity} disabled={!address || submitting} className="w-full h-12">
                   {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
-                  Join Community
+                  Request to Join
                 </Button>
                 <button onClick={() => { setCommunity(null); setError(""); setResults([]); setSearched(false); }} className="w-full text-sm text-muted-foreground hover:text-foreground">
                   Back to search

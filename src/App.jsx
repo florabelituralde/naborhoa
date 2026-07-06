@@ -16,10 +16,12 @@ import ResetPassword from '@/pages/ResetPassword';
 import ChooseRole from '@/pages/ChooseRole';
 import Onboarding from '@/pages/Onboarding';
 import Join from '@/pages/Join';
+import PendingApproval from '@/pages/PendingApproval';
 import HOALayout from '@/components/HOALayout';
 import HomeownerLayout from '@/components/HomeownerLayout';
 import HOADashboard from '@/pages/hoa/HOADashboard';
 import HOAAccount from '@/pages/hoa/HOAAccount';
+import HOAMembers from '@/pages/hoa/HOAMembers';
 import HOAAddCommunity from '@/pages/hoa/HOAAddCommunity';
 import HOARequests from '@/pages/hoa/HOARequests';
 import HOARequestDetail from '@/pages/hoa/HOARequestDetail';
@@ -99,10 +101,12 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<RoleRouter />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/join" element={<Join />} />
+        <Route path="/pending-approval" element={<PendingApproval />} />
 
         <Route element={<HOALayout />}>
           <Route path="/hoa/dashboard" element={<HOADashboard />} />
           <Route path="/hoa/account" element={<HOAAccount />} />
+          <Route path="/hoa/members" element={<HOAMembers />} />
           <Route path="/hoa/add-community" element={<HOAAddCommunity />} />
           <Route path="/hoa/requests" element={<HOARequests />} />
           <Route path="/hoa/requests/:id" element={<HOARequestDetail />} />

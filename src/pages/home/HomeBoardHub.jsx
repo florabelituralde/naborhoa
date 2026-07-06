@@ -8,6 +8,7 @@ import BoardAnnouncementSection from "@/components/board/BoardAnnouncementSectio
 import BoardEventSection from "@/components/board/BoardEventSection";
 import BoardPollResultsSection from "@/components/board/BoardPollResultsSection";
 import BoardGallerySection from "@/components/board/BoardGallerySection";
+import JoinRequestsSection from "@/components/JoinRequestsSection";
 
 export default function HomeBoardHub() {
   const { user, community } = useOutletContext();
@@ -47,6 +48,7 @@ export default function HomeBoardHub() {
       <PageHeader title="Board Hub" subtitle="Manage community requests, announcements, events, and more" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <JoinRequestsSection />
         <BoardRequestsSection requests={requests} viewAllPath="/home/requests" detailBasePath="/home/requests" />
         <BoardAnnouncementSection community={community} user={user} announcements={announcements} onChange={loadData} />
         <BoardEventSection community={community} user={user} events={events} onChange={loadData} />

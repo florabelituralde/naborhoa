@@ -1,0 +1,47 @@
+{
+  "name": "JoinRequest",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "community_name": {
+      "type": "string"
+    },
+    "homeowner_id": {
+      "type": "string"
+    },
+    "homeowner_name": {
+      "type": "string"
+    },
+    "homeowner_email": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "reviewed_by_id": {
+      "type": "string"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "review_note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "community_id",
+    "homeowner_id",
+    "address"
+  ]
+}

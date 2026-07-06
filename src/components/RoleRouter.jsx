@@ -8,13 +8,18 @@ export default function RoleRouter() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    base44.auth.me().then(user => {
+    base44.auth.me().then(async user => {
       const role = user.role ?? user.data?.role;
       const communityId = user.community_id ?? user.data?.community_id;
       if (role === "hoa_admin" || role === "hoa_staff") {
         setRedirect(communityId ? "/hoa/dashboard" : "/onboarding");
       } else if (role === "homeowner") {
-        setRedirect(communityId ? "/home/dashboard" : "/join");
+        if (communityId) {
+          setRedirect("/home/dashboard");
+        } else {
+          const pending = await base44.entities.JoinRequest.filter({ homeowner_id: user.id }, "-created_date", 1);
+          setRedirect(pending.length > 0 && pending[0].status !== "approved" ? "/pending-approval" : "/join");
+        }
       } else {
         setRedirect("/choose-role");
       }

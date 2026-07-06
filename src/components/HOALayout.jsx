@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
-import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, Calendar, Contact, Trophy, HelpCircle, Loader2 } from "lucide-react";
+import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, UserCheck, Calendar, Contact, Trophy, HelpCircle, Loader2 } from "lucide-react";
 import { markNavLocks } from "@/lib/planAccess";
 
 export default function HOALayout() {
@@ -50,6 +50,7 @@ export default function HOALayout() {
 
   const navItems = [
     { path: "/hoa/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/hoa/members", label: "Members", icon: UserCheck },
     { path: "/hoa/requests", label: "Requests", icon: ClipboardList },
     { path: "/hoa/request-types", label: "Request Types", icon: ListChecks },
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt },
