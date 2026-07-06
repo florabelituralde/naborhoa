@@ -35,9 +35,40 @@ export default function HOARequestDetail() {
     });
   }, [id, community]);
 
+  const buildActivityEntries = (updates) => {
+    const now = new Date().toISOString();
+    const entries = [];
+    if (updates.status) {
+      const labels = {
+        in_progress: "Work started — request in progress",
+        resolved: "Request resolved and completed",
+        cancelled: "Request cancelled",
+        submitted: "Request reopened",
+      };
+      entries.push({ type: "status_change", status: updates.status, label: labels[updates.status] || `Status changed to ${updates.status}`, timestamp: now });
+    }
+    if (updates.assigned_to_id !== undefined) {
+      if (updates.assigned_to_id) {
+        const member = staff.find((s) => s.id === updates.assigned_to_id);
+        entries.push({ type: "assigned", label: `Assigned to ${member?.full_name || "a staff member"}`, timestamp: now });
+      } else {
+        entries.push({ type: "unassigned", label: "Assignment removed", timestamp: now });
+      }
+    }
+    if (updates.resolution_notes !== undefined && !updates.status) {
+      entries.push({ type: "note", label: "Resolution notes updated", timestamp: now });
+    }
+    return entries;
+  };
+
   const updateRequest = async (updates) => {
     setUpdating(true);
-    const updated = await base44.entities.Request.update(id, updates);
+    const newEntries = buildActivityEntries(updates);
+    const payload = { ...updates };
+    if (newEntries.length > 0) {
+      payload.activity_log = [...(request.activity_log || []), ...newEntries];
+    }
+    const updated = await base44.entities.Request.update(id, payload);
     setRequest(updated);
     if (updates.status) {
       await base44.entities.Notification.create({

@@ -3,6 +3,7 @@ import { useOutletContext, useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import StatusBadge from "@/components/StatusBadge";
 import RequestProgress from "@/components/RequestProgress";
+import RequestTimeline from "@/components/RequestTimeline";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft, X } from "lucide-react";
 import { formatDate } from "@/lib/format";
@@ -60,6 +61,10 @@ export default function HomeRequestDetail() {
             <img src={request.image_url} alt="Request" className="rounded-xl max-h-64 object-cover" />
           </div>
         )}
+      </div>
+
+      <div className="mb-6">
+        <RequestTimeline request={request} />
       </div>
 
       {request.resolution_notes && (
