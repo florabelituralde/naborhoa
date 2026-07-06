@@ -71,8 +71,12 @@ export default function TermsOfService() {
               <li>Prices may change with reasonable notice; existing subscriptions keep their price until the next renewal after a change.</li>
             </ul>
             <p className="mt-2">
-              Homeowner HOA dues payments are separate one-time or recurring transactions processed
-              securely through Base44 Payments.
+              Homeowner HOA dues and bill payments are separate one-time or recurring transactions.
+              They are processed securely through Base44 Payments, or, where your HOA has connected its
+              own payment account, through Stripe with funds paid out directly to your HOA. A small
+              platform service fee may be applied to payments processed through a connected account.
+              Nabor is not the merchant of record for resident dues and is not responsible for the
+              goods, services, or obligations of your HOA.
             </p>
           </section>
 
@@ -87,7 +91,17 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h3 className="font-semibold text-lg mb-2">5. Your Content</h3>
+            <h3 className="font-semibold text-lg mb-2">5. Account Security &amp; Biometric Sign-In</h3>
+            <p>
+              You may enable biometric sign-in (Face ID, Touch ID, or fingerprint) for convenience. Your
+              biometric data stays on your device and is managed by your device's operating system; Nabor
+              never receives it. We may also verify new devices and maintain a list of trusted devices to
+              protect your account. You are responsible for keeping your device and credentials secure.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="font-semibold text-lg mb-2">6. Your Content</h3>
             <p>
               You retain ownership of content you create (requests, announcements, documents). You grant
               Nabor a license to host, display, and process that content within the Service for your
@@ -96,7 +110,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h3 className="font-semibold text-lg mb-2">6. AI Assistant</h3>
+            <h3 className="font-semibold text-lg mb-2">7. AI Assistant</h3>
             <p>
               The AI assistant answers questions based on your community's uploaded documents. It may
               not always be accurate. You should verify important information with your HOA board. We
@@ -105,7 +119,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h3 className="font-semibold text-lg mb-2">7. Service Availability</h3>
+            <h3 className="font-semibold text-lg mb-2">8. Service Availability</h3>
             <p>
               We strive to keep the Service available but do not guarantee uninterrupted access. We may
               update, suspend, or discontinue features with reasonable notice. Scheduled maintenance
@@ -114,7 +128,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h3 className="font-semibold text-lg mb-2">8. Limitation of Liability</h3>
+            <h3 className="font-semibold text-lg mb-2">9. Limitation of Liability</h3>
             <p>
               To the maximum extent permitted by law, Nabor is not liable for indirect, incidental, or
               consequential damages arising from your use of the Service. Our total liability for any
@@ -123,7 +137,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h3 className="font-semibold text-lg mb-2">9. Termination</h3>
+            <h3 className="font-semibold text-lg mb-2">10. Termination</h3>
             <p>
               You can stop using the Service and delete your account at any time. We may suspend or
               terminate your account if you violate these Terms or for any other reason with notice
@@ -132,7 +146,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h3 className="font-semibold text-lg mb-2">10. Changes to These Terms</h3>
+            <h3 className="font-semibold text-lg mb-2">11. Changes to These Terms</h3>
             <p>
               We may update these Terms from time to time. We will notify you of significant changes in
               the app and update the "Last updated" date. Continued use after changes constitutes
@@ -141,7 +155,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h3 className="font-semibold text-lg mb-2">11. Governing Law</h3>
+            <h3 className="font-semibold text-lg mb-2">12. Governing Law</h3>
             <p>
               These Terms are governed by the laws of the jurisdiction in which the Service operator is
               established, without regard to conflict-of-law principles.
@@ -149,7 +163,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h3 className="font-semibold text-lg mb-2">12. Contact</h3>
+            <h3 className="font-semibold text-lg mb-2">13. Contact</h3>
             <p>
               Questions about these Terms can be sent through the Help section in the app or to your
               community's HOA board.

@@ -42,7 +42,8 @@ export default function PrivacyPolicy() {
             <p className="mb-2"><strong>Account information:</strong> Your name, email address, and password (stored securely and hashed). When you sign in with Google or Apple, we receive the name and email associated with that account.</p>
             <p className="mb-2"><strong>Profile & community data:</strong> Your role (homeowner or HOA manager), community membership, property address, and join codes you use.</p>
             <p className="mb-2"><strong>Content you create:</strong> Maintenance and repair requests, messages to the AI assistant, announcements, poll votes, election votes, event RSVPs, and documents you upload.</p>
-            <p className="mb-2"><strong>Payment information:</strong> Dues and subscription payments are processed securely by our payment provider (Base44 Payments). We do not store your full card number on our servers; we retain only transaction records and the last four digits of your card for your records.</p>
+            <p className="mb-2"><strong>Payment information:</strong> Dues and subscription payments are processed securely by our payment providers. Platform subscriptions are handled by Base44 Payments. When your HOA connects its own account, resident dues and bill payments are processed by Stripe and paid out directly to your HOA's bank account. We never store your full card or bank account number on our servers; our providers retain the payment credentials, and we keep only transaction records (amount, date, status, and the last four digits) for your history.</p>
+            <p className="mb-2"><strong>Biometric &amp; device security data:</strong> If you enable biometric sign-in (Face ID, Touch ID, or fingerprint), the biometric data itself never leaves your device and is never sent to us — we store only a public credential identifier used to verify future logins. To protect your account, we may also store a hashed device-verification code and a record of trusted devices.</p>
             <p className="mb-2"><strong>Usage data:</strong> Device type, app version, and interaction logs used to improve the Service and troubleshoot issues.</p>
           </section>
 
@@ -50,7 +51,8 @@ export default function PrivacyPolicy() {
             <h3 className="font-semibold text-lg mb-2">2. How We Use Your Information</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li>To create and manage your account and community membership.</li>
-              <li>To process dues payments and subscription billing.</li>
+              <li>To process dues payments and subscription billing, and to route payments directly to your HOA's connected account where applicable.</li>
+              <li>To verify your identity, enable biometric sign-in, and recognize trusted devices for account security.</li>
               <li>To route maintenance requests to your HOA board and notify you of status updates.</li>
               <li>To send announcements, reminders, and notifications about your community.</li>
               <li>To provide an AI assistant that answers questions based on your community's documents.</li>
@@ -63,7 +65,7 @@ export default function PrivacyPolicy() {
             <p className="mb-2">We do not sell your personal information. We share data only:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>With your community's HOA board members, so they can manage requests, dues, and membership.</li>
-              <li>With our payment processor to complete transactions.</li>
+              <li>With our payment processors (Base44 Payments and Stripe) to complete transactions and, for connected HOA accounts, to pay funds directly to your HOA.</li>
               <li>With service providers who help us operate the platform (hosting, email delivery, analytics), under contracts that protect your data.</li>
               <li>When required by law or to protect our rights and the safety of others.</li>
             </ul>
