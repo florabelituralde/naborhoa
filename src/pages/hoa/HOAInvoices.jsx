@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Check } from "lucide-react";
+import { Loader2, Plus, Check, Users } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
+import BulkInvoiceDialog from "@/components/hoa/BulkInvoiceDialog";
 
 export default function HOAInvoices() {
   const { community } = useOutletContext();
@@ -18,6 +19,7 @@ export default function HOAInvoices() {
   const [invoices, setInvoices] = useState([]);
   const [homeowners, setHomeowners] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
+  const [showBulk, setShowBulk] = useState(false);
   const [form, setForm] = useState({ homeowner_id: "", amount: "", type: "dues", due_date: "", description: "" });
   const [creating, setCreating] = useState(false);
 
@@ -74,7 +76,14 @@ export default function HOAInvoices() {
       <PageHeader
         title="Invoices"
         subtitle="Create and track homeowner billing"
-        action={<Button onClick={() => setShowCreate(true)}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>}
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowBulk(true)} disabled={homeowners.length === 0}>
+              <Users className="w-4 h-4 mr-2" /> Bulk Invoice
+            </Button>
+            <Button onClick={() => setShowCreate(true)}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
+          </div>
+        }
       />
 
       {invoices.length === 0 ? (
@@ -155,6 +164,14 @@ export default function HOAInvoices() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <BulkInvoiceDialog
+        open={showBulk}
+        onOpenChange={setShowBulk}
+        community={community}
+        homeowners={homeowners}
+        onDone={loadData}
+      />
     </div>
   );
 }
