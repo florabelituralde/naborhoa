@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import {
   HelpCircle, ChevronDown, Home, ClipboardList, Receipt, Wallet, Megaphone,
-  Vote, Trophy, Calendar, FileText, Contact, MessageCircle, ListChecks, Users, Sparkles,
+  Vote, Trophy, Calendar, FileText, Contact, MessageCircle, ListChecks, Users, Sparkles, ArrowRight,
 } from "lucide-react";
 
 // Role-aware Help & FAQ content. `role` is "homeowner" or "hoa".
@@ -58,7 +59,7 @@ export default function HelpContent({ role = "homeowner", communityName }) {
   );
 }
 
-function FAQSection({ icon: Icon, title, steps, defaultOpen }) {
+function FAQSection({ icon: Icon, title, steps, image, link, linkLabel, defaultOpen }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="bg-card rounded-2xl warm-shadow overflow-hidden">
@@ -74,6 +75,13 @@ function FAQSection({ icon: Icon, title, steps, defaultOpen }) {
       </button>
       {open && (
         <div className="px-5 pb-5 pt-0">
+          {image && (
+            <img
+              src={image}
+              alt={title}
+              className="w-full rounded-xl border border-border mb-4 object-cover"
+            />
+          )}
           <ol className="space-y-2.5 ml-1">
             {steps.map((step, i) => (
               <li key={i} className="flex gap-3 text-sm">
@@ -84,6 +92,15 @@ function FAQSection({ icon: Icon, title, steps, defaultOpen }) {
               </li>
             ))}
           </ol>
+          {link && (
+            <Link
+              to={link}
+              className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-primary hover:underline"
+            >
+              {linkLabel || "Go to this page"}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          )}
         </div>
       )}
     </div>
@@ -94,6 +111,9 @@ const HOMEOWNER_SECTIONS = [
   {
     icon: ClipboardList,
     title: "Submitting & tracking requests",
+    link: "/home/requests/new",
+    linkLabel: "Submit a new request",
+    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/0b830c811_generated_image.png",
     steps: [
       "Open <strong>My Requests</strong> from the sidebar and tap <strong>New Request</strong>.",
       "Choose the type of request (maintenance, fence modification, landscaping, etc.).",
@@ -106,6 +126,9 @@ const HOMEOWNER_SECTIONS = [
   {
     icon: Receipt,
     title: "Paying your bills & dues",
+    link: "/home/invoices",
+    linkLabel: "Go to My Bills",
+    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/f8eff94cb_generated_image.png",
     steps: [
       "Go to <strong>My Bills</strong> to see all invoices, their amounts, and due dates.",
       "Tap a pending invoice and choose <strong>Pay</strong> to complete payment securely online.",
@@ -116,6 +139,8 @@ const HOMEOWNER_SECTIONS = [
   {
     icon: Wallet,
     title: "Viewing community finances",
+    link: "/home/expenses",
+    linkLabel: "View Community Finances",
     steps: [
       "Open <strong>Community Finances</strong> to see how dues are spent across categories.",
       "The <strong>Dashboard</strong> shows a yearly overview so you always have full transparency.",
@@ -124,6 +149,8 @@ const HOMEOWNER_SECTIONS = [
   {
     icon: Megaphone,
     title: "Announcements & staying informed",
+    link: "/home/announcements",
+    linkLabel: "Go to Announcements",
     steps: [
       "Read the latest updates under <strong>Announcements</strong> — pinned items appear first.",
       "The bell icon at the top shows notifications for new activity affecting you.",
@@ -132,6 +159,9 @@ const HOMEOWNER_SECTIONS = [
   {
     icon: Vote,
     title: "Voting in polls & elections",
+    link: "/home/polls",
+    linkLabel: "Go to Polls",
+    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/32f042184_generated_image.png",
     steps: [
       "Open <strong>Polls</strong> to weigh in on community decisions before the deadline.",
       "Open <strong>Elections</strong> to review candidates and cast your vote for the board.",
@@ -141,6 +171,8 @@ const HOMEOWNER_SECTIONS = [
   {
     icon: Calendar,
     title: "Events, documents & board",
+    link: "/home/events",
+    linkLabel: "Go to Events",
     steps: [
       "Check <strong>Events</strong> for meetings and community gatherings.",
       "Find bylaws, rules, meeting minutes, and forms under <strong>Documents</strong>.",
@@ -153,6 +185,9 @@ const HOA_SECTIONS = [
   {
     icon: ClipboardList,
     title: "Managing resident requests",
+    link: "/hoa/requests",
+    linkLabel: "Go to Requests",
+    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/0b830c811_generated_image.png",
     steps: [
       "Open <strong>Requests</strong> to see everything residents have submitted, filterable by status.",
       "Open a request to assign it to a staff member, start work, and mark it resolved.",
@@ -163,6 +198,8 @@ const HOA_SECTIONS = [
   {
     icon: ListChecks,
     title: "Setting up request types & templates",
+    link: "/hoa/request-types",
+    linkLabel: "Go to Request Types",
     steps: [
       "Open <strong>Request Types</strong> to control what residents can submit.",
       "Use <strong>Add common HOA request types</strong> to start from a ready-made catalog, or create your own.",
@@ -173,6 +210,9 @@ const HOA_SECTIONS = [
   {
     icon: Receipt,
     title: "Invoicing & collecting dues",
+    link: "/hoa/invoices",
+    linkLabel: "Go to Invoices",
+    image: "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/f8eff94cb_generated_image.png",
     steps: [
       "Open <strong>Invoices</strong> and tap <strong>New Invoice</strong> to bill a single homeowner.",
       "Use <strong>Bulk Invoice</strong> to send recurring monthly dues to every homeowner at once.",
@@ -183,6 +223,8 @@ const HOA_SECTIONS = [
   {
     icon: Wallet,
     title: "Tracking expenses & transparency",
+    link: "/hoa/expenses",
+    linkLabel: "Go to Expenses",
     steps: [
       "Record community spending under <strong>Expenses</strong>, categorized for clarity.",
       "The <strong>Dashboard</strong> shows a yearly income vs. expenses chart residents can also see.",
@@ -191,6 +233,8 @@ const HOA_SECTIONS = [
   {
     icon: Megaphone,
     title: "Announcements, polls & elections",
+    link: "/hoa/announcements",
+    linkLabel: "Go to Announcements",
     steps: [
       "Post updates under <strong>Announcements</strong> — pin important ones to the top.",
       "Create <strong>Polls</strong> to gather resident input with a deadline.",
@@ -200,6 +244,8 @@ const HOA_SECTIONS = [
   {
     icon: Calendar,
     title: "Events, documents & board",
+    link: "/hoa/events",
+    linkLabel: "Go to Events",
     steps: [
       "Schedule meetings and gatherings under <strong>Events</strong>.",
       "Upload bylaws, rules, minutes, and forms under <strong>Documents</strong>.",
