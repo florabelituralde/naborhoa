@@ -45,6 +45,7 @@ import HomeRequests from '@/pages/home/HomeRequests';
 import HomeNewRequest from '@/pages/home/HomeNewRequest';
 import HomeRequestDetail from '@/pages/home/HomeRequestDetail';
 import HomeInvoices from '@/pages/home/HomeInvoices';
+import HomeInvoiceAssistant from '@/pages/home/HomeInvoiceAssistant';
 import HomeExpenses from '@/pages/home/HomeExpenses';
 import HomeAnnouncements from '@/pages/home/HomeAnnouncements';
 import HomePolls from '@/pages/home/HomePolls';
@@ -143,6 +144,7 @@ const AuthenticatedApp = () => {
           <Route path="/home/requests/new" element={<HomeNewRequest />} />
           <Route path="/home/requests/:id" element={<HomeRequestDetail />} />
           <Route path="/home/invoices" element={<PlanGate module="invoices" homePath="/home/dashboard"><HomeInvoices /></PlanGate>} />
+          <Route path="/home/invoice-assistant" element={<PlanGate module="invoices" homePath="/home/dashboard"><HomeInvoiceAssistant /></PlanGate>} />
           <Route path="/home/expenses" element={<PlanGate module="expenses" homePath="/home/dashboard"><HomeExpenses /></PlanGate>} />
           <Route path="/home/announcements" element={<HomeAnnouncements />} />
           <Route path="/home/polls" element={<PlanGate module="polls" homePath="/home/dashboard"><HomePolls /></PlanGate>} />
