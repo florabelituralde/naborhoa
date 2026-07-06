@@ -53,6 +53,7 @@ import HomeBoardHub from '@/pages/home/HomeBoardHub';
 import HomeHelp from '@/pages/home/HomeHelp';
 import HomeElections from '@/pages/home/HomeElections';
 import PlanGate from '@/components/PlanGate';
+import DeviceTrustGate from '@/components/auth/DeviceTrustGate';
 import CommunityLanding from '@/pages/public/CommunityLanding';
 import GuestChat from '@/pages/public/GuestChat';
 import GuestPay from '@/pages/public/GuestPay';
@@ -101,6 +102,7 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<TermsOfService />} />
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route element={<DeviceTrustGate />}>
         <Route path="/" element={<RoleRouter />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/join" element={<Join />} />
@@ -143,6 +145,7 @@ const AuthenticatedApp = () => {
           <Route path="/home/board-hub" element={<HomeBoardHub />} />
           <Route path="/home/board" element={<HomeBoard />} />
           <Route path="/home/help" element={<HomeHelp />} />
+        </Route>
         </Route>
       </Route>
 

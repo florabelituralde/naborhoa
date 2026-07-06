@@ -13,6 +13,9 @@ import AppleIcon from "@/components/AppleIcon";
 import IntroPreview from "@/components/auth/IntroPreview";
 import LegalLinks from "@/components/LegalLinks";
 import { toast } from "@/components/ui/use-toast";
+import { validatePassword, PASSWORD_RULES } from "@/lib/passwordPolicy";
+import { writeTrust } from "@/lib/deviceTrust";
+import BiometricEnrollment from "@/components/auth/BiometricEnrollment";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -51,6 +54,10 @@ export default function Register() {
       setError("Passwords do not match");
       return;
     }
+    if (!validatePassword(password)) {
+      setError("Please choose a stronger password (see the requirements below).");
+      return;
+    }
     setLoading(true);
     try {
       await base44.auth.register({ email, password });
@@ -71,6 +78,12 @@ export default function Register() {
         throw new Error("Verification failed. Please try again.");
       }
       base44.auth.setToken(result.access_token);
+      // The device just completed email verification, so trust it for future
+      // logins (the device-trust gate won't ask for a separate code here).
+      try {
+        const me = await base44.auth.me();
+        writeTrust(me.id);
+      } catch {}
       // Persist the role and setup context. This MUST succeed — routing after
       // login depends entirely on role/community_id, so a failure here would
       // strand the user. Let it throw so the error surfaces instead of
@@ -114,20 +127,19 @@ export default function Register() {
 
   if (verified) {
     const isManager = role === "hoa_admin";
+    const redirect = () => {
+      window.location.href = isManager ? "/onboarding" : "/join";
+    };
     return (
       <AuthLayout
         icon={CheckCircle2}
         title="You're all set!"
         subtitle={isManager ? "Let's set up your community" : "Let's get you into your community"}
       >
-        <div className="flex flex-col items-center text-center py-2">
-          <p className="text-sm text-muted-foreground mb-6">
-            {isManager
-              ? "Taking you to community setup — add your details, photos, and choose a plan."
-              : "Taking you to join your community with your community code."}
-          </p>
-          <Loader2 className="w-5 h-5 animate-spin text-primary" />
-        </div>
+        <BiometricEnrollment email={email} name={fullName} />
+        <Button className="w-full h-12 font-medium" onClick={redirect}>
+          Continue
+        </Button>
       </AuthLayout>
     );
   }
@@ -263,6 +275,19 @@ export default function Register() {
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <Input id="password" type="password" autoComplete="new-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 h-12" required />
           </div>
+          {password.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {PASSWORD_RULES.map((rule) => {
+                const ok = rule.test(password);
+                return (
+                  <li key={rule.label} className={`flex items-center gap-2 text-xs ${ok ? "text-primary" : "text-muted-foreground"}`}>
+                    <span>{ok ? "✓" : "•"}</span>
+                    {rule.label}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="confirm">Confirm Password</Label>

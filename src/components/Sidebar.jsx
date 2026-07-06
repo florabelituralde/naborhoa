@@ -108,7 +108,11 @@ function SidebarContent({ navItems, user, community, communities, onSwitchCommun
       </nav>
 
       <div className="px-3 py-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3 px-3 mb-3">
+        <Link
+          to={user?.role === "homeowner" ? "/home/account" : "/hoa/account"}
+          onClick={onNavigate}
+          className="flex items-center gap-3 px-3 mb-3 rounded-lg hover:bg-sidebar-accent transition-colors"
+        >
           <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold shrink-0">
             {user?.full_name?.[0]?.toUpperCase() || "U"}
           </div>
@@ -116,7 +120,7 @@ function SidebarContent({ navItems, user, community, communities, onSwitchCommun
             <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.full_name || "User"}</p>
             <p className="text-xs text-muted-foreground capitalize">{user?.role?.replace("_", " ")}</p>
           </div>
-        </div>
+        </Link>
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all"
