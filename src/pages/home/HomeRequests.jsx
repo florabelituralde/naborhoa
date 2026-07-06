@@ -34,8 +34,7 @@ export default function HomeRequests() {
       />
       {requests.length === 0 ? (
         <div className="bg-card rounded-2xl warm-shadow p-12 text-center">
-          <p className="text-muted-foreground mb-4">You haven't submitted any requests yet</p>
-          <Button asChild><Link to="/home/requests/new"><Plus className="w-4 h-4 mr-2" /> Submit a Request</Link></Button>
+          <p className="text-muted-foreground">You haven't submitted any requests yet. Tap "New Request" above to create one.</p>
         </div>
       ) : (
         <div className="space-y-3">
