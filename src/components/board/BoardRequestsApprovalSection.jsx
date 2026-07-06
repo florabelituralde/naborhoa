@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 import { Loader2, ShieldCheck, Check, X } from "lucide-react";
 
 const ROLE_LABELS = {
@@ -13,47 +14,63 @@ const ROLE_LABELS = {
 };
 
 export default function BoardRequestsApprovalSection({ community, pendingMembers, onChange }) {
+  const { toast } = useToast();
   const [roleChoices, setRoleChoices] = useState({});
   const [busyId, setBusyId] = useState(null);
+  const [hiddenIds, setHiddenIds] = useState([]);
 
   const approve = async (member) => {
     setBusyId(member.id);
     const role = roleChoices[member.id] || member.requested_board_role || "member_at_large";
-    await base44.entities.User.update(member.id, { board_member_status: "approved", requested_board_role: role });
-    await base44.entities.BoardMember.create({
-      community_id: community.id,
-      name: member.full_name,
-      role,
-      email: member.email,
-    });
-    await base44.entities.Notification.create({
-      community_id: community.id,
-      user_id: member.id,
-      type: "announcement",
-      title: "Board portal access approved",
-      body: "You now have access to the Board Hub.",
-    });
+    try {
+      await base44.entities.User.update(member.id, { board_member_status: "approved", requested_board_role: role });
+      await base44.entities.BoardMember.create({
+        community_id: community.id,
+        name: member.full_name,
+        role,
+        email: member.email,
+      });
+      await base44.entities.Notification.create({
+        community_id: community.id,
+        user_id: member.id,
+        type: "announcement",
+        title: "Board portal access approved",
+        body: "You now have access to the Board Hub.",
+      });
+      setHiddenIds(prev => [...prev, member.id]);
+      toast({ title: "Board access approved" });
+      onChange();
+    } catch (err) {
+      toast({ title: "Couldn't approve request", description: err.message, variant: "destructive" });
+    }
     setBusyId(null);
-    onChange();
   };
 
   const reject = async (member) => {
     setBusyId(member.id);
-    await base44.entities.User.update(member.id, { board_member_status: "rejected" });
+    try {
+      await base44.entities.User.update(member.id, { board_member_status: "rejected" });
+      setHiddenIds(prev => [...prev, member.id]);
+      toast({ title: "Request declined" });
+      onChange();
+    } catch (err) {
+      toast({ title: "Couldn't decline request", description: err.message, variant: "destructive" });
+    }
     setBusyId(null);
-    onChange();
   };
+
+  const visibleMembers = pendingMembers.filter(m => !hiddenIds.includes(m.id));
 
   return (
     <div className="bg-card rounded-2xl warm-shadow p-6">
       <h2 className="font-semibold text-lg flex items-center gap-2 mb-4">
         <ShieldCheck className="w-5 h-5 text-primary" /> Board Access Requests
       </h2>
-      {pendingMembers.length === 0 ? (
+      {visibleMembers.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">No pending requests</p>
       ) : (
         <div className="space-y-3">
-          {pendingMembers.map(member => (
+          {visibleMembers.map(member => (
             <div key={member.id} className="p-3 rounded-lg bg-muted/50">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold shrink-0">
