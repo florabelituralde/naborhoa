@@ -15,6 +15,13 @@ export default function CommunitySwitcher({ community, communities = [], onSwitc
   const [open, setOpen] = useState(false);
   const [switchingId, setSwitchingId] = useState(null);
 
+  // Always include the active community so the list is never empty.
+  const list = communities.some((c) => c.id === community?.id)
+    ? communities
+    : community
+    ? [community, ...communities]
+    : communities;
+
   const handleSelect = async (id) => {
     if (id === community?.id) {
       setOpen(false);
@@ -29,16 +36,6 @@ export default function CommunitySwitcher({ community, communities = [], onSwitc
     onNavigate?.();
     navigate("/hoa/add-community");
   };
-
-  // Single community: keep the simple static label, no dropdown.
-  if (communities.length <= 1) {
-    return (
-      <div className="px-4 py-3 border-b border-sidebar-border">
-        <p className="text-xs text-muted-foreground">Community</p>
-        <p className="text-sm font-semibold text-sidebar-foreground truncate">{community?.name}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="px-3 py-3 border-b border-sidebar-border">
@@ -57,7 +54,7 @@ export default function CommunitySwitcher({ community, communities = [], onSwitc
         </PopoverTrigger>
         <PopoverContent align="start" className="w-64 p-1.5">
           <div className="max-h-64 overflow-y-auto">
-            {communities.map((c) => {
+            {list.map((c) => {
               const active = c.id === community?.id;
               return (
                 <button
