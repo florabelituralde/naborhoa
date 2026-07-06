@@ -37,12 +37,12 @@ export default function HOAInvoices() {
 
   const loadData = async () => {
     try {
-      const [invs, homes] = await Promise.all([
+      const [invs, homesRes] = await Promise.all([
         base44.entities.Invoice.filter({ community_id: community.id }, "-created_date"),
-        base44.entities.User.filter({ community_id: community.id, role: "homeowner" }),
+        base44.functions.invoke("get-community-homeowners", {}),
       ]);
       setInvoices(invs);
-      setHomeowners(homes);
+      setHomeowners(homesRes?.homeowners || []);
       setDues(community.monthly_dues ? String(community.monthly_dues) : "");
     } finally {
       setLoading(false);
