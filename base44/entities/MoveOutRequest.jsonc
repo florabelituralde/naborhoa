@@ -1,0 +1,51 @@
+{
+  "name": "MoveOutRequest",
+  "type": "object",
+  "properties": {
+    "community_id": {
+      "type": "string"
+    },
+    "community_name": {
+      "type": "string"
+    },
+    "homeowner_id": {
+      "type": "string"
+    },
+    "homeowner_name": {
+      "type": "string"
+    },
+    "homeowner_email": {
+      "type": "string"
+    },
+    "property_address": {
+      "type": "string"
+    },
+    "move_out_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "selling",
+        "relocating",
+        "other"
+      ],
+      "default": "selling"
+    },
+    "buyer_name": {
+      "type": "string"
+    },
+    "forwarding_email": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "community_id",
+    "homeowner_id",
+    "move_out_date"
+  ]
+}

@@ -6,6 +6,7 @@ import StatusBadge from "@/components/StatusBadge";
 import { ClipboardList, Receipt, Loader2, Plus, History, RefreshCw, User as UserIcon, Mail } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import RequestBoardAccessCard from "@/components/board/RequestBoardAccessCard";
+import MoveOutDialog from "@/components/MoveOutDialog";
 
 export default function HomeAccount() {
   const { user, community } = useOutletContext();
@@ -129,6 +130,11 @@ export default function HomeAccount() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Moving out */}
+      <div className="mt-8">
+        <MoveOutDialog />
       </div>
     </div>
   );
