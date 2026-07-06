@@ -23,6 +23,9 @@ export default function AIChatBubble({ user, community }) {
   const [docs, setDocs] = useState([]);
   const [hoaEmail, setHoaEmail] = useState(null);
   const [ccEmails, setCcEmails] = useState([]);
+  const [boardMembers, setBoardMembers] = useState([]);
+  const [managerEmail, setManagerEmail] = useState(null);
+  const [managerName, setManagerName] = useState(null);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -36,10 +39,14 @@ export default function AIChatBubble({ user, community }) {
       setMessages(msgs);
       setDocs(communityDocs);
       // Primary recipient: the HOA contact managing this neighborhood page (community creator)
-      const manager = managers?.[0]?.email || null;
+      const managerUser = managers?.[0] || null;
+      const manager = managerUser?.email || null;
       const boardEmails = board.map(b => b.email).filter(Boolean);
       const primary = manager || boardEmails[0] || null;
       setHoaEmail(primary);
+      setManagerEmail(manager);
+      setManagerName(managerUser?.full_name || null);
+      setBoardMembers(board);
       // CC the board members (excluding the primary recipient to avoid duplicates)
       setCcEmails(boardEmails.filter(e => e !== primary));
       setLoading(false);
@@ -71,15 +78,25 @@ export default function AIChatBubble({ user, community }) {
       const fileUrls = docs.map(d => d.file_url).filter(Boolean);
       const hasDocs = fileUrls.length > 0;
 
-      const guardrails = `You are the HOA assistant for the community "${community.name}". You must follow these rules strictly:
-1. ONLY answer questions about this community's rules, policies, dues, or procedures using information found in the official HOA documents provided to you${hasDocs ? "" : " (note: no documents have been provided by the HOA yet)"}.
-2. NEVER invent, assume, guess, or use outside/general knowledge to state a policy, rule, fee, deadline, or procedure. Do not fill gaps with typical HOA practices.
-3. If the answer is not clearly stated in the provided documents, respond exactly with: "I don't have that information in the community's official documents. Please contact your HOA board for an answer." Do not add a made-up answer before or after this.
-4. When you do answer from a document, base it only on what the document says.
-5. You may help with general, non-policy tasks (e.g. suggesting the homeowner submit a maintenance request) without documents.
-6. Be concise, warm, and helpful.
+      const contactLines = [];
+      if (managerEmail) contactLines.push(`- HOA Admin: ${managerName ? managerName + " — " : ""}${managerEmail}`);
+      boardMembers.filter(b => b.email).forEach(b => {
+        const roleLabel = b.role ? ` (${b.role.replace(/_/g, " ")})` : "";
+        contactLines.push(`- Board member: ${b.name}${roleLabel} — ${b.email}`);
+      });
+      const contactBlock = contactLines.length
+        ? `\nHOA contact details (share these when a homeowner asks how to reach the HOA or a board member; do not invent contact info not listed here):\n${contactLines.join("\n")}\n`
+        : "";
 
-Homeowner question: ${question}`;
+      const guardrails = `You are the HOA assistant for the community "${community.name}". You must follow these rules strictly:
+      1. ONLY answer questions about this community's rules, policies, dues, or procedures using information found in the official HOA documents provided to you${hasDocs ? "" : " (note: no documents have been provided by the HOA yet)"}.
+      2. NEVER invent, assume, guess, or use outside/general knowledge to state a policy, rule, fee, deadline, or procedure. If the documents do not clearly state it, you do not know it — do not fill gaps with typical HOA practices.
+      3. If the answer is not clearly stated in the provided documents, respond exactly with: "I don't have that information in the community's official documents. Please contact your HOA board for an answer." Do not add a made-up answer before or after this.
+      4. When you do answer from a document, base it only on what the document says.
+      5. You may help with general, non-policy tasks (e.g. suggesting the homeowner submit a maintenance request through the app) without documents.
+      6. Be concise, warm, and helpful.
+      ${contactBlock}
+      Homeowner question: ${question}`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: guardrails,
