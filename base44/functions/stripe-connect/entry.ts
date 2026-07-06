@@ -11,6 +11,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Missing community_id" }, { status: 400 });
     }
 
+    // Only an authenticated HOA admin who owns this community may connect or
+    // inspect its Stripe payout account — prevents payout hijacking.
+    let caller;
+    try {
+      caller = await base44.auth.me();
+    } catch (_) {
+      return Response.json({ error: "Authentication required" }, { status: 401 });
+    }
+    if (caller?.role !== "hoa_admin" || caller?.community_id !== community_id) {
+      return Response.json({ error: "Not authorized for this community" }, { status: 403 });
+    }
+
     const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!secretKey) {
       return Response.json(

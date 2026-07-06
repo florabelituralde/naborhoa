@@ -26,6 +26,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Missing or invalid plan details" }, { status: 400 });
     }
 
+    // Only an authenticated HOA admin who owns this community may change its
+    // subscription plan / billing cycle.
+    let caller;
+    try {
+      caller = await base44.auth.me();
+    } catch (_) {
+      return Response.json({ error: "Authentication required" }, { status: 401 });
+    }
+    if (caller?.role !== "hoa_admin" || caller?.community_id !== community_id) {
+      return Response.json({ error: "Not authorized for this community" }, { status: 403 });
+    }
+
     const gross = plan.monthlyPrice * cycle.multiplier;
     const amount = Math.round(gross * (1 - cycle.discount) * 100) / 100;
 
