@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
 import { LayoutDashboard, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, Calendar, Contact, Trophy, HelpCircle, Loader2 } from "lucide-react";
-import { filterNavByPlan } from "@/lib/planAccess";
+import { markNavLocks } from "@/lib/planAccess";
 
 export default function HOALayout() {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ export default function HOALayout() {
     navItems.push({ path: "/hoa/board", label: "Board", icon: Contact });
   }
 
-  const visibleNav = filterNavByPlan(navItems, community);
+  const visibleNav = markNavLocks(navItems, community);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">

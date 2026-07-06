@@ -13,12 +13,40 @@ const ROUTE_MODULE = {
 // Modules that make up the always-available core (available on every plan).
 const CORE_MODULES = ["requests", "announcements", "documents", "board", "events"];
 
+// Length of the free trial (in days) for communities with no plan.
+const TRIAL_DAYS = 30;
+
+// Whether a community with no plan is still within its free trial window.
+// During the trial they get access to ALL features; afterwards they drop to
+// the Starter plan's feature set.
+export function isInTrial(community) {
+  if (!community || community.plan_id) return false;
+  const created = community.created_date ? new Date(community.created_date) : null;
+  if (!created || isNaN(created.getTime())) return false;
+  const trialEnd = new Date(created.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+  return Date.now() < trialEnd.getTime();
+}
+
+// Days remaining in the free trial (0 if not in trial).
+export function trialDaysLeft(community) {
+  if (!isInTrial(community)) return 0;
+  const created = new Date(community.created_date);
+  const trialEnd = new Date(created.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+  return Math.max(0, Math.ceil((trialEnd.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+}
+
 // Returns the list of module ids a community has access to based on its plan.
-// If the community has no plan yet, fall back to the full set so nothing breaks.
+// - Paid plan: that plan's modules.
+// - No plan, still in trial: everything (null => no gating).
+// - No plan, trial expired: the Starter plan's modules (free tier).
 export function getAllowedModules(community) {
-  const plan = community?.plan_id ? getPlan(community.plan_id) : null;
-  if (!plan) return null; // null => no gating (all allowed)
-  return plan.modules;
+  if (community?.plan_id) {
+    const plan = getPlan(community.plan_id);
+    return plan ? plan.modules : null;
+  }
+  if (isInTrial(community)) return null; // full access during trial
+  const starter = getPlan("starter");
+  return starter ? starter.modules : null;
 }
 
 // Whether a given module is available for the community.
@@ -29,14 +57,19 @@ export function hasModule(community, moduleId) {
   return allowed.includes(moduleId);
 }
 
-// Filters a list of nav items (with a `.path`) down to those the plan allows.
-export function filterNavByPlan(navItems, community) {
-  const allowed = getAllowedModules(community);
-  if (!allowed) return navItems;
-  return navItems.filter((item) => {
-    const segment = item.path.split("/").filter(Boolean).pop();
-    const mod = ROUTE_MODULE[segment];
-    if (!mod) return true; // not a gated route
-    return allowed.includes(mod);
+// Returns the gated module id for a nav item, or null if it's not gated.
+export function navItemModule(item) {
+  const segment = item.path.split("/").filter(Boolean).pop();
+  return ROUTE_MODULE[segment] || null;
+}
+
+// Marks each nav item with a `locked` flag based on the plan, instead of
+// removing unavailable items — so residents can see a lock on features they
+// don't have access to.
+export function markNavLocks(navItems, community) {
+  return navItems.map((item) => {
+    const mod = navItemModule(item);
+    const locked = mod ? !hasModule(community, mod) : false;
+    return { ...item, locked };
   });
 }

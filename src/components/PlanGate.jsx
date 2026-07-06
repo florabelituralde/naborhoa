@@ -20,10 +20,10 @@ export default function PlanGate({ module, homePath, children }) {
         <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-5">
           <Lock className="w-7 h-7 text-muted-foreground" />
         </div>
-        <h2 className="text-xl font-bold mb-2">Not available on this plan</h2>
+        <h2 className="text-xl font-bold mb-2">Not available on your plan</h2>
         <p className="text-muted-foreground mb-6">
-          This feature isn't included in your community's current plan. Your HOA
-          manager can upgrade the plan to unlock it.
+          Your free trial has ended, so your community is now on the free Starter
+          features. Your HOA manager can upgrade the plan to unlock this feature.
         </p>
         <Button asChild variant="outline">
           <Link to={homePath}>Go back</Link>

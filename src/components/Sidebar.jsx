@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X, Lock } from "lucide-react";
 import NaborLogo from "@/components/NaborLogo";
 
 function SidebarContent({ navItems, user, community, onNavigate }) {
@@ -30,6 +30,19 @@ function SidebarContent({ navItems, user, community, onNavigate }) {
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map(item => {
           const active = location.pathname === item.path;
+          if (item.locked) {
+            return (
+              <div
+                key={item.path}
+                title="Not available on your community's plan"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground/60 cursor-not-allowed select-none"
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="flex-1">{item.label}</span>
+                <Lock className="w-4 h-4" />
+              </div>
+            );
+          }
           return (
             <Link
               key={item.path}

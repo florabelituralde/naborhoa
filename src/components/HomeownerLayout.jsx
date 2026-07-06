@@ -5,7 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import AIChatBubble from "@/components/AIChatBubble";
 import NotificationBell from "@/components/NotificationBell";
 import { LayoutDashboard, ClipboardList, Receipt, Wallet, Megaphone, Vote, FileText, Calendar, Contact, Trophy, HelpCircle, Loader2 } from "lucide-react";
-import { filterNavByPlan } from "@/lib/planAccess";
+import { markNavLocks } from "@/lib/planAccess";
 
 export default function HomeownerLayout() {
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ export default function HomeownerLayout() {
     { path: "/home/help", label: "Help & FAQ", icon: HelpCircle },
   ];
 
-  const visibleNav = filterNavByPlan(navItems, community);
+  const visibleNav = markNavLocks(navItems, community);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">

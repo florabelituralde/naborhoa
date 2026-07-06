@@ -3,9 +3,10 @@ import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
-import { ClipboardList, DollarSign, Users, Loader2 } from "lucide-react";
+import { ClipboardList, DollarSign, Users, Loader2, Sparkles } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import FinancialOverviewChart from "@/components/hoa/FinancialOverviewChart";
+import { isInTrial, trialDaysLeft } from "@/lib/planAccess";
 
 export default function HOADashboard() {
   const { user, community } = useOutletContext();
@@ -45,6 +46,41 @@ export default function HOADashboard() {
   return (
     <div className="p-4 sm:p-8 max-w-6xl mx-auto">
       <PageHeader title={`Welcome, ${user?.full_name?.split(" ")[0]}`} subtitle={community?.name} />
+
+      {!community?.plan_id && (
+        <div className="mb-8 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-accent/60 border border-accent">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              {isInTrial(community) ? (
+                <>
+                  <p className="font-semibold text-accent-foreground">
+                    Free trial — {trialDaysLeft(community)} day{trialDaysLeft(community) === 1 ? "" : "s"} left
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    You have full access to every feature. Choose a plan to keep them after your trial ends.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold text-accent-foreground">Your free trial has ended</p>
+                  <p className="text-sm text-muted-foreground">
+                    You're now on the free Starter features. Upgrade to unlock invoices, expenses, polls and more.
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+          <Link
+            to="/onboarding"
+            className="shrink-0 inline-flex items-center justify-center h-10 px-5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            Choose a plan
+          </Link>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard icon={ClipboardList} value={openRequests} label="Open Requests" colorClass="bg-primary/10 text-primary" />
