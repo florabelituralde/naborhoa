@@ -74,8 +74,8 @@ export default function HomeInvoiceAssistant() {
   const suggestions = [
     "What do I currently owe?",
     "Explain my latest invoice",
-    "Set up auto-pay",
-    "Why was I charged an assessment?",
+    "How do HOA invoices work?",
+    "What are the Nabor plans?",
   ];
 
   if (loading) {
@@ -90,7 +90,7 @@ export default function HomeInvoiceAssistant() {
     <div className="p-4 sm:p-8 max-w-3xl mx-auto flex flex-col h-full">
       <PageHeader
         title="Invoice Assistant"
-        subtitle="Ask about your charges, explain a bill, or pay and set up auto-pay"
+        subtitle="Understand your charges and how Nabor plans work"
       />
 
       <div className="flex-1 overflow-y-auto no-scrollbar bg-card rounded-2xl warm-shadow p-4 sm:p-6 mb-4" ref={scrollRef}>
