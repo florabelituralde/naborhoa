@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Upload, Check, RefreshCw, X, Download } from "lucide-react";
+import { Loader2, Upload, Check, RefreshCw, X, Download, CreditCard } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { exportPaymentStatement } from "@/lib/exportStatement";
 
@@ -31,6 +32,8 @@ export default function HomeInvoices() {
   const [showAutopay, setShowAutopay] = useState(false);
   const [autopayFreq, setAutopayFreq] = useState("MONTH");
   const [settingUpAutopay, setSettingUpAutopay] = useState(false);
+  const { toast } = useToast();
+  const [payingNowId, setPayingNowId] = useState(null);
 
   const loadData = async () => {
     try {
@@ -64,6 +67,34 @@ export default function HomeInvoices() {
     setPayingInvoice(null);
     setProofFile(null);
     loadData();
+  };
+
+  const handlePayNow = async (inv) => {
+    setPayingNowId(inv.id);
+    try {
+      const res = await base44.functions.invoke("stripe-checkout", {
+        community_id: community.id,
+        invoice_id: inv.id,
+        join_code: community.join_code,
+        amount: inv.amount,
+        description: inv.description,
+      });
+      if (res.data?.redirectUrl) {
+        window.location.href = res.data.redirectUrl;
+      } else if (res.data?.fallback) {
+        toast({
+          title: "Online payment unavailable",
+          description: "Your HOA hasn't enabled card payments yet. Use Mark Paid to submit a receipt instead.",
+        });
+        setPayingNowId(null);
+      } else {
+        toast({ title: "Could not start payment", description: res.data?.error || "Please try again." });
+        setPayingNowId(null);
+      }
+    } catch (e) {
+      toast({ title: "Payment failed", description: "Please try again." });
+      setPayingNowId(null);
+    }
   };
 
   const handleSetupAutopay = async () => {
@@ -163,9 +194,15 @@ export default function HomeInvoices() {
                 <div className="text-right ml-4">
                   <p className="text-xl font-bold">{formatCurrency(inv.amount)}</p>
                   {inv.status === "pending" && (
-                    <Button size="sm" className="mt-2" onClick={() => setPayingInvoice(inv)}>
-                      <Check className="w-4 h-4 mr-1" /> Mark Paid
-                    </Button>
+                    <div className="flex gap-2 mt-2 justify-end">
+                      <Button size="sm" onClick={() => handlePayNow(inv)} disabled={payingNowId === inv.id}>
+                        {payingNowId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CreditCard className="w-4 h-4 mr-1" />}
+                        Pay Now
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setPayingInvoice(inv)}>
+                        <Check className="w-4 h-4 mr-1" /> Mark Paid
+                      </Button>
+                    </div>
                   )}
                   {inv.status === "paid" && <p className="text-xs text-muted-foreground mt-2">Awaiting confirmation</p>}
                 </div>
