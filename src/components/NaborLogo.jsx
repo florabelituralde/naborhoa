@@ -1,6 +1,6 @@
 import React from "react";
 
-const ICON_URL = "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/a2a3a531e_generated_image.png";
+const ICON_URL = "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/3978a0980_generated_image.png";
 
 // Reusable Nabor logo. Renders the badge icon and, optionally, the "Nabor" wordmark.
 export default function NaborLogo({ showText = true, className = "", iconClassName = "w-8 h-8", textClassName = "font-bold text-lg text-sidebar-foreground" }) {
