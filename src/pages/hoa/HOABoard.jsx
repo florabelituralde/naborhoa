@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Trash2, Contact, Mail } from "lucide-react";
+import { Loader2, Plus, Trash2, Contact, Mail, Pencil } from "lucide-react";
 import { formatDate } from "@/lib/format";
 
 const ROLE_LABELS = {
@@ -26,6 +26,7 @@ export default function HOABoard() {
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ name: "", role: "member_at_large", bio: "", email: "", term_start: "", term_end: "" });
   const [creating, setCreating] = useState(false);
 
@@ -37,10 +38,34 @@ export default function HOABoard() {
 
   useEffect(() => { if (community) loadData(); }, [community]);
 
-  const handleAdd = async () => {
-    setCreating(true);
-    await base44.entities.BoardMember.create({ ...form, community_id: community.id });
+  const openAdd = () => {
+    setEditingId(null);
     setForm({ name: "", role: "member_at_large", bio: "", email: "", term_start: "", term_end: "" });
+    setShowAdd(true);
+  };
+
+  const openEdit = (m) => {
+    setEditingId(m.id);
+    setForm({
+      name: m.name || "",
+      role: m.role || "member_at_large",
+      bio: m.bio || "",
+      email: m.email || "",
+      term_start: m.term_start || "",
+      term_end: m.term_end || "",
+    });
+    setShowAdd(true);
+  };
+
+  const handleSave = async () => {
+    setCreating(true);
+    if (editingId) {
+      await base44.entities.BoardMember.update(editingId, form);
+    } else {
+      await base44.entities.BoardMember.create({ ...form, community_id: community.id });
+    }
+    setForm({ name: "", role: "member_at_large", bio: "", email: "", term_start: "", term_end: "" });
+    setEditingId(null);
     setShowAdd(false);
     setCreating(false);
     loadData();
@@ -60,7 +85,7 @@ export default function HOABoard() {
       <PageHeader
         title="Board Members"
         subtitle="Manage your HOA board directory"
-        action={<Button onClick={() => setShowAdd(true)}><Plus className="w-4 h-4 mr-2" /> Add Member</Button>}
+        action={<Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Add Member</Button>}
       />
 
       {sorted.length === 0 ? (
@@ -82,9 +107,14 @@ export default function HOABoard() {
                     <p className="text-xs text-primary font-medium">{ROLE_LABELS[m.role]}</p>
                   </div>
                 </div>
-                <button onClick={() => handleDelete(m.id)} className="text-muted-foreground hover:text-destructive">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => openEdit(m)} className="text-muted-foreground hover:text-primary">
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handleDelete(m.id)} className="text-muted-foreground hover:text-destructive">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
               {m.bio && <p className="text-sm text-muted-foreground mt-3">{m.bio}</p>}
               <div className="mt-3 space-y-1 text-xs text-muted-foreground">
@@ -100,7 +130,7 @@ export default function HOABoard() {
 
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Add Board Member</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingId ? "Edit Board Member" : "Add Board Member"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
               <Label>Name</Label>
@@ -137,9 +167,9 @@ export default function HOABoard() {
                 <Input type="date" value={form.term_end} onChange={e => setForm({ ...form, term_end: e.target.value })} className="mt-1.5" />
               </div>
             </div>
-            <Button onClick={handleAdd} disabled={!form.name || creating} className="w-full">
+            <Button onClick={handleSave} disabled={!form.name || creating} className="w-full">
               {creating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Add Member
+              {editingId ? "Save Changes" : "Add Member"}
             </Button>
           </div>
         </DialogContent>
