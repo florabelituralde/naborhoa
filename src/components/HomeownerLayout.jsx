@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
 import AIChatBubble from "@/components/AIChatBubble";
+import NotificationBell from "@/components/NotificationBell";
 import { LayoutDashboard, ClipboardList, Receipt, Wallet, Megaphone, Vote, FileText, Calendar, Contact, Trophy, Loader2 } from "lucide-react";
 
 export default function HomeownerLayout() {
@@ -51,7 +52,10 @@ export default function HomeownerLayout() {
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar navItems={navItems} user={user} community={community} />
-      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0 relative">
+        <div className="absolute top-2 right-3 md:top-4 md:right-6 z-20">
+          <NotificationBell user={user} />
+        </div>
         <Outlet context={{ user, community }} />
       </main>
       <AIChatBubble user={user} community={community} />

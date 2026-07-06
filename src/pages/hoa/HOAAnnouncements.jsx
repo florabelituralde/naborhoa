@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Plus, Trash2, Pin, Megaphone } from "lucide-react";
 import { formatDate } from "@/lib/format";
+import { notifyCommunity } from "@/lib/notify";
 
 export default function HOAAnnouncements() {
   const { user, community } = useOutletContext();
@@ -28,10 +29,16 @@ export default function HOAAnnouncements() {
 
   const handleCreate = async () => {
     setCreating(true);
-    await base44.entities.Announcement.create({
+    const ann = await base44.entities.Announcement.create({
       ...form,
       community_id: community.id,
       author_id: user.id,
+    });
+    await notifyCommunity(community.id, {
+      type: "announcement",
+      title: `New announcement: ${form.title}`,
+      body: form.body,
+      related_id: ann.id,
     });
     setForm({ title: "", body: "", pinned: false });
     setShowCreate(false);

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Plus, Trash2, Trophy } from "lucide-react";
 import { formatDate } from "@/lib/format";
+import { notifyCommunity } from "@/lib/notify";
 
 export default function HOAElections() {
   const { user, community } = useOutletContext();
@@ -41,7 +42,7 @@ export default function HOAElections() {
 
   const handleCreate = async () => {
     setCreating(true);
-    await base44.entities.Election.create({
+    const election = await base44.entities.Election.create({
       title: form.title,
       description: form.description,
       start_date: form.start_date,
@@ -49,6 +50,12 @@ export default function HOAElections() {
       candidates: form.candidates.filter(c => c.name.trim()),
       community_id: community.id,
       created_by_id: user.id,
+    });
+    await notifyCommunity(community.id, {
+      type: "election",
+      title: `New election: ${form.title}`,
+      body: `Voting is open until ${form.end_date}`,
+      related_id: election.id,
     });
     setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ name: "", bio: "", statement: "" }] });
     setShowCreate(false);

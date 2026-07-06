@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Plus, X, Vote, Lock } from "lucide-react";
 import { formatDate } from "@/lib/format";
+import { notifyCommunity } from "@/lib/notify";
 
 export default function HOAPolls() {
   const { user, community } = useOutletContext();
@@ -38,13 +39,19 @@ export default function HOAPolls() {
   const handleCreate = async () => {
     setCreating(true);
     const cleanOptions = form.options.filter(o => o.trim());
-    await base44.entities.Poll.create({
+    const poll = await base44.entities.Poll.create({
       title: form.title,
       description: form.description,
       options: cleanOptions,
       deadline: form.deadline,
       community_id: community.id,
       author_id: user.id,
+    });
+    await notifyCommunity(community.id, {
+      type: "poll_deadline",
+      title: `New poll: ${form.title}`,
+      body: `Cast your vote by ${form.deadline}`,
+      related_id: poll.id,
     });
     setForm({ title: "", description: "", options: [""], deadline: "" });
     setShowCreate(false);

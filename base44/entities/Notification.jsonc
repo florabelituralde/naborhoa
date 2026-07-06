@@ -15,7 +15,8 @@
         "invoice_created",
         "announcement",
         "poll_deadline",
-        "payment_confirmed"
+        "payment_confirmed",
+        "election"
       ]
     },
     "title": {
