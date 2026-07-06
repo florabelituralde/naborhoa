@@ -11,6 +11,7 @@ import GoogleIcon from "@/components/GoogleIcon";
 import AppleIcon from "@/components/AppleIcon";
 import IntroPreview from "@/components/auth/IntroPreview";
 import LegalLinks from "@/components/LegalLinks";
+import useRedirectIfAuthed from "@/hooks/useRedirectIfAuthed";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -20,6 +21,9 @@ export default function Login() {
   const [showIntro, setShowIntro] = useState(
     () => sessionStorage.getItem("naborIntroSeenLogin") !== "1"
   );
+
+  // Skip the login screen for anyone already signed in.
+  useRedirectIfAuthed();
 
   const dismissIntro = () => {
     sessionStorage.setItem("naborIntroSeenLogin", "1");

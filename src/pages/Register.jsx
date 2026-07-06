@@ -16,6 +16,7 @@ import { toast } from "@/components/ui/use-toast";
 import { validatePassword, PASSWORD_RULES } from "@/lib/passwordPolicy";
 import { writeTrust } from "@/lib/deviceTrust";
 import BiometricEnrollment from "@/components/auth/BiometricEnrollment";
+import useRedirectIfAuthed from "@/hooks/useRedirectIfAuthed";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -33,6 +34,9 @@ export default function Register() {
   const [showIntro, setShowIntro] = useState(
     () => sessionStorage.getItem("naborIntroSeenRegister") !== "1"
   );
+
+  // Skip the registration screen for anyone already signed in.
+  useRedirectIfAuthed();
 
   const dismissIntro = () => {
     sessionStorage.setItem("naborIntroSeenRegister", "1");
