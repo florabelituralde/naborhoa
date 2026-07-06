@@ -107,11 +107,8 @@ export default function Register() {
       // community; homeowners join one). Using an explicit destination avoids a
       // race where a fresh profile read hasn't picked up the just-saved role yet.
       setVerified(true);
-      setTimeout(() => {
-        window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
-      }, 1200);
     } catch (err) {
-      setError(err.message || "Invalid verification code");
+      setError(err.message || "Something went wrong. Please try again.");
       setLoading(false);
     }
   };
@@ -178,6 +175,15 @@ export default function Register() {
           Didn't receive the code?{" "}
           <button onClick={handleResend} disabled={otpPending} className="text-primary font-medium hover:underline disabled:opacity-50 disabled:no-underline">Resend</button>
         </p>
+        {otpPending && (
+          <button
+            type="button"
+            onClick={() => { setShowOtp(false); setOtpPending(false); setError(""); }}
+            className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground hover:underline"
+          >
+            Cancel and go back
+          </button>
+        )}
       </AuthLayout>
     );
   }
