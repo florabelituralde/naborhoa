@@ -17,7 +17,10 @@ export default function HomeDashboard() {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    if (!community) return;
+    if (!community) {
+      setLoading(false);
+      return;
+    }
     Promise.all([
       base44.entities.Poll.filter({ community_id: community.id, status: "active" }, "-created_date", 3),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 3),
@@ -26,8 +29,7 @@ export default function HomeDashboard() {
       setPolls(activePolls);
       setAnnouncements(anns);
       setEvents(evs);
-      setLoading(false);
-    });
+    }).finally(() => setLoading(false));
   }, [community]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
