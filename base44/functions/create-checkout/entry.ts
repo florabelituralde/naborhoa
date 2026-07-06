@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { community_id, amount, description, property_address, join_code, frequency, homeowner_id } = body;
+    const { community_id, amount, description, property_address, join_code, frequency, homeowner_id, invoice_id } = body;
 
     if (!community_id || !amount || !join_code) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
@@ -74,6 +74,12 @@ Deno.serve(async (req) => {
         checkout_id: checkoutId,
         frequency,
         amount,
+        status: "pending",
+      });
+    } else if (invoice_id) {
+      // Paying a specific existing invoice (dues, fine, fee, or assessment) as a guest.
+      await base44.asServiceRole.entities.Invoice.update(invoice_id, {
+        wix_checkout_id: checkoutId,
         status: "pending",
       });
     } else {

@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Plus, Check, Users, DollarSign } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import BulkInvoiceDialog from "@/components/hoa/BulkInvoiceDialog";
+import ShareLinksPanel from "@/components/hoa/ShareLinksPanel";
+import CopyLinkButton from "@/components/CopyLinkButton";
 
 export default function HOAInvoices() {
   const { community } = useOutletContext();
@@ -98,6 +100,8 @@ export default function HOAInvoices() {
         }
       />
 
+      <ShareLinksPanel community={community} showInvoiceNote />
+
       {/* Dues Setup */}
       <div className="bg-card rounded-2xl warm-shadow p-6 mb-6">
         <div className="flex items-center gap-2 mb-1">
@@ -137,10 +141,13 @@ export default function HOAInvoices() {
                     {inv.paid_date && <span>Paid: {formatDate(inv.paid_date)}</span>}
                   </div>
                 </div>
-                <div className="text-right ml-4">
+                <div className="text-right ml-4 flex flex-col items-end gap-2">
                   <p className="text-xl font-bold">{formatCurrency(inv.amount)}</p>
+                  {inv.status === "pending" && (
+                    <CopyLinkButton url={`${window.location.origin}/pay/invoice/${inv.id}`} label="Share pay link" />
+                  )}
                   {inv.status === "paid" && (
-                    <Button size="sm" className="mt-2" onClick={() => confirmPayment(inv)}>
+                    <Button size="sm" onClick={() => confirmPayment(inv)}>
                       <Check className="w-4 h-4 mr-1" /> Confirm
                     </Button>
                   )}
