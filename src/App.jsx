@@ -27,7 +27,6 @@ import HOARequests from '@/pages/hoa/HOARequests';
 import HOARequestDetail from '@/pages/hoa/HOARequestDetail';
 import HOARequestTypes from '@/pages/hoa/HOARequestTypes';
 import HOAInvoices from '@/pages/hoa/HOAInvoices';
-import HOAInvoiceAssistant from '@/pages/hoa/HOAInvoiceAssistant';
 import HOAExpenses from '@/pages/hoa/HOAExpenses';
 import HOAAnnouncements from '@/pages/hoa/HOAAnnouncements';
 import HOAPolls from '@/pages/hoa/HOAPolls';
@@ -125,7 +124,6 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/requests/:id" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequestDetail /></PlanGate>} />
           <Route path="/hoa/request-types" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequestTypes /></PlanGate>} />
           <Route path="/hoa/invoices" element={<PlanGate module="invoices" homePath="/hoa/dashboard"><HOAInvoices /></PlanGate>} />
-          <Route path="/hoa/invoice-assistant" element={<PlanGate module="invoices" homePath="/hoa/dashboard"><HOAInvoiceAssistant /></PlanGate>} />
           <Route path="/hoa/expenses" element={<PlanGate module="expenses" homePath="/hoa/dashboard"><HOAExpenses /></PlanGate>} />
           <Route path="/hoa/announcements" element={<HOAAnnouncements />} />
           <Route path="/hoa/polls" element={<PlanGate module="polls" homePath="/hoa/dashboard"><HOAPolls /></PlanGate>} />

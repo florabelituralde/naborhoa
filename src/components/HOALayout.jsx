@@ -66,7 +66,6 @@ export default function HOALayout() {
     ...(isAdmin ? [{ path: "/hoa/board", label: "Board", icon: Contact, group: "People" }] : []),
 
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt, group: "Finances" },
-    { path: "/hoa/invoice-assistant", label: "Invoice Assistant", icon: Sparkles, group: "Finances" },
     { path: "/hoa/expenses", label: "Expenses", icon: Wallet, group: "Finances" },
 
     { path: "/hoa/polls", label: "Polls", icon: Vote, group: "Community" },
