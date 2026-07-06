@@ -1,13 +1,47 @@
 import React from "react";
 
-const ICON_URL = "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/3978a0980_generated_image.png";
-
-// Reusable Nabor logo. Renders the badge icon and, optionally, the "Nabor" wordmark.
-export default function NaborLogo({ showText = true, className = "", iconClassName = "w-8 h-8", textClassName = "font-bold text-lg text-sidebar-foreground" }) {
+// Reusable Nabor logo: an inline SVG of an "N" monogram with a roof on top.
+// Uses currentColor so it inherits text color and always has a transparent background.
+export default function NaborLogo({
+  showText = true,
+  className = "",
+  iconClassName = "w-8 h-8",
+  textClassName = "font-bold text-lg text-sidebar-foreground",
+}) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
-      <img src={ICON_URL} alt="Nabor" className={`${iconClassName} object-contain`} />
+      <NaborMark className={`${iconClassName} text-primary`} />
       {showText && <span className={textClassName}>Nabor</span>}
     </span>
+  );
+}
+
+export function NaborMark({ className = "w-8 h-8" }) {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-label="Nabor"
+      role="img"
+    >
+      {/* Roof */}
+      <path
+        d="M8 17 L24 6 L40 17"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Letter N */}
+      <path
+        d="M13 40 V19 L35 40 V19"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
