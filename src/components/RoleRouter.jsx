@@ -9,12 +9,12 @@ export default function RoleRouter() {
 
   useEffect(() => {
     base44.auth.me().then(user => {
-      if (!user.role) {
-        setRedirect("/choose-role");
-      } else if (user.role === "hoa_admin" || user.role === "hoa_staff") {
-        setRedirect(user.community_id ? "/hoa/dashboard" : "/onboarding");
-      } else if (user.role === "homeowner") {
-        setRedirect(user.community_id ? "/home/dashboard" : "/join");
+      const role = user.role ?? user.data?.role;
+      const communityId = user.community_id ?? user.data?.community_id;
+      if (role === "hoa_admin" || role === "hoa_staff") {
+        setRedirect(communityId ? "/hoa/dashboard" : "/onboarding");
+      } else if (role === "homeowner") {
+        setRedirect(communityId ? "/home/dashboard" : "/join");
       } else {
         setRedirect("/choose-role");
       }
