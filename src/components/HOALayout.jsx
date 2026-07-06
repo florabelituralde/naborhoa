@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "@/components/Sidebar";
-import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, UserCheck, Calendar, Contact, Trophy, HelpCircle, Loader2 } from "lucide-react";
+import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, UserCheck, Calendar, Contact, Trophy, HelpCircle, Loader2, CreditCard } from "lucide-react";
 import { markNavLocks } from "@/lib/planAccess";
 
 export default function HOALayout() {
@@ -69,6 +69,7 @@ export default function HOALayout() {
 
     { path: "/hoa/request-types", label: "Request Types", icon: ListChecks, group: "Settings" },
     ...(isAdmin ? [{ path: "/hoa/account", label: "My Account", icon: UserCircle, group: "Settings" }] : []),
+    ...(isAdmin ? [{ path: "/hoa/payment-settings", label: "Payment Settings", icon: CreditCard, group: "Settings" }] : []),
     { path: "/hoa/help", label: "Help & FAQ", icon: HelpCircle, group: "Settings" },
   ];
 

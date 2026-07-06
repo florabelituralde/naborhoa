@@ -28,13 +28,13 @@ export default function GuestPay() {
     setPaying(true);
     setError("");
     try {
-      const res = await base44.functions.invoke("create-checkout", {
-        community_id: community.id,
-        join_code: joinCode,
-        amount: community.monthly_dues || 45,
-        description: `HOA Dues - ${community.name}`,
-        property_address: address,
-      });
+      const useStripe = community.stripe_account_id && community.charges_enabled;
+      const res = await base44.functions.invoke(
+        useStripe ? "stripe-checkout" : "create-checkout",
+        useStripe
+          ? { community_id: community.id, join_code: joinCode, amount: community.monthly_dues || 45, description: `HOA Dues - ${community.name}` }
+          : { community_id: community.id, join_code: joinCode, amount: community.monthly_dues || 45, description: `HOA Dues - ${community.name}`, property_address: address }
+      );
       if (res.data?.redirectUrl) {
         window.location.href = res.data.redirectUrl;
       } else {

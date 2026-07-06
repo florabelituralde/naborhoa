@@ -36,14 +36,11 @@ export default function GuestInvoicePay() {
     if (!invoice || !community || paying) return;
     setPaying(true);
     setError("");
+    const useStripe = community.stripe_account_id && community.charges_enabled;
     base44.functions
-      .invoke("create-checkout", {
-        community_id: community.id,
-        join_code: community.join_code,
-        amount: invoice.amount,
-        description: invoice.description || `${TYPE_LABELS[invoice.type] || "HOA Payment"} - ${community.name}`,
-        invoice_id: invoice.id,
-      })
+      .invoke(useStripe ? "stripe-checkout" : "create-checkout", useStripe
+        ? { community_id: community.id, join_code: community.join_code, amount: invoice.amount, description: invoice.description || `${TYPE_LABELS[invoice.type] || "HOA Payment"} - ${community.name}`, invoice_id: invoice.id }
+        : { community_id: community.id, join_code: community.join_code, amount: invoice.amount, description: invoice.description || `${TYPE_LABELS[invoice.type] || "HOA Payment"} - ${community.name}`, invoice_id: invoice.id })
       .then((res) => {
         if (res.data?.redirectUrl) {
           window.location.href = res.data.redirectUrl;
