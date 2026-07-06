@@ -140,7 +140,24 @@ export default function Onboarding() {
     }
   };
 
-  const handleSkipPlan = () => setStep(6);
+  // Start the 14-day free trial: leave the community with no plan and a pending
+  // status so isInTrial() grants full access until the trial window elapses.
+  const handleStartTrial = () => setStep(6);
+
+  // Use the free version now: mark the community "ended" so it drops straight to
+  // the free Starter tier with locked features visible in the nav.
+  const handleUseFreeVersion = async () => {
+    setSubmitting(true);
+    try {
+      if (communityId) {
+        await base44.entities.Community.update(communityId, { subscription_status: "ended" });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setSubmitting(false);
+    setStep(6);
+  };
 
   if (loading) {
     return (
@@ -272,7 +289,12 @@ export default function Onboarding() {
 
           {step === 5 && (
             <div>
-              <PlanSelector onSelect={handleSelectPlan} onTrial={handleSkipPlan} submitting={submitting} />
+              <PlanSelector
+                onSelect={handleSelectPlan}
+                onTrial={handleStartTrial}
+                onFree={handleUseFreeVersion}
+                submitting={submitting}
+              />
             </div>
           )}
 

@@ -8,7 +8,7 @@ import {
   effectiveMonthly,
 } from "@/lib/subscriptionPlans";
 
-export default function PlanSelector({ onSelect, onTrial, submitting }) {
+export default function PlanSelector({ onSelect, onTrial, onFree, submitting }) {
   const [cycleId, setCycleId] = useState("monthly");
   const [planId, setPlanId] = useState("growth");
 
@@ -119,11 +119,27 @@ export default function PlanSelector({ onSelect, onTrial, submitting }) {
             disabled={submitting}
             className="w-full h-12"
           >
-            Start a 30-day free trial
+            Start a 14-day free trial
           </Button>
-          <p className="text-center text-xs text-muted-foreground mt-3">
-            No card required · Full access · Choose a plan later
+          <p className="text-center text-xs text-muted-foreground mt-2">
+            No card required · Full access to every feature · Choose a plan later
           </p>
+
+          {onFree && (
+            <>
+              <button
+                type="button"
+                onClick={onFree}
+                disabled={submitting}
+                className="w-full text-center text-sm text-muted-foreground hover:text-foreground mt-4 disabled:opacity-50"
+              >
+                Skip for now — use the free version
+              </button>
+              <p className="text-center text-xs text-muted-foreground mt-1">
+                Core features only · Premium features stay locked until you upgrade
+              </p>
+            </>
+          )}
         </>
       )}
     </div>

@@ -14,13 +14,16 @@ const ROUTE_MODULE = {
 const CORE_MODULES = ["requests", "announcements", "documents", "board", "events"];
 
 // Length of the free trial (in days) for communities with no plan.
-const TRIAL_DAYS = 30;
+const TRIAL_DAYS = 14;
 
 // Whether a community with no plan is still within its free trial window.
 // During the trial they get access to ALL features; afterwards they drop to
 // the Starter plan's feature set.
 export function isInTrial(community) {
   if (!community || community.plan_id) return false;
+  // A manager who chose the free version (skipped the trial) has an "ended"
+  // status — they go straight to the free Starter tier, no trial window.
+  if (community.subscription_status === "ended") return false;
   const created = community.created_date ? new Date(community.created_date) : null;
   if (!created || isNaN(created.getTime())) return false;
   const trialEnd = new Date(created.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);

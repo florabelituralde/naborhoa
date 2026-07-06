@@ -22,8 +22,8 @@ export default function PlanGate({ module, homePath, children }) {
         </div>
         <h2 className="text-xl font-bold mb-2">Not available on your plan</h2>
         <p className="text-muted-foreground mb-6">
-          Your free trial has ended, so your community is now on the free Starter
-          features. Your HOA manager can upgrade the plan to unlock this feature.
+          Your community is on the free Starter features. Your HOA manager can
+          upgrade the plan to unlock this feature.
         </p>
         <Button asChild variant="outline">
           <Link to={homePath}>Go back</Link>
