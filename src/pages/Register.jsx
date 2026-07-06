@@ -74,9 +74,11 @@ export default function Register() {
         ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
         ...(role === "homeowner" && isBoardMember ? { board_member_status: "pending" } : {}),
       });
-      // Logged in — send to the app root; RoleRouter routes to the right
-      // next step (HOA onboarding or homeowner community join).
-      window.location.href = "/";
+      // Logged in — route directly to the next setup step based on the role
+      // we just saved (HOA managers set up their community; homeowners join one).
+      // Using an explicit destination avoids a race where a fresh profile read
+      // hasn't picked up the just-saved role yet.
+      window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
     } catch (err) {
       setError(err.message || "Invalid verification code");
       setLoading(false);
