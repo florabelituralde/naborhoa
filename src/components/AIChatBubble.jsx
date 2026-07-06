@@ -101,7 +101,7 @@ Homeowner question: ${question}`;
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-5 sm:right-5 z-50 w-full sm:w-96 h-[70vh] sm:h-[550px] sm:max-h-[80vh] bg-card sm:rounded-2xl rounded-t-2xl warm-shadow-lg border border-border flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 w-full h-full bg-card flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0">
             <div className="flex items-center gap-2">
@@ -120,6 +120,7 @@ Homeowner question: ${question}`;
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4">
+            <div className="max-w-2xl mx-auto w-full">
             {loading ? (
               <div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
             ) : (
@@ -176,11 +177,12 @@ Homeowner question: ${question}`;
                 <div ref={scrollRef} />
               </>
             )}
+            </div>
           </div>
 
           {/* Input */}
           <div className="p-3 border-t border-border shrink-0">
-            <div className="flex gap-2">
+            <div className="flex gap-2 max-w-2xl mx-auto">
               <input
                 type="text"
                 value={input}

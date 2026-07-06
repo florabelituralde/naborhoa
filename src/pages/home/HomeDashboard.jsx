@@ -8,6 +8,7 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import AnnouncementsWidget from "@/components/widgets/AnnouncementsWidget";
 import AIChatWidget from "@/components/widgets/AIChatWidget";
 import CommunityCalendar from "@/components/widgets/CommunityCalendar";
+import CommunityGallery from "@/components/widgets/CommunityGallery";
 
 export default function HomeDashboard() {
   const { user, community } = useOutletContext();
@@ -137,6 +138,12 @@ export default function HomeDashboard() {
         <CommunityCalendar invoices={invoices} events={events} />
         <AIChatWidget />
       </div>
+
+      {community?.gallery?.length > 0 && (
+        <div className="mt-6">
+          <CommunityGallery community={community} />
+        </div>
+      )}
     </div>
   );
 }
