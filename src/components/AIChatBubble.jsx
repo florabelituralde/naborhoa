@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Send, MessageCircle, Sparkles, X, Mail } from "lucide-react";
 import ContactHOAPanel from "@/components/ContactHOAPanel";
 
-const NO_ANSWER_MARKER = "contact your HOA board";
+const NO_ANSWER_MARKER = "i don't have that information in the community's official documents";
 
 const SUGGESTED_QUESTIONS = [
   "What are the pool hours?",
@@ -77,6 +77,9 @@ export default function AIChatBubble({ user, community }) {
 
       const fileUrls = docs.map(d => d.file_url).filter(Boolean);
       const hasDocs = fileUrls.length > 0;
+      const docIndex = docs.length
+        ? docs.map((d, i) => `${i + 1}. ${d.title}${d.category ? ` (${d.category})` : ""}`).join("\n")
+        : "";
 
       const contactLines = [];
       if (managerEmail) contactLines.push(`- HOA Admin: ${managerName ? managerName + " — " : ""}${managerEmail}`);
@@ -90,12 +93,12 @@ export default function AIChatBubble({ user, community }) {
 
       const guardrails = `You are the HOA assistant for the community "${community.name}". You must follow these rules strictly:
       1. ONLY answer questions about this community's rules, policies, dues, or procedures using information found in the official HOA documents provided to you${hasDocs ? "" : " (note: no documents have been provided by the HOA yet)"}.
-      2. NEVER invent, assume, guess, or use outside/general knowledge to state a policy, rule, fee, deadline, or procedure. If the documents do not clearly state it, you do not know it — do not fill gaps with typical HOA practices.
-      3. If the answer is not clearly stated in the provided documents, respond exactly with: "I don't have that information in the community's official documents. Please contact your HOA board for an answer." Do not add a made-up answer before or after this.
-      4. When you do answer from a document, base it only on what the document says.
-      5. You may help with general, non-policy tasks (e.g. suggesting the homeowner submit a maintenance request through the app) without documents.
+      2. NEVER invent, assume, guess, or use outside/general knowledge to state a policy, rule, fee, deadline, or procedure. If the documents do not clearly state it, you do not know it — do not fill gaps with typical HOA practices. Never invent document names or section numbers that do not appear in the provided documents.
+      3. When answering from a document, first cite the source: name the document title (and the section if it is identifiable in the document), then state the exact rule/fact from that section, then give a brief plain-language interpretation. Example: "According to the <Document Title>, <Section>: <the rule>. In other words, <interpretation>."
+      4. If the answer is not clearly stated in any provided document, or you cannot point to a specific section, respond exactly with: "I don't have that information in the community's official documents. Please contact your HOA board for an answer." Do not add a made-up answer, a guessed section, or general HOA advice before or after this.
+      5. You may help with general, non-policy tasks (e.g. suggesting the homeowner submit a maintenance request through the app) without citing documents.
       6. Be concise, warm, and helpful.
-      ${contactBlock}
+      ${docIndex ? `\nHOA documents available (cite by these titles only):\n${docIndex}\n` : ""}${contactBlock}
       Homeowner question: ${question}`;
 
       const response = await base44.integrations.Core.InvokeLLM({
