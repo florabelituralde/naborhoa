@@ -9,7 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Check, Users, DollarSign } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Loader2, Plus, Check, Users, DollarSign, Trash2 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import BulkInvoiceDialog from "@/components/hoa/BulkInvoiceDialog";
 import ShareLinksPanel from "@/components/hoa/ShareLinksPanel";
@@ -27,6 +32,8 @@ export default function HOAInvoices() {
   const [dues, setDues] = useState("");
   const [savingDues, setSavingDues] = useState(false);
   const [duesSaved, setDuesSaved] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadData = async () => {
     try {
@@ -74,6 +81,18 @@ export default function HOAInvoices() {
     setShowCreate(false);
     setCreating(false);
     loadData();
+  };
+
+  const handleDelete = async () => {
+    if (!invoiceToDelete) return;
+    setDeleting(true);
+    try {
+      await base44.entities.Invoice.delete(invoiceToDelete.id);
+      setInvoiceToDelete(null);
+      loadData();
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const confirmPayment = async (inv) => {
@@ -149,14 +168,24 @@ export default function HOAInvoices() {
                 </div>
                 <div className="text-right ml-4 flex flex-col items-end gap-2">
                   <p className="text-xl font-bold">{formatCurrency(inv.amount)}</p>
-                  {inv.status === "pending" && (
-                    <CopyLinkButton url={`${window.location.origin}/pay/invoice/${inv.id}`} label="Share pay link" />
-                  )}
-                  {inv.status === "paid" && (
-                    <Button size="sm" onClick={() => confirmPayment(inv)}>
-                      <Check className="w-4 h-4 mr-1" /> Confirm
+                  <div className="flex items-center gap-2">
+                    {inv.status === "pending" && (
+                      <CopyLinkButton url={`${window.location.origin}/pay/invoice/${inv.id}`} label="Share pay link" />
+                    )}
+                    {inv.status === "paid" && (
+                      <Button size="sm" onClick={() => confirmPayment(inv)}>
+                        <Check className="w-4 h-4 mr-1" /> Confirm
+                      </Button>
+                    )}
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setInvoiceToDelete(inv)}
+                      aria-label="Delete invoice"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -216,6 +245,28 @@ export default function HOAInvoices() {
         homeowners={homeowners}
         onDone={loadData}
       />
+
+      <AlertDialog open={!!invoiceToDelete} onOpenChange={(o) => !o && setInvoiceToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this invoice?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes the invoice for {invoiceToDelete ? formatCurrency(invoiceToDelete.amount) : ""}. You can then issue a new one. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

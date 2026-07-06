@@ -9,16 +9,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Users } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 
+const PERIODS = [
+  { value: "monthly", label: "Monthly", multiplier: 1, desc: "Monthly HOA dues" },
+  { value: "quarterly", label: "Quarterly", multiplier: 3, desc: "Quarterly HOA dues" },
+  { value: "annual", label: "Annual", multiplier: 12, desc: "Annual HOA dues" },
+];
+
 // Generates one invoice per homeowner in a single action, plus a notification each.
 export default function BulkInvoiceDialog({ open, onOpenChange, community, homeowners, onDone }) {
-  const defaultDues = community?.monthly_dues || "";
+  const monthly = community?.monthly_dues || 0;
   const [form, setForm] = useState({
-    amount: defaultDues ? String(defaultDues) : "",
+    amount: monthly ? String(monthly) : "",
     type: "dues",
     due_date: "",
     description: "Monthly HOA dues",
   });
   const [sending, setSending] = useState(false);
+
+  // When the billing period changes, recompute the amount from the community's
+  // monthly dues and update the description to match the chosen period.
+  const applyFrequency = (freq) => {
+    const period = PERIODS.find((p) => p.value === freq) || PERIODS[0];
+    setForm((f) => ({
+      ...f,
+      amount: monthly ? String((monthly * period.multiplier).toFixed(2)) : f.amount,
+      description: period.desc,
+    }));
+  };
 
   const handleSend = async () => {
     setSending(true);
@@ -71,6 +88,24 @@ export default function BulkInvoiceDialog({ open, onOpenChange, community, homeo
 
         <div className="space-y-4">
           <div>
+            <Label>Billing Period</Label>
+            <Select value="monthly" onValueChange={applyFrequency}>
+              <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PERIODS.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {monthly ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Based on monthly dues of {formatCurrency(monthly)} (× multiplier).
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1">Set monthly dues first to auto-fill amounts.</p>
+            )}
+          </div>
+          <div>
             <Label>Type</Label>
             <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
               <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
@@ -85,9 +120,6 @@ export default function BulkInvoiceDialog({ open, onOpenChange, community, homeo
           <div>
             <Label>Amount per homeowner ($)</Label>
             <Input type="number" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="mt-1.5" />
-            {community?.monthly_dues ? (
-              <p className="text-xs text-muted-foreground mt-1">Community monthly dues: {formatCurrency(community.monthly_dues)}</p>
-            ) : null}
           </div>
           <div>
             <Label>Due Date</Label>
