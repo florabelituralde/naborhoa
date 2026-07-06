@@ -1,12 +1,18 @@
 {
-  "name": "Nabor",
+  "id": "/",
+  "name": "Nabor — Community Management",
   "short_name": "Nabor",
   "description": "Your community, connected. Manage HOA requests, dues, announcements, events and more.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f7f4ee",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "theme_color": "#5c8065",
+  "background_color": "#faf7f1",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["productivity", "lifestyle", "social"],
   "icons": [
     {
       "src": "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/54ab2acf0_generated_image.png",
@@ -18,7 +24,13 @@
       "src": "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/54ab2acf0_generated_image.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/54ab2acf0_generated_image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

@@ -98,6 +98,8 @@
   /* Avoid horizontal overflow on small screens */
   html, body {
     overscroll-behavior-y: none;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 }
 
