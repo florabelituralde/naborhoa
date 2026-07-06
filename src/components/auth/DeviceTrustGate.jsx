@@ -30,7 +30,7 @@ export default function DeviceTrustGate() {
         setUser(u);
         // Bypass device verification for the dedicated Testing Agent account so
         // it can run end-to-end flows (it can't read an emailed code).
-        if (u?.email === "ituralde.florabel@gmail.com") {
+        if (u?.email === "ituralde.florabel@gmail.com" || u?.email === "florabelv@gmail.com") {
           setStatus("trusted");
           return;
         }
