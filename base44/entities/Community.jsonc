@@ -39,6 +39,38 @@
         "type": "string"
       },
       "default": []
+    },
+    "plan_id": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "growth",
+        "pro"
+      ]
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "quarterly",
+        "annual"
+      ]
+    },
+    "subscription_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "canceled",
+        "ended"
+      ],
+      "default": "pending"
+    },
+    "platform_subscription_id": {
+      "type": "string"
+    },
+    "platform_checkout_id": {
+      "type": "string"
     }
   },
   "required": [

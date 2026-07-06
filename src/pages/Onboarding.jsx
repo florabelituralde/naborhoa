@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Building2, Home, ArrowRight, Loader2, Check } from "lucide-react";
+import PlanSelector from "@/components/onboarding/PlanSelector";
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function Onboarding() {
   const [org, setOrg] = useState({ name: "", type: "standalone_hoa", description: "" });
   const [community, setCommunity] = useState({ name: "", address: "", city: "", state: "", description: "" });
   const [joinCode, setJoinCode] = useState("");
+  const [communityId, setCommunityId] = useState("");
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -49,12 +51,35 @@ export default function Onboarding() {
       });
       await base44.auth.updateMe({ community_id: commRecord.id });
       setJoinCode(code);
+      setCommunityId(commRecord.id);
       setStep(3);
     } catch (err) {
       console.error(err);
     }
     setSubmitting(false);
   };
+
+  const handleSelectPlan = async (planId, cycleId) => {
+    setSubmitting(true);
+    try {
+      const res = await base44.functions.invoke("create-plan-checkout", {
+        community_id: communityId,
+        plan_id: planId,
+        billing_cycle: cycleId,
+      });
+      if (res.data?.redirectUrl) {
+        window.location.href = res.data.redirectUrl;
+        return;
+      }
+      console.error("No redirect URL", res.data);
+      setSubmitting(false);
+    } catch (err) {
+      console.error(err);
+      setSubmitting(false);
+    }
+  };
+
+  const handleSkipPlan = () => setStep(4);
 
   if (loading) {
     return (
@@ -74,14 +99,14 @@ export default function Onboarding() {
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-lg">
+        <div className={`w-full ${step === 3 ? "max-w-4xl" : "max-w-lg"}`}>
           <div className="flex items-center justify-center gap-2 mb-10">
-            {[1, 2, 3].map(s => (
+            {[1, 2, 3, 4].map(s => (
               <React.Fragment key={s}>
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${step >= s ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
                   {step > s ? <Check className="w-4 h-4" /> : s}
                 </div>
-                {s < 3 && <div className={`w-16 h-0.5 transition-all ${step > s ? "bg-primary" : "bg-muted"}`} />}
+                {s < 4 && <div className={`w-10 h-0.5 transition-all ${step > s ? "bg-primary" : "bg-muted"}`} />}
               </React.Fragment>
             ))}
           </div>
@@ -160,6 +185,19 @@ export default function Onboarding() {
           )}
 
           {step === 3 && (
+            <div>
+              <PlanSelector onSelect={handleSelectPlan} submitting={submitting} />
+              <button
+                type="button"
+                onClick={handleSkipPlan}
+                className="w-full text-center text-sm text-muted-foreground hover:text-foreground mt-4"
+              >
+                Skip for now — I'll choose a plan later
+              </button>
+            </div>
+          )}
+
+          {step === 4 && (
             <div className="bg-card rounded-2xl warm-shadow-md p-8 text-center">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Check className="w-8 h-8 text-primary" />

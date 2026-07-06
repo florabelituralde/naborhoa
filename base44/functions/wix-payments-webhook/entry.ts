@@ -23,9 +23,19 @@ Deno.serve(async (req) => {
       const hasSubscription = order.lineItems.some(li => li.subscriptionInfo);
 
       if (hasSubscription) {
+        const subId = order.lineItems.find(li => li.subscriptionInfo)?.subscriptionInfo?.id;
+
+        // HOA manager platform subscription?
+        const comms = await base44.asServiceRole.entities.Community.filter({ platform_checkout_id: checkoutId });
+        if (comms.length > 0) {
+          await base44.asServiceRole.entities.Community.update(comms[0].id, {
+            subscription_status: "active",
+            platform_subscription_id: subId || "",
+          });
+        }
+
         const subs = await base44.asServiceRole.entities.Subscription.filter({ checkout_id: checkoutId });
         if (subs.length > 0) {
-          const subId = order.lineItems.find(li => li.subscriptionInfo)?.subscriptionInfo?.id;
           await base44.asServiceRole.entities.Subscription.update(subs[0].id, {
             status: "active",
             subscription_id: subId || "",
@@ -47,10 +57,16 @@ Deno.serve(async (req) => {
       const subscriptionContract = eventData.actionEvent.body.subscriptionContract;
       const subscriptionId = subscriptionContract.id;
 
+      const newStatus = event.eventType.includes("canceled") ? "canceled" : "ended";
+
       const subs = await base44.asServiceRole.entities.Subscription.filter({ subscription_id: subscriptionId });
       if (subs.length > 0) {
-        const newStatus = event.eventType.includes("canceled") ? "canceled" : "ended";
         await base44.asServiceRole.entities.Subscription.update(subs[0].id, { status: newStatus });
+      }
+
+      const comms = await base44.asServiceRole.entities.Community.filter({ platform_subscription_id: subscriptionId });
+      if (comms.length > 0) {
+        await base44.asServiceRole.entities.Community.update(comms[0].id, { subscription_status: newStatus });
       }
     }
 
