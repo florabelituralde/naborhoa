@@ -114,6 +114,15 @@
     display: none;
   }
 
+  /* Hide scrollbars everywhere while keeping scroll functionality */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
   /* WebView: disable text selection + tap highlight on interactive controls,
      while preserving normal text selection in paragraphs/announcements. */
   button,
