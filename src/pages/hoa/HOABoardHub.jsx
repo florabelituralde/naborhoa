@@ -9,6 +9,7 @@ import BoardEventSection from "@/components/board/BoardEventSection";
 import BoardPollResultsSection from "@/components/board/BoardPollResultsSection";
 import BoardGallerySection from "@/components/board/BoardGallerySection";
 import BoardRequestsApprovalSection from "@/components/board/BoardRequestsApprovalSection";
+import JoinRequestsSection from "@/components/JoinRequestsSection";
 
 export default function HOABoardHub() {
   const { user, community } = useOutletContext();
@@ -49,6 +50,7 @@ export default function HOABoardHub() {
       <PageHeader title="Board Hub" subtitle="Everything the board needs in one place" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <JoinRequestsSection />
         <BoardRequestsApprovalSection community={community} pendingMembers={pendingMembers} onChange={loadData} />
         <BoardRequestsSection requests={requests} />
         <BoardAnnouncementSection community={community} user={user} announcements={announcements} onChange={loadData} />
