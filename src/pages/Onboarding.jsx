@@ -272,14 +272,7 @@ export default function Onboarding() {
 
           {step === 5 && (
             <div>
-              <PlanSelector onSelect={handleSelectPlan} submitting={submitting} />
-              <button
-                type="button"
-                onClick={handleSkipPlan}
-                className="w-full text-center text-sm text-muted-foreground hover:text-foreground mt-4"
-              >
-                Skip for now — I'll choose a plan later
-              </button>
+              <PlanSelector onSelect={handleSelectPlan} onTrial={handleSkipPlan} submitting={submitting} />
             </div>
           )}
 

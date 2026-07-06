@@ -8,7 +8,7 @@ import {
   effectiveMonthly,
 } from "@/lib/subscriptionPlans";
 
-export default function PlanSelector({ onSelect, submitting }) {
+export default function PlanSelector({ onSelect, onTrial, submitting }) {
   const [cycleId, setCycleId] = useState("monthly");
   const [planId, setPlanId] = useState("growth");
 
@@ -103,6 +103,29 @@ export default function PlanSelector({ onSelect, submitting }) {
       <p className="text-center text-xs text-muted-foreground mt-3">
         Secure checkout · Cancel anytime
       </p>
+
+      {onTrial && (
+        <>
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-3 text-muted-foreground">or</span>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onTrial}
+            disabled={submitting}
+            className="w-full h-12"
+          >
+            Start a 30-day free trial
+          </Button>
+          <p className="text-center text-xs text-muted-foreground mt-3">
+            No card required · Full access · Choose a plan later
+          </p>
+        </>
+      )}
     </div>
   );
 }
