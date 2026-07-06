@@ -5,6 +5,8 @@ import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 import { ClipboardList, Receipt, Vote, MessageCircle, Loader2, Plus, ArrowRight, History, RefreshCw } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
+import AnnouncementsWidget from "@/components/widgets/AnnouncementsWidget";
+import AIChatWidget from "@/components/widgets/AIChatWidget";
 
 export default function HomeDashboard() {
   const { user, community } = useOutletContext();
@@ -124,21 +126,11 @@ export default function HomeDashboard() {
           )}
         </div>
 
-        <div className="bg-card rounded-2xl warm-shadow p-6">
-          <h2 className="font-semibold text-lg mb-4">Announcements</h2>
-          {announcements.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No announcements</p>
-          ) : (
-            <div className="space-y-3">
-              {announcements.map(ann => (
-                <div key={ann.id} className="p-3 rounded-lg bg-muted/50">
-                  <p className="font-medium text-sm">{ann.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{ann.body}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <AnnouncementsWidget announcements={announcements} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <AIChatWidget />
       </div>
     </div>
   );

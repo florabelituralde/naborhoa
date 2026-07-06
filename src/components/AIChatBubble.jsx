@@ -36,6 +36,13 @@ export default function AIChatBubble({ user, community }) {
     if (open) scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, thinking, open]);
 
+  // Allow other parts of the app (e.g. dashboard widget) to open the assistant
+  useEffect(() => {
+    const handleOpen = () => setOpen(true);
+    window.addEventListener("open-ai-chat", handleOpen);
+    return () => window.removeEventListener("open-ai-chat", handleOpen);
+  }, []);
+
   const sendMessage = async (question) => {
     if (!question.trim() || thinking) return;
     const userMsg = { role: "user", content: question, community_id: community.id, user_id: user.id };
