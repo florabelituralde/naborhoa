@@ -18,7 +18,14 @@ Deno.serve(async (req) => {
       role: 'homeowner',
     });
 
-    return Response.json({ count: homeowners.length });
+    const members = homeowners.map((h) => ({
+      id: h.id,
+      full_name: h.full_name,
+      email: h.email,
+      created_date: h.created_date,
+    }));
+
+    return Response.json({ count: members.length, members });
   } catch (error) {
     console.error('get-community-homeowners error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });

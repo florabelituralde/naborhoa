@@ -9,6 +9,7 @@ export default function HOALayout() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [community, setCommunity] = useState(null);
+  const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,9 +24,21 @@ export default function HOALayout() {
       }
       setUser(u);
       base44.entities.Community.get(u.community_id).then(c => setCommunity(c)).catch(() => {});
+      // Admins can own multiple communities; load them for the switcher.
+      if (u.role === "hoa_admin") {
+        base44.functions.invoke("get-my-communities", {})
+          .then(r => setCommunities(r.data?.communities || []))
+          .catch(() => {});
+      }
       setLoading(false);
     }).catch(() => navigate("/login"));
   }, []);
+
+  // Switch the active community, then hard-reload so every page picks up the change.
+  const handleSwitchCommunity = async (communityId) => {
+    await base44.auth.updateMe({ community_id: communityId });
+    window.location.href = "/hoa/dashboard";
+  };
 
   if (loading || !user) {
     return (
@@ -58,7 +71,7 @@ export default function HOALayout() {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar navItems={visibleNav} user={user} community={community} />
+      <Sidebar navItems={visibleNav} user={user} community={community} communities={communities} onSwitchCommunity={handleSwitchCommunity} />
       <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
         <Outlet context={{ user, community }} />
       </main>

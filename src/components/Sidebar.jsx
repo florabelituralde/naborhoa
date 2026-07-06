@@ -4,8 +4,9 @@ import { base44 } from "@/api/base44Client";
 import { LogOut, Menu, X, Lock } from "lucide-react";
 import NaborLogo from "@/components/NaborLogo";
 import NotificationBell from "@/components/NotificationBell";
+import CommunitySwitcher from "@/components/CommunitySwitcher";
 
-function SidebarContent({ navItems, user, community, onNavigate }) {
+function SidebarContent({ navItems, user, community, communities, onSwitchCommunity, onNavigate }) {
   const location = useLocation();
 
   const handleLogout = async () => {
@@ -21,12 +22,19 @@ function SidebarContent({ navItems, user, community, onNavigate }) {
         </Link>
       </div>
 
-      {community && (
+      {community && onSwitchCommunity ? (
+        <CommunitySwitcher
+          community={community}
+          communities={communities}
+          onSwitch={onSwitchCommunity}
+          onNavigate={onNavigate}
+        />
+      ) : community ? (
         <div className="px-4 py-3 border-b border-sidebar-border">
           <p className="text-xs text-muted-foreground">Community</p>
           <p className="text-sm font-semibold text-sidebar-foreground truncate">{community.name}</p>
         </div>
-      )}
+      ) : null}
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map(item => {
@@ -80,7 +88,7 @@ function SidebarContent({ navItems, user, community, onNavigate }) {
   );
 }
 
-export default function Sidebar({ navItems, user, community }) {
+export default function Sidebar({ navItems, user, community, communities, onSwitchCommunity }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
@@ -93,7 +101,7 @@ export default function Sidebar({ navItems, user, community }) {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 bg-sidebar h-screen flex-col border-r border-sidebar-border shrink-0">
-        <SidebarContent navItems={navItems} user={user} community={community} />
+        <SidebarContent navItems={navItems} user={user} community={community} communities={communities} onSwitchCommunity={onSwitchCommunity} />
       </aside>
 
       {/* Mobile top bar */}
@@ -125,7 +133,7 @@ export default function Sidebar({ navItems, user, community }) {
             >
               <X className="w-5 h-5" />
             </button>
-            <SidebarContent navItems={navItems} user={user} community={community} onNavigate={() => setMobileOpen(false)} />
+            <SidebarContent navItems={navItems} user={user} community={community} communities={communities} onSwitchCommunity={onSwitchCommunity} onNavigate={() => setMobileOpen(false)} />
           </aside>
         </div>
       )}

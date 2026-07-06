@@ -13,7 +13,7 @@ export default function HOADashboard() {
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState([]);
   const [invoices, setInvoices] = useState([]);
-  const [homeownerCount, setHomeownerCount] = useState(0);
+  const [members, setMembers] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [expenses, setExpenses] = useState([]);
 
@@ -22,13 +22,13 @@ export default function HOADashboard() {
     Promise.all([
       base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
       base44.entities.Invoice.filter({ community_id: community.id }, "-created_date", 500),
-      base44.functions.invoke("get-community-homeowners", {}).then(r => r.data?.count || 0).catch(() => 0),
+      base44.functions.invoke("get-community-homeowners", {}).then(r => r.data?.members || []).catch(() => []),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 5),
       base44.entities.Expense.filter({ community_id: community.id }, "-created_date", 500),
-    ]).then(([reqs, invs, homeCount, anns, exps]) => {
+    ]).then(([reqs, invs, mems, anns, exps]) => {
       setRequests(reqs);
       setInvoices(invs);
-      setHomeownerCount(homeCount);
+      setMembers(mems);
       setAnnouncements(anns);
       setExpenses(exps);
       setLoading(false);
@@ -86,7 +86,7 @@ export default function HOADashboard() {
         <StatCard icon={ClipboardList} value={openRequests} label="Open Requests" colorClass="bg-primary/10 text-primary" />
         <StatCard icon={ClipboardList} value={inProgress} label="In Progress" colorClass="bg-amber-100 text-amber-700" />
         <StatCard icon={DollarSign} value={formatCurrency(pendingTotal)} label="Outstanding" colorClass="bg-blue-50 text-blue-600" />
-        <StatCard icon={Users} value={homeownerCount} label="Homeowners" colorClass="bg-green-50 text-green-600" />
+        <StatCard icon={Users} value={members.length} label="Homeowners" colorClass="bg-green-50 text-green-600" />
       </div>
 
       <div className="mb-6">
@@ -134,6 +134,30 @@ export default function HOADashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-6 bg-card rounded-2xl warm-shadow p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-lg">Members</h2>
+          <Link to="/hoa/community" className="text-sm text-primary font-medium hover:underline">View all</Link>
+        </div>
+        {members.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No members have joined yet</p>
+        ) : (
+          <div className="space-y-2">
+            {members.slice(0, 6).map(m => (
+              <div key={m.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
+                <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold shrink-0">
+                  {m.full_name?.[0]?.toUpperCase() || "?"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm truncate">{m.full_name || "Unnamed"}</p>
+                  <p className="text-xs text-muted-foreground truncate">{m.email}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

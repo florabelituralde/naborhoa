@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, Home, ArrowRight, ArrowLeft, Loader2, Check } from "lucide-react";
+import { Home, ArrowRight, ArrowLeft, Loader2, Check } from "lucide-react";
 import PlanSelector from "@/components/onboarding/PlanSelector";
 import CommunityPhotosStep from "@/components/onboarding/CommunityPhotosStep";
 import CommunityDocumentsStep from "@/components/onboarding/CommunityDocumentsStep";
@@ -195,24 +195,7 @@ export default function Onboarding() {
               <p className="text-muted-foreground mb-6">Tell us about your HOA organization</p>
               <div className="space-y-4">
                 <div>
-                  <Label>Organization Type</Label>
-                  <div className="grid grid-cols-2 gap-3 mt-2">
-                    <button type="button" onClick={() => setOrg({ ...org, type: "standalone_hoa" })}
-                      className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 transition-all text-left ${org.type === "standalone_hoa" ? "border-primary bg-primary/5" : "border-border"}`}>
-                      <Home className={`w-5 h-5 ${org.type === "standalone_hoa" ? "text-primary" : "text-muted-foreground"}`} />
-                      <span className="text-sm font-medium">Single HOA</span>
-                      <span className="text-xs text-muted-foreground">One neighborhood</span>
-                    </button>
-                    <button type="button" onClick={() => setOrg({ ...org, type: "management_company" })}
-                      className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 transition-all text-left ${org.type === "management_company" ? "border-primary bg-primary/5" : "border-border"}`}>
-                      <Building2 className={`w-5 h-5 ${org.type === "management_company" ? "text-primary" : "text-muted-foreground"}`} />
-                      <span className="text-sm font-medium">Management Co.</span>
-                      <span className="text-xs text-muted-foreground">Multiple communities</span>
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="orgName">Company / Organization Name</Label>
+                  <Label htmlFor="orgName">Community / Organization Name</Label>
                   <Input id="orgName" value={org.name} onChange={e => setOrg({ ...org, name: e.target.value })} placeholder="Maple Street HOA" className="mt-1.5 h-11" />
                 </div>
                 <div>
