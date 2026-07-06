@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import StatusBadge from "@/components/StatusBadge";
+import PullToRefresh from "@/components/mobile/PullToRefresh";
 import { Vote, Loader2, UserCircle, Calendar as CalendarIcon, Megaphone, Contact, ShieldCheck, Clock } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import AnnouncementsWidget from "@/components/widgets/AnnouncementsWidget";
@@ -16,21 +17,25 @@ export default function HomeDashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [events, setEvents] = useState([]);
 
+  const loadData = useCallback(async () => {
+    if (!community) return;
+    const [activePolls, anns, evs] = await Promise.all([
+      base44.entities.Poll.filter({ community_id: community.id, status: "active" }, "-created_date", 3),
+      base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 3),
+      base44.entities.Event.filter({ community_id: community.id }, "start_time"),
+    ]);
+    setPolls(activePolls);
+    setAnnouncements(anns);
+    setEvents(evs);
+  }, [community]);
+
   useEffect(() => {
     if (!community) {
       setLoading(false);
       return;
     }
-    Promise.all([
-      base44.entities.Poll.filter({ community_id: community.id, status: "active" }, "-created_date", 3),
-      base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 3),
-      base44.entities.Event.filter({ community_id: community.id }, "start_time"),
-    ]).then(([activePolls, anns, evs]) => {
-      setPolls(activePolls);
-      setAnnouncements(anns);
-      setEvents(evs);
-    }).finally(() => setLoading(false));
-  }, [community]);
+    loadData().finally(() => setLoading(false));
+  }, [community, loadData]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
@@ -38,7 +43,7 @@ export default function HomeDashboard() {
   const firstName = user?.full_name?.split(" ")[0];
 
   return (
-    <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+    <PullToRefresh onRefresh={loadData} className="p-4 sm:p-8 max-w-6xl mx-auto">
       {/* Banner */}
       <div className="relative rounded-2xl overflow-hidden mb-8 warm-shadow">
         {banner ? (
@@ -162,6 +167,6 @@ export default function HomeDashboard() {
           View Board Contacts
         </Link>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }

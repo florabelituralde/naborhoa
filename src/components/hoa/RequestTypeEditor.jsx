@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import DrawerSelect from "@/components/mobile/DrawerSelect";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import { REQUEST_TYPE_ICONS } from "@/lib/defaultRequestTypes";
@@ -56,24 +56,28 @@ export default function RequestTypeEditor({ open, onOpenChange, initial, onSave 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Icon</Label>
-              <Select value={form.icon} onValueChange={v => set({ icon: v })}>
-                <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {REQUEST_TYPE_ICONS.map(ic => <SelectItem key={ic} value={ic}>{ic}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <DrawerSelect
+                value={form.icon}
+                onValueChange={v => set({ icon: v })}
+                title="Choose an icon"
+                className="mt-1.5"
+                options={REQUEST_TYPE_ICONS.map(ic => ({ value: ic, label: ic }))}
+              />
             </div>
             <div>
               <Label>Category</Label>
-              <Select value={form.category} onValueChange={v => set({ category: v })}>
-                <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="maintenance">Maintenance</SelectItem>
-                  <SelectItem value="repair">Repair</SelectItem>
-                  <SelectItem value="plan_review">Plan Review</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+              <DrawerSelect
+                value={form.category}
+                onValueChange={v => set({ category: v })}
+                title="Choose a category"
+                className="mt-1.5"
+                options={[
+                  { value: "maintenance", label: "Maintenance" },
+                  { value: "repair", label: "Repair" },
+                  { value: "plan_review", label: "Plan Review" },
+                  { value: "other", label: "Other" },
+                ]}
+              />
             </div>
           </div>
 
@@ -103,15 +107,20 @@ export default function RequestTypeEditor({ open, onOpenChange, initial, onSave 
                     <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive" onClick={() => removeField(i)}><Trash2 className="w-4 h-4" /></Button>
                   </div>
                   <div className="flex gap-2 items-center">
-                    <Select value={field.type} onValueChange={v => updateField(i, { type: v })}>
-                      <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="text">Short text</SelectItem>
-                        <SelectItem value="textarea">Long text</SelectItem>
-                        <SelectItem value="number">Number</SelectItem>
-                        <SelectItem value="select">Dropdown</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="w-36">
+                      <DrawerSelect
+                        value={field.type}
+                        onValueChange={v => updateField(i, { type: v })}
+                        title="Field type"
+                        className="h-9"
+                        options={[
+                          { value: "text", label: "Short text" },
+                          { value: "textarea", label: "Long text" },
+                          { value: "number", label: "Number" },
+                          { value: "select", label: "Dropdown" },
+                        ]}
+                      />
+                    </div>
                     <label className="flex items-center gap-1.5 text-sm">
                       <Switch checked={field.required} onCheckedChange={v => updateField(i, { required: v })} />
                       Required

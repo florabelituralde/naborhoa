@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
+import PullToRefresh from "@/components/mobile/PullToRefresh";
 import StatusBadge from "@/components/StatusBadge";
 import { ClipboardList, DollarSign, Users, Loader2, Sparkles, UserPlus } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
@@ -19,25 +20,28 @@ export default function HOADashboard() {
   const [expenses, setExpenses] = useState([]);
   const [pendingJoins, setPendingJoins] = useState(0);
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!community) return;
-    Promise.all([
+    const [reqs, invs, mems, anns, exps, pending] = await Promise.all([
       base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
       base44.entities.Invoice.filter({ community_id: community.id }, "-created_date", 500),
       base44.functions.invoke("get-community-homeowners", {}).then(r => r.data?.members || []).catch(() => []),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 5),
       base44.entities.Expense.filter({ community_id: community.id }, "-created_date", 500),
       base44.functions.invoke("get-join-requests", {}).then(r => (r.data?.requests || []).filter(x => x.status === "pending").length).catch(() => 0),
-    ]).then(([reqs, invs, mems, anns, exps, pending]) => {
-      setRequests(reqs);
-      setInvoices(invs);
-      setMembers(mems);
-      setAnnouncements(anns);
-      setExpenses(exps);
-      setPendingJoins(pending);
-      setLoading(false);
-    });
+    ]);
+    setRequests(reqs);
+    setInvoices(invs);
+    setMembers(mems);
+    setAnnouncements(anns);
+    setExpenses(exps);
+    setPendingJoins(pending);
   }, [community]);
+
+  useEffect(() => {
+    if (!community) return;
+    loadData().finally(() => setLoading(false));
+  }, [community, loadData]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
@@ -48,7 +52,7 @@ export default function HOADashboard() {
     .reduce((sum, i) => sum + (i.amount || 0), 0);
 
   return (
-    <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+    <PullToRefresh onRefresh={loadData} className="p-4 sm:p-8 max-w-6xl mx-auto">
       <PageHeader title={`Welcome, ${user?.full_name?.split(" ")[0]}`} subtitle={community?.name} />
 
       {!community?.plan_id && (
@@ -167,7 +171,7 @@ export default function HOADashboard() {
           </div>
         )}
       </div>
-    </div>
+    </PullToRefresh>
   );
 }
 
