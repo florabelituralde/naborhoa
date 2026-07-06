@@ -5,6 +5,7 @@ import { LogOut, Menu, X, Lock, ChevronDown } from "lucide-react";
 import NaborLogo from "@/components/NaborLogo";
 import NotificationBell from "@/components/NotificationBell";
 import CommunitySwitcher from "@/components/CommunitySwitcher";
+import ThemeToggle from "@/components/ThemeToggle";
 
 function NavLinkItem({ item, active, onNavigate }) {
   if (item.locked) {
@@ -121,6 +122,7 @@ function SidebarContent({ navItems, user, community, communities, onSwitchCommun
             <p className="text-xs text-muted-foreground capitalize">{user?.role?.replace("_", " ")}</p>
           </div>
         </Link>
+        <ThemeToggle />
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all"
