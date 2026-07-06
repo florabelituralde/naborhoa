@@ -23,13 +23,13 @@ export default function HOABoardHub() {
   const [pendingMembers, setPendingMembers] = useState([]);
 
   const loadData = async () => {
-    const [reqs, anns, evs, p, v, pending] = await Promise.all([
+    const [reqs, anns, evs, p, v, pendingRes] = await Promise.all([
       base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 10),
       base44.entities.Event.filter({ community_id: community.id }, "start_time"),
       base44.entities.Poll.filter({ community_id: community.id }, "-created_date"),
       base44.entities.PollVote.filter({}),
-      base44.entities.User.filter({ community_id: community.id, board_member_status: "pending" }),
+      base44.functions.invoke("get-board-access-requests", {}),
     ]);
     setRequests(reqs);
     setAnnouncements(anns);
@@ -37,7 +37,7 @@ export default function HOABoardHub() {
     setPolls(p);
     setVotes(v);
     setGallery(community.gallery || []);
-    setPendingMembers(pending);
+    setPendingMembers(pendingRes?.data?.pendingMembers || []);
     setLoading(false);
   };
 
