@@ -7,6 +7,7 @@ import { ClipboardList, Receipt, Vote, MessageCircle, Loader2, Plus, ArrowRight,
 import { formatCurrency, formatDate } from "@/lib/format";
 import AnnouncementsWidget from "@/components/widgets/AnnouncementsWidget";
 import AIChatWidget from "@/components/widgets/AIChatWidget";
+import CommunityCalendar from "@/components/widgets/CommunityCalendar";
 
 export default function HomeDashboard() {
   const { user, community } = useOutletContext();
@@ -15,6 +16,7 @@ export default function HomeDashboard() {
   const [invoices, setInvoices] = useState([]);
   const [polls, setPolls] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [events, setEvents] = useState([]);
   const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
@@ -25,11 +27,13 @@ export default function HomeDashboard() {
       base44.entities.Poll.filter({ community_id: community.id, status: "active" }, "-created_date", 3),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 3),
       base44.entities.Subscription.filter({ community_id: community.id, homeowner_id: user.id, status: "active" }),
-    ]).then(([reqs, invs, activePolls, anns, subs]) => {
+      base44.entities.Event.filter({ community_id: community.id }, "start_time"),
+    ]).then(([reqs, invs, activePolls, anns, subs, evs]) => {
       setRequests(reqs);
       setInvoices(invs);
       setPolls(activePolls);
       setAnnouncements(anns);
+      setEvents(evs);
       setSubscription(subs.length > 0 ? subs[0] : null);
       setLoading(false);
     });
@@ -130,6 +134,7 @@ export default function HomeDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <CommunityCalendar invoices={invoices} events={events} />
         <AIChatWidget />
       </div>
     </div>
