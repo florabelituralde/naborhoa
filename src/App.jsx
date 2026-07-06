@@ -30,6 +30,7 @@ import HOADocuments from '@/pages/hoa/HOADocuments';
 import HOACommunity from '@/pages/hoa/HOACommunity';
 import HOAEvents from '@/pages/hoa/HOAEvents';
 import HOABoard from '@/pages/hoa/HOABoard';
+import HOABoardHub from '@/pages/hoa/HOABoardHub';
 import HOAHelp from '@/pages/hoa/HOAHelp';
 import HOAElections from '@/pages/hoa/HOAElections';
 import HomeDashboard from '@/pages/home/HomeDashboard';
@@ -108,6 +109,7 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/elections" element={<PlanGate module="elections" homePath="/hoa/dashboard"><HOAElections /></PlanGate>} />
           <Route path="/hoa/documents" element={<HOADocuments />} />
           <Route path="/hoa/community" element={<HOACommunity />} />
+          <Route path="/hoa/board-hub" element={<HOABoardHub />} />
           <Route path="/hoa/board" element={<HOABoard />} />
           <Route path="/hoa/help" element={<HOAHelp />} />
         </Route>
