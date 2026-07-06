@@ -1,28 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
+import { friendlyAuthError } from "@/lib/authErrors";
 import { Building2, Home, Loader2 } from "lucide-react";
 
 export default function ChooseRole() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
+  // Reuse the session the AuthProvider already validated instead of making a
+  // second /me call, which can stall and leave the page on the spinner.
   useEffect(() => {
-    base44.auth.me().then(user => {
-      if (user.role === "hoa_admin") navigate(user.community_id ? "/hoa/dashboard" : "/onboarding");
-      else if (user.role === "homeowner") navigate(user.community_id ? "/home/dashboard" : "/join");
-      else setLoading(false);
-    }).catch(() => navigate("/login"));
-  }, []);
+    if (!user) return;
+    if (user.role === "hoa_admin") navigate(user.community_id ? "/hoa/dashboard" : "/onboarding", { replace: true });
+    else if (user.role === "homeowner") navigate(user.community_id ? "/home/dashboard" : "/join", { replace: true });
+  }, [user, navigate]);
 
   const chooseRole = async (role) => {
+    setError("");
     setSubmitting(true);
-    await base44.auth.updateMe({ role });
-    window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
+    try {
+      await base44.auth.updateMe({ role });
+      window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
+    } catch (err) {
+      setError(friendlyAuthError(err, "We couldn't save your choice. Please try again."));
+      setSubmitting(false);
+    }
   };
 
-  if (loading || submitting) {
+  if (!user || submitting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -33,6 +42,9 @@ export default function ChooseRole() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">{error}</div>
+        )}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary mb-4">
             <Home className="w-7 h-7 text-primary-foreground" />

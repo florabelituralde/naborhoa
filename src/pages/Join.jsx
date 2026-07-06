@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,21 +22,32 @@ export default function Join() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  const { user: authUser } = useAuth();
+
   useEffect(() => {
-    base44.auth.me().then(async u => {
-      setUser(u);
-      if (u.community_id) {
+    if (!authUser) return;
+    let active = true;
+    (async () => {
+      setUser(authUser);
+      if (authUser.community_id) {
         navigate("/home/dashboard");
         return;
       }
-      const pending = await base44.entities.JoinRequest.filter({ homeowner_id: u.id, status: "pending" });
-      if (pending.length > 0) {
-        navigate("/pending-approval");
-        return;
+      try {
+        const pending = await base44.entities.JoinRequest.filter({ homeowner_id: authUser.id, status: "pending" });
+        if (!active) return;
+        if (pending.length > 0) {
+          navigate("/pending-approval");
+          return;
+        }
+        setLoading(false);
+      } catch {
+        // A failed lookup shouldn't log the user out — let them use the form.
+        if (active) setLoading(false);
       }
-      setLoading(false);
-    }).catch(() => navigate("/login"));
-  }, []);
+    })();
+    return () => { active = false; };
+  }, [authUser, navigate]);
 
   const searchCommunities = async () => {
     setError("");

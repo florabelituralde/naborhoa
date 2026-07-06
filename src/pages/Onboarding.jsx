@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,20 +27,21 @@ export default function Onboarding() {
   const [communityId, setCommunityId] = useState("");
   const [dupError, setDupError] = useState("");
 
+  const { user: authUser } = useAuth();
+
   useEffect(() => {
-    base44.auth.me().then(u => {
-      setUser(u);
-      if (u.community_id) {
-        navigate("/hoa/dashboard");
-        return;
-      }
-      // Prefill the org/community name captured during registration.
-      if (u.pending_org_name) {
-        setOrg(o => ({ ...o, name: u.pending_org_name }));
-      }
-      setLoading(false);
-    }).catch(() => navigate("/login"));
-  }, []);
+    if (!authUser) return;
+    setUser(authUser);
+    if (authUser.community_id) {
+      navigate("/hoa/dashboard");
+      return;
+    }
+    // Prefill the org/community name captured during registration.
+    if (authUser.pending_org_name) {
+      setOrg(o => ({ ...o, name: authUser.pending_org_name }));
+    }
+    setLoading(false);
+  }, [authUser, navigate]);
 
   const handleCreateOrg = async () => {
     setSubmitting(true);
