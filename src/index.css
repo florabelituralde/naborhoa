@@ -114,13 +114,14 @@
     display: none;
   }
 
-  /* Hide scrollbars everywhere while keeping scroll functionality.
-     Using width/height 0 (not display:none, which breaks WebKit scrolling). */
-  * {
+  /* Hide the document scrollbar (visible on auth pages) while keeping
+     page scrolling fully functional. Use width:0 (not display:none) so
+     WebKit scrolling is not disabled. */
+  html, body {
     scrollbar-width: none;
-    -ms-overflow-style: none;
   }
-  *::-webkit-scrollbar {
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
     width: 0;
     height: 0;
     background: transparent;
