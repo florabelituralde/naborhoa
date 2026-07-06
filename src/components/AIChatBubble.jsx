@@ -134,7 +134,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed inset-0 z-50 w-full h-full bg-card flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-[60] w-full h-full bg-card flex flex-col overflow-hidden">
           {/* Header */}
           <div className="relative z-10 flex items-center justify-between gap-2 px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0 safe-top safe-x">
             <div className="flex items-center gap-2 min-w-0">
