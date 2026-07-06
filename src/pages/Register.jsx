@@ -25,11 +25,11 @@ export default function Register() {
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [showIntro, setShowIntro] = useState(
-    () => sessionStorage.getItem("naborIntroSeen") !== "1"
+    () => sessionStorage.getItem("naborIntroSeenRegister") !== "1"
   );
 
   const dismissIntro = () => {
-    sessionStorage.setItem("naborIntroSeen", "1");
+    sessionStorage.setItem("naborIntroSeenRegister", "1");
     setShowIntro(false);
   };
 

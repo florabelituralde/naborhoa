@@ -16,11 +16,11 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showIntro, setShowIntro] = useState(
-    () => sessionStorage.getItem("naborIntroSeen") !== "1"
+    () => sessionStorage.getItem("naborIntroSeenLogin") !== "1"
   );
 
   const dismissIntro = () => {
-    sessionStorage.setItem("naborIntroSeen", "1");
+    sessionStorage.setItem("naborIntroSeenLogin", "1");
     setShowIntro(false);
   };
 

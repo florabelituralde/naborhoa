@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, Users, ClipboardList, CreditCard } from "lucide-react";
 import NaborLogo from "@/components/NaborLogo";
@@ -36,6 +36,14 @@ export default function IntroPreview({ onDismiss }) {
   const [slide, setSlide] = useState(0);
   const startY = useRef(null);
 
+  // Auto-advance the feature slides
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSlide((s) => (s + 1) % SLIDES.length);
+    }, 3500);
+    return () => clearInterval(id);
+  }, []);
+
   const handleTouchStart = (e) => {
     startY.current = e.touches[0].clientY;
   };
@@ -63,18 +71,19 @@ export default function IntroPreview({ onDismiss }) {
         <video
           className="absolute inset-0 w-full h-full object-cover"
           src={VIDEO_URL}
+          poster={SLIDES[0].image}
           autoPlay
           muted
           loop
           playsInline
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-black/50 to-black/50" />
         <div className="relative h-full flex flex-col items-center justify-center text-center px-6">
-          <NaborLogo iconClassName="w-16 h-16" textClassName="font-bold text-3xl text-white drop-shadow" />
-          <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-white drop-shadow max-w-lg">
+          <NaborLogo iconClassName="w-16 h-16" textClassName="font-bold text-3xl text-white drop-shadow-lg" />
+          <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.6)] max-w-lg">
             Bringing your neighborhood together
           </h1>
-          <p className="mt-2 text-white/90 drop-shadow max-w-md">
+          <p className="mt-2 text-white/95 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] max-w-md">
             The all-in-one home for your community — connected, organized, and effortless.
           </p>
         </div>
