@@ -20,7 +20,30 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Community not found." }, { status: 404 });
     }
 
-    return Response.json({ invoice, community });
+    // Public (unauthenticated) callers only get the fields needed to render a
+    // payment page. Sensitive owner/property identifiers and payment proofs are
+    // stripped to prevent harvesting of residents' private financial data.
+    const safeInvoice = {
+      id: invoice.id,
+      amount: invoice.amount,
+      description: invoice.description,
+      due_date: invoice.due_date,
+      status: invoice.status,
+      type: invoice.type,
+      community_id: invoice.community_id,
+      community_name: community.name,
+    };
+
+    return Response.json({
+      invoice: safeInvoice,
+      community: {
+        id: community.id,
+        name: community.name,
+        join_code: community.join_code,
+        stripe_account_id: community.stripe_account_id,
+        charges_enabled: !!community.charges_enabled,
+      },
+    });
   } catch (error) {
     console.error("get-public-invoice error:", error);
     return Response.json({ error: error.message }, { status: 500 });
