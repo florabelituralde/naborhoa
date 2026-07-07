@@ -30,9 +30,12 @@ export default function HomeownerLayout() {
           return;
         }
         setUser(u);
-        const c = await base44.entities.Community.get(u.community_id).catch(() => null);
-        setCommunity(c);
         setLoading(false);
+        // Load community details in the background so a slow fetch can't trap the
+        // user on the layout spinner; the dashboard renders as soon as we have the user.
+        base44.entities.Community.get(u.community_id)
+          .then(c => setCommunity(c))
+          .catch(() => {});
       } catch {
         navigate("/login");
       }
