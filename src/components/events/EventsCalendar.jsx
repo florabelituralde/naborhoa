@@ -72,11 +72,7 @@ export default function EventsCalendar({ events = [], renderEventCard }) {
         </div>
       </div>
 
-      {view === "month" ? (
-        <MonthGrid cursor={cursor} events={monthEvents} evMoment={evMoment} />
-      ) : (
-        <YearGrid year={year} events={yearEvents} evMoment={evMoment} onOpenMonth={openMonth} />
-      )}
+      {view === "month" && <MonthGrid cursor={cursor} events={monthEvents} evMoment={evMoment} />}
 
       {/* List */}
       {view === "month" ? (
@@ -145,40 +141,6 @@ function MonthGrid({ cursor, events, evMoment }) {
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function YearGrid({ year, events, evMoment, onOpenMonth }) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-      {Array.from({ length: 12 }).map((_, m) => {
-        const mc = moment().year(year).month(m);
-        const startDay = mc.startOf("month").day();
-        const daysInMonth = mc.daysInMonth();
-        const cells = [];
-        for (let i = 0; i < startDay; i++) cells.push(null);
-        for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-        while (cells.length % 7 !== 0) cells.push(null);
-        const monthEvents = events.filter((e) => evMoment(e).month() === m);
-        return (
-          <button key={m} onClick={() => onOpenMonth(m)} className="text-left bg-card rounded-2xl warm-shadow p-3 hover:ring-1 hover:ring-primary/40 transition-all">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-semibold text-sm">{mc.format("MMMM")}</h4>
-              <span className="text-xs text-muted-foreground">{monthEvents.length}</span>
-            </div>
-            <div className="grid grid-cols-7 gap-0.5">
-              {cells.map((d, i) => {
-                if (d === null) return <div key={i} className="aspect-square" />;
-                const has = monthEvents.some((e) => evMoment(e).date() === d);
-                return (
-                  <div key={i} className={`aspect-square rounded-sm flex items-center justify-center text-[9px] ${has ? "bg-primary/15 text-primary font-semibold" : "text-muted-foreground"}`}>{d}</div>
-                );
-              })}
-            </div>
-          </button>
-        );
-      })}
     </div>
   );
 }
