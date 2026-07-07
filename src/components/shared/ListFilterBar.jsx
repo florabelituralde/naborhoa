@@ -11,6 +11,23 @@ import {
 } from "@/components/ui/sheet";
 import { Search, SlidersHorizontal, X, RotateCcw } from "lucide-react";
 
+const DATE_PRESETS = [
+  { label: "7 days", days: 7 },
+  { label: "14 days", days: 14 },
+  { label: "30 days", days: 30 },
+  { label: "Past year", days: 365 },
+];
+
+function toISODate(d) {
+  return d.toISOString().slice(0, 10);
+}
+function presetRange(days) {
+  const to = new Date();
+  const from = new Date();
+  from.setDate(from.getDate() - (days - 1));
+  return { from: toISODate(from), to: toISODate(to) };
+}
+
 /**
  * Modern, responsive filter & search bar.
  * - Search is always visible (full width on mobile).
@@ -30,8 +47,20 @@ export default function ListFilterBar({
   totalCount,
   filteredCount,
   onClear,
+  dateRangeKeys = ["dateFrom", "dateTo"],
 }) {
   const [sheetOpen, setSheetOpen] = useState(false);
+  const hasDateFilters = fields.some((f) => f.type === "date");
+
+  const applyPreset = (days) => {
+    const { from, to } = presetRange(days);
+    onChange(dateRangeKeys[0], from);
+    onChange(dateRangeKeys[1], to);
+  };
+  const activePresetDays = DATE_PRESETS.find((p) => {
+    const { from, to } = presetRange(p.days);
+    return values[dateRangeKeys[0]] === from && values[dateRangeKeys[1]] === to;
+  })?.days;
 
   const activeCount =
     (search ? 1 : 0) +
@@ -95,6 +124,25 @@ export default function ListFilterBar({
     </div>
   ) : null;
 
+  const presetsBlock = hasDateFilters ? (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium text-muted-foreground mr-1">Quick range:</span>
+      {DATE_PRESETS.map((p) => (
+        <button
+          key={p.days}
+          onClick={() => applyPreset(p.days)}
+          className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
+            activePresetDays === p.days
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-background border-border hover:bg-accent"
+          }`}
+        >
+          {p.label}
+        </button>
+      ))}
+    </div>
+  ) : null;
+
   const grid = (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
       {fields.map(fieldBlock)}
@@ -138,7 +186,10 @@ export default function ListFilterBar({
                   <SlidersHorizontal className="w-4 h-4" /> Filters
                 </SheetTitle>
               </SheetHeader>
-              <div className="px-5 py-4 overflow-y-auto space-y-4">{grid}</div>
+              <div className="px-5 py-4 overflow-y-auto space-y-4">
+                {presetsBlock}
+                {grid}
+              </div>
               <div className="px-5 py-4 border-t flex items-center justify-between gap-3 safe-bottom">
                 <p className="text-xs text-muted-foreground">
                   {filteredCount} of {totalCount}
@@ -169,6 +220,7 @@ export default function ListFilterBar({
               </button>
             )}
           </div>
+          {presetsBlock && <div className="mt-3">{presetsBlock}</div>}
           {grid}
         </div>
       </div>
