@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle2, Play, UserCheck, UserX, FileText, Send, XCircle, Circle } from "lucide-react";
+import { CheckCircle2, Play, UserCheck, UserX, FileText, Send, XCircle, Circle, Pencil } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
 
 const ICONS = {
@@ -10,6 +10,7 @@ const ICONS = {
   assigned: { icon: UserCheck, color: "bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300" },
   unassigned: { icon: UserX, color: "bg-muted text-muted-foreground" },
   note: { icon: FileText, color: "bg-accent text-accent-foreground" },
+  homeowner_update: { icon: Pencil, color: "bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300" },
 };
 
 // Resolve which icon/color to use for an entry (status_change keys off its status).

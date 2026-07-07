@@ -6,10 +6,13 @@ import RequestProgress from "@/components/RequestProgress";
 import RequestTimeline from "@/components/RequestTimeline";
 import RequestAttachments from "@/components/RequestAttachments";
 import RequestManagePanel from "@/components/hoa/RequestManagePanel";
+import RequestEditDialog from "@/components/RequestEditDialog";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import MobileTopHeader from "@/components/mobile/MobileTopHeader";
-import { Loader2, ArrowLeft, X } from "lucide-react";
+import { Loader2, ArrowLeft, X, Pencil, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/format";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function HomeRequestDetail() {
   const { id } = useParams();
@@ -17,6 +20,9 @@ export default function HomeRequestDetail() {
   const { user, community } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [request, setRequest] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     base44.entities.Request.get(id)
@@ -30,10 +36,26 @@ export default function HomeRequestDetail() {
     setRequest(updated);
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const { data } = await base44.functions.invoke("delete-request", { request_id: id });
+      if (data?.error) throw new Error(data.error);
+      navigate("/home/requests");
+    } catch (err) {
+      toast({ title: "Couldn't delete request", description: err.message, variant: "destructive" });
+      setDeleting(false);
+    }
+  };
+
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!request) return <div className="p-8 text-center text-muted-foreground">Request not found</div>;
 
-  const canCancel = request.status === "submitted" && request.homeowner_id === user.id;
+  const isOwner = request.homeowner_id === user.id;
+  const canCancel = isOwner && request.status === "submitted";
+  const canEdit = isOwner && (request.status === "submitted" || request.status === "info_requested");
+  const hasHoaAction = (request.activity_log || []).some((e) => ["status_change", "assigned", "unassigned", "note"].includes(e.type));
+  const canDelete = isOwner && request.status === "submitted" && !hasHoaAction;
 
   return (
     <>
@@ -133,12 +155,44 @@ export default function HomeRequestDetail() {
 
         <RequestTimeline request={request} />
 
-        {canCancel && (
-          <div className="mt-6">
-            <Button variant="outline" onClick={cancelRequest}>
-              <X className="w-4 h-4 mr-2" /> Cancel Request
-            </Button>
+        {(canEdit || canCancel || canDelete) && (
+          <div className="mt-6 flex flex-wrap gap-3">
+            {canEdit && (
+              <Button variant="outline" onClick={() => setEditOpen(true)}>
+                <Pencil className="w-4 h-4 mr-2" /> {request.status === "info_requested" ? "Resubmit with Updates" : "Edit Request"}
+              </Button>
+            )}
+            {canCancel && (
+              <Button variant="outline" onClick={cancelRequest}>
+                <X className="w-4 h-4 mr-2" /> Cancel Request
+              </Button>
+            )}
+            {canDelete && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="text-destructive hover:text-destructive">
+                    <Trash2 className="w-4 h-4 mr-2" /> Delete Request
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete this request?</AlertDialogTitle>
+                    <AlertDialogDescription>This permanently removes your request. This cannot be undone.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      {deleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null} Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
+        )}
+
+        {canEdit && (
+          <RequestEditDialog request={request} open={editOpen} onOpenChange={setEditOpen} onSaved={setRequest} />
         )}
       </div>
     </>
