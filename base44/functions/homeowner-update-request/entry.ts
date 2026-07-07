@@ -22,8 +22,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Homeowners may only edit while the request is still open for changes.
-    if (request.status !== 'submitted' && request.status !== 'info_requested') {
+    // Homeowners may edit until the request is approved, resolved, or cancelled.
+    const EDITABLE_STATUSES = ['submitted', 'info_requested', 'in_progress'];
+    if (!EDITABLE_STATUSES.includes(request.status)) {
       return Response.json({ error: 'This request can no longer be edited' }, { status: 400 });
     }
 

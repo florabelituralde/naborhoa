@@ -53,7 +53,7 @@ export default function HomeRequestDetail() {
 
   const isOwner = request.homeowner_id === user.id;
   const canCancel = isOwner && request.status === "submitted";
-  const canEdit = isOwner && (request.status === "submitted" || request.status === "info_requested");
+  const canEdit = isOwner && !["approved", "resolved", "cancelled"].includes(request.status);
   const hasHoaAction = (request.activity_log || []).some((e) => ["status_change", "assigned", "unassigned", "note"].includes(e.type));
   const canDelete = isOwner && request.status === "submitted" && !hasHoaAction;
 
