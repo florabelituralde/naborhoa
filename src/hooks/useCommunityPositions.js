@@ -15,7 +15,11 @@ export function useCommunityPositions(community) {
       const recs = await base44.entities.BoardPosition.filter({ community_id: community.id });
       recs.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
       if (recs.length > 0) {
-        setPositions(recs.map(r => ({ id: r.id, name: r.name, sort_order: r.sort_order || 0 })));
+        // Guard against duplicate BoardPosition records (same name) so the
+        // position dropdown and election grouping never render a position twice.
+        const seen = new Set();
+        const uniqueRecs = recs.filter(r => { if (seen.has(r.name)) return false; seen.add(r.name); return true; });
+        setPositions(uniqueRecs.map(r => ({ id: r.id, name: r.name, sort_order: r.sort_order || 0 })));
         setCustomized(true);
       } else {
         setPositions(DEFAULT_POSITIONS.map((name, i) => ({ name, sort_order: i })));

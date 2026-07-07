@@ -36,7 +36,7 @@ export const orderedPositionKeys = (byPosition, positions) => {
   const used = new Set();
   for (const p of positions) {
     const k = keys.find(x => x === p.name);
-    if (k) { ordered.push(k); used.add(k); }
+    if (k && !used.has(k)) { ordered.push(k); used.add(k); }
   }
   for (const k of keys) if (!used.has(k)) ordered.push(k);
   return ordered;
