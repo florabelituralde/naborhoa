@@ -5,8 +5,9 @@ import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Home, Loader2, Check, Search, MapPin, KeyRound } from "lucide-react";
+import { Home, Loader2, Check, Search, MapPin, KeyRound, AlertTriangle } from "lucide-react";
 import JoinByCode from "@/components/JoinByCode";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 export default function Join() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function Join() {
   const [community, setCommunity] = useState(null);
   const [mode, setMode] = useState("code");
   const [address, setAddress] = useState("");
+  const [addressZip, setAddressZip] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -191,8 +193,19 @@ export default function Join() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="addr">Your Property Address</Label>
-                  <Input id="addr" value={address} onChange={e => setAddress(e.target.value)} placeholder="456 Oak Lane" className="mt-1.5 h-11" autoFocus />
+                  <AddressAutocomplete
+                    value={address}
+                    onChange={({ address: addr, zip }) => { setAddress(addr); setAddressZip(zip || ""); }}
+                  />
                 </div>
+                {addressZip && community?.zip && addressZip !== community.zip && (
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                    <p className="text-xs text-amber-800 dark:text-amber-300">
+                      The ZIP code in your address ({addressZip}) doesn't match this community's ZIP ({community.zip}). Double-check that you've selected the correct community.
+                    </p>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground">Your request will be reviewed by the HOA admin or a board member before you're granted access.</p>
                 <Button onClick={joinCommunity} disabled={!address || submitting} className="w-full h-12">
                   {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
