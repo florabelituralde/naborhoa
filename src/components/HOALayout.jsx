@@ -39,6 +39,13 @@ export default function HOALayout() {
     }).catch(() => navigate("/login"));
   }, []);
 
+  const refreshCommunity = async () => {
+    if (user?.community_id) {
+      const c = await base44.entities.Community.get(user.community_id).catch(() => null);
+      if (c) setCommunity(c);
+    }
+  };
+
   // Switch the active community, then hard-reload so every page picks up the change.
   const handleSwitchCommunity = async (communityId) => {
     await base44.auth.updateMe({ community_id: communityId });
@@ -97,7 +104,7 @@ export default function HOALayout() {
       <Sidebar navItems={visibleNav} user={user} community={community} communities={communities} onSwitchCommunity={handleSwitchCommunity} />
       <main className="flex-1 overflow-y-auto no-scrollbar pt-14 md:pt-0 pb-16 md:pb-0">
         <PageTransition key={location.pathname}>
-          <Outlet context={{ user, community }} />
+          <Outlet context={{ user, community, refreshCommunity }} />
         </PageTransition>
       </main>
       <BottomNav items={markNavLocks(bottomNavItems, community)} />

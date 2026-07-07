@@ -42,6 +42,13 @@ export default function HomeownerLayout() {
     })();
   }, []);
 
+  const refreshCommunity = async () => {
+    if (user?.community_id) {
+      const c = await base44.entities.Community.get(user.community_id).catch(() => null);
+      if (c) setCommunity(c);
+    }
+  };
+
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -92,7 +99,7 @@ export default function HomeownerLayout() {
           <NotificationBell user={user} />
         </div>
         <PageTransition key={location.pathname}>
-          <Outlet context={{ user, community }} />
+          <Outlet context={{ user, community, refreshCommunity }} />
         </PageTransition>
       </main>
       <BottomNav items={bottomNavItems} />

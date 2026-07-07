@@ -12,7 +12,7 @@ import { toast } from "@/components/ui/use-toast";
 import JoinRequestsSection from "@/components/JoinRequestsSection";
 
 export default function HOACommunity() {
-  const { user, community } = useOutletContext();
+  const { user, community, refreshCommunity } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [homeowners, setHomeowners] = useState([]);
   const [staff, setStaff] = useState([]);
@@ -67,6 +67,7 @@ export default function HOACommunity() {
         zip: zip.trim(),
       });
       toast({ title: "Saved", description: "Community details updated." });
+      refreshCommunity?.();
     } catch (err) {
       toast({ title: "Error", description: err.message || "Failed to save", variant: "destructive" });
     }
@@ -114,6 +115,7 @@ export default function HOACommunity() {
       setGallery(updatedGallery);
       setPhotoFile(null);
       setGalleryFiles([]);
+      refreshCommunity?.();
     } catch (err) {
       console.error("Failed to save settings:", err);
     }

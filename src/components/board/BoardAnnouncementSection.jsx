@@ -8,10 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Loader2, Plus, Megaphone, Pin } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import { notifyCommunity } from "@/lib/notify";
+import AttachmentUploader from "@/components/AttachmentUploader";
+import AnnouncementAttachments from "@/components/AnnouncementAttachments";
 
 export default function BoardAnnouncementSection({ community, user, announcements, onChange }) {
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: "", body: "", pinned: false });
+  const [form, setForm] = useState({ title: "", body: "", pinned: false, attachments: [] });
   const [creating, setCreating] = useState(false);
 
   const handleCreate = async () => {
@@ -23,7 +25,7 @@ export default function BoardAnnouncementSection({ community, user, announcement
       body: form.body,
       related_id: ann.id,
     });
-    setForm({ title: "", body: "", pinned: false });
+    setForm({ title: "", body: "", pinned: false, attachments: [] });
     setShowCreate(false);
     setCreating(false);
     onChange();
@@ -49,6 +51,7 @@ export default function BoardAnnouncementSection({ community, user, announcement
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">{formatDate(ann.created_date)}</p>
               <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{ann.body}</p>
+              <AnnouncementAttachments attachments={ann.attachments} />
             </div>
           ))}
         </div>
@@ -65,6 +68,12 @@ export default function BoardAnnouncementSection({ community, user, announcement
             <div>
               <Label>Message</Label>
               <Textarea value={form.body} onChange={e => setForm({ ...form, body: e.target.value })} className="mt-1.5" rows={5} placeholder="Write your announcement..." />
+            </div>
+            <div>
+              <Label>Attachments</Label>
+              <div className="mt-1.5">
+                <AttachmentUploader value={form.attachments} onChange={(attachments) => setForm({ ...form, attachments })} />
+              </div>
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.pinned} onChange={e => setForm({ ...form, pinned: e.target.checked })} className="w-4 h-4 accent-primary" />

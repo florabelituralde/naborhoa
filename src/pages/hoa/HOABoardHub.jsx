@@ -8,11 +8,12 @@ import BoardAnnouncementSection from "@/components/board/BoardAnnouncementSectio
 import BoardEventSection from "@/components/board/BoardEventSection";
 import BoardPollResultsSection from "@/components/board/BoardPollResultsSection";
 import BoardGallerySection from "@/components/board/BoardGallerySection";
+import BoardCommunitySettingsSection from "@/components/board/BoardCommunitySettingsSection";
 import BoardRequestsApprovalSection from "@/components/board/BoardRequestsApprovalSection";
 import JoinRequestsSection from "@/components/JoinRequestsSection";
 
 export default function HOABoardHub() {
-  const { user, community } = useOutletContext();
+  const { user, community, refreshCommunity } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -58,8 +59,9 @@ export default function HOABoardHub() {
         <BoardPollResultsSection polls={polls} votes={votes} />
       </div>
 
-      <div className="mt-6">
-        <BoardGallerySection community={community} gallery={gallery} onChange={setGallery} />
+      <div className="mt-6 space-y-6">
+        <BoardCommunitySettingsSection community={community} onSaved={refreshCommunity} />
+        <BoardGallerySection community={community} gallery={gallery} onChange={(updated) => { setGallery(updated); refreshCommunity?.(); }} />
       </div>
     </div>
   );

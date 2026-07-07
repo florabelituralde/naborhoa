@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Megaphone, Pin, ArrowRight } from "lucide-react";
+import { Megaphone, Pin, ArrowRight, Paperclip } from "lucide-react";
 import { formatDate } from "@/lib/format";
 
 // Compact announcements widget for the resident dashboard.
@@ -38,7 +38,10 @@ export default function AnnouncementsWidget({ announcements = [] }) {
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-sm truncate">{ann.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{ann.body}</p>
-                  <p className="text-[11px] text-muted-foreground mt-1">{formatDate(ann.created_date)}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {ann.attachments?.length > 0 && <Paperclip className="w-3 h-3 text-muted-foreground" />}
+                    <p className="text-[11px] text-muted-foreground">{formatDate(ann.created_date)}</p>
+                  </div>
                 </div>
               </div>
             </Link>

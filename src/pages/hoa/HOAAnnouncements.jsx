@@ -10,13 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Loader2, Plus, Trash2, Pin, Megaphone } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import { notifyCommunity } from "@/lib/notify";
+import AttachmentUploader from "@/components/AttachmentUploader";
+import AnnouncementAttachments from "@/components/AnnouncementAttachments";
 
 export default function HOAAnnouncements() {
   const { user, community } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [announcements, setAnnouncements] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: "", body: "", pinned: false });
+  const [form, setForm] = useState({ title: "", body: "", pinned: false, attachments: [] });
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
@@ -46,7 +48,7 @@ export default function HOAAnnouncements() {
       body: form.body,
       related_id: ann.id,
     });
-    setForm({ title: "", body: "", pinned: false });
+    setForm({ title: "", body: "", pinned: false, attachments: [] });
     setShowCreate(false);
     setCreating(false);
     loadData();
@@ -84,6 +86,7 @@ export default function HOAAnnouncements() {
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">{formatDate(ann.created_date)}</p>
                   <p className="text-sm text-foreground whitespace-pre-wrap">{ann.body}</p>
+                  <AnnouncementAttachments attachments={ann.attachments} />
                 </div>
                 <button onClick={() => handleDelete(ann.id)} className="text-muted-foreground hover:text-destructive ml-4">
                   <Trash2 className="w-5 h-5" />
@@ -105,6 +108,12 @@ export default function HOAAnnouncements() {
             <div>
               <Label>Message</Label>
               <Textarea value={form.body} onChange={e => setForm({ ...form, body: e.target.value })} className="mt-1.5" rows={5} placeholder="Write your announcement..." />
+            </div>
+            <div>
+              <Label>Attachments</Label>
+              <div className="mt-1.5">
+                <AttachmentUploader value={form.attachments} onChange={(attachments) => setForm({ ...form, attachments })} />
+              </div>
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.pinned} onChange={e => setForm({ ...form, pinned: e.target.checked })} className="w-4 h-4 accent-primary" />

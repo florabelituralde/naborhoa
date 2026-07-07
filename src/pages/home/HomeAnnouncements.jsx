@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
 import { Loader2, Pin, Megaphone } from "lucide-react";
 import { formatDate } from "@/lib/format";
+import AnnouncementAttachments from "@/components/AnnouncementAttachments";
 
 export default function HomeAnnouncements() {
   const { community } = useOutletContext();
@@ -44,6 +45,7 @@ export default function HomeAnnouncements() {
               </div>
               <p className="text-xs text-muted-foreground mb-3">{formatDate(ann.created_date)}</p>
               <p className="text-sm text-foreground whitespace-pre-wrap">{ann.body}</p>
+              <AnnouncementAttachments attachments={ann.attachments} />
             </div>
           ))}
         </div>
