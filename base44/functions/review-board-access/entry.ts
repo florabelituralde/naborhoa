@@ -14,7 +14,9 @@ Deno.serve(async (req) => {
     const communityId = caller.community_id;
     if (!communityId) return Response.json({ error: 'No community' }, { status: 400 });
 
-    const { member_id, action, role } = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: 'Invalid request body' }, { status: 400 });
+    const { member_id, action, role } = body;
     if (!member_id || !['approve', 'reject'].includes(action)) {
       return Response.json({ error: 'Invalid request' }, { status: 400 });
     }

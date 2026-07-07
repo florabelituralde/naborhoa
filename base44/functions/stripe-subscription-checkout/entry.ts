@@ -40,7 +40,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Only homeowners can set up auto-pay' }, { status: 403 });
     }
 
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: "Invalid request body" }, { status: 400 });
     const { frequency, description } = body;
 
     // Never trust a client-supplied amount. The recurring charge is computed

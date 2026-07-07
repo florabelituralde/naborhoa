@@ -11,9 +11,21 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Webhook not configured" }, { status: 500 });
     }
 
-    const rawPayload = jwt.verify(requestBody, WEBHOOK_PUBLIC_KEY, { algorithms: ["RS256"] });
-    const event = JSON.parse(rawPayload.data);
-    const eventData = JSON.parse(event.data);
+    let rawPayload;
+    try {
+      rawPayload = jwt.verify(requestBody, WEBHOOK_PUBLIC_KEY, { algorithms: ["RS256"] });
+    } catch (err) {
+      console.error("wix-payments-webhook: invalid signature", err.message);
+      return Response.json({ error: "Invalid webhook signature" }, { status: 401 });
+    }
+    let event, eventData;
+    try {
+      event = JSON.parse(rawPayload.data);
+      eventData = JSON.parse(event.data);
+    } catch (err) {
+      console.error("wix-payments-webhook: malformed payload", err.message);
+      return Response.json({ error: "Malformed webhook payload" }, { status: 400 });
+    }
 
     const base44 = createClientFromRequest(req);
 

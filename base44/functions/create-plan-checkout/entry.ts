@@ -29,7 +29,8 @@ function safeOrigin(req: Request): string {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: "Invalid request body" }, { status: 400 });
     const { community_id, plan_id, billing_cycle } = body;
 
     const plan = PLANS[plan_id];
@@ -61,6 +62,9 @@ Deno.serve(async (req) => {
     const origin = safeOrigin(req);
     const WIX_API_KEY = Deno.env.get("WIX_PAYMENTS_API_KEY");
     const WIX_SITE_ID = Deno.env.get("WIX_PAYMENTS_SITE_ID");
+    if (!WIX_API_KEY || !WIX_SITE_ID) {
+      return Response.json({ error: "Payments are not configured." }, { status: 503 });
+    }
 
     const cycleLabel = billing_cycle.charAt(0).toUpperCase() + billing_cycle.slice(1);
 

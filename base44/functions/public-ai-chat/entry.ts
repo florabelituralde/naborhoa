@@ -3,7 +3,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: "Invalid request body" }, { status: 400 });
     const { join_code, question, history } = body;
 
     if (!join_code || !question) {

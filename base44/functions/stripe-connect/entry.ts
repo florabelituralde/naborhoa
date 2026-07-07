@@ -1,10 +1,24 @@
 import Stripe from 'npm:stripe@14.25.0';
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+// Only trust the request Origin when it points at a valid http(s) URL, so the
+// Stripe account-link redirect URLs can't be spoofed via a forged Origin header.
+function safeOrigin(req: Request): string {
+  const raw = req.headers.get("Origin") || req.headers.get("origin") || "";
+  try {
+    const u = new URL(raw);
+    if (u.protocol === "http:" || u.protocol === "https:") {
+      return `${u.protocol}//${u.host}`;
+    }
+  } catch (_) { /* invalid or missing Origin */ }
+  return "https://app.base44.app";
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: "Invalid request body" }, { status: 400 });
     const { action, community_id, email } = body;
 
     if (!community_id) {
@@ -32,7 +46,7 @@ Deno.serve(async (req) => {
     }
 
     const stripe = new Stripe(secretKey);
-    const origin = req.headers.get("Origin") || req.headers.get("origin") || "";
+    const origin = safeOrigin(req);
     const community = await base44.asServiceRole.entities.Community.get(community_id);
 
     if (action === "create_account") {

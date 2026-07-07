@@ -10,7 +10,8 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: "Invalid request body" }, { status: 400 });
     const { subscription_id } = body;
 
     if (!subscription_id) {

@@ -11,7 +11,8 @@ Deno.serve(async (req) => {
     const caller = await base44.auth.me();
     if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: 'Invalid request body' }, { status: 400 });
     const { request_id } = body;
     if (!request_id) return Response.json({ error: 'Missing request_id' }, { status: 400 });
 

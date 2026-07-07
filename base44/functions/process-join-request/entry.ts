@@ -15,7 +15,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { request_id, action, note } = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: 'Invalid request body' }, { status: 400 });
+    const { request_id, action, note } = body;
     if (!request_id || !['approve', 'reject'].includes(action)) {
       return Response.json({ error: 'Invalid request' }, { status: 400 });
     }

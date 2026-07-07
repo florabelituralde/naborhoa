@@ -29,7 +29,8 @@ function safeOrigin(req: Request): string {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: "Invalid request body" }, { status: 400 });
     const { community_id, description, invoice_id, join_code } = body;
 
     if (!community_id) {

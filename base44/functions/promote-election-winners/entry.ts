@@ -18,7 +18,9 @@ Deno.serve(async (req) => {
     const communityId = caller.community_id;
     if (!communityId) return Response.json({ error: 'No community' }, { status: 400 });
 
-    const { election_id } = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: 'Invalid request body' }, { status: 400 });
+    const { election_id } = body;
     if (!election_id) return Response.json({ error: 'election_id required' }, { status: 400 });
 
     const election = await base44.asServiceRole.entities.Election.get(election_id);

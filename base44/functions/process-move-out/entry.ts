@@ -13,7 +13,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return Response.json({ error: 'Invalid request body' }, { status: 400 });
     const { move_out_date, reason, buyer_name, forwarding_email, notes } = body;
     if (!move_out_date) {
       return Response.json({ error: 'Move-out date is required' }, { status: 400 });
