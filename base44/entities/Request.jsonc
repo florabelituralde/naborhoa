@@ -161,7 +161,8 @@
               "status_change",
               "assigned",
               "unassigned",
-              "note"
+              "note",
+              "homeowner_update"
             ]
           },
           "label": {
@@ -263,18 +264,9 @@
       ]
     },
     "delete": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "hoa_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "hoa_staff"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "__no_direct_delete__"
+      }
     }
   }
 }
