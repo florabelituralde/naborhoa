@@ -31,8 +31,8 @@ export default function TermsOfService() {
 
         <div className="prose prose-sm max-w-none space-y-6 text-foreground">
           <p>
-            Welcome to Nabor. The Nabor mobile and web application (the "Service") is operated by
-            Ituralde Digital Solutions LLC. By creating an account or using the Service, you agree to
+            Welcome to Nabor HOA. The Nabor HOA mobile and web application (the "Service") is operated
+            by Ituralde Digital Solutions LLC. By creating an account or using the Service, you agree to
             these Terms of Service ("Terms"). If you do not agree, do not use the Service.
           </p>
 
@@ -61,7 +61,7 @@ export default function TermsOfService() {
           <section>
             <h3 className="font-semibold text-lg mb-2">3. Subscriptions & Billing</h3>
             <p className="mb-2">
-              Nabor offers paid subscription plans for HOA managers (Starter, Growth, and Pro) billed
+              Nabor HOA offers paid subscription plans for HOA managers (Starter, Growth, and Pro) billed
               monthly, quarterly, or annually. By selecting a paid plan you agree that:
             </p>
             <ul className="list-disc pl-5 space-y-1">
@@ -83,7 +83,7 @@ export default function TermsOfService() {
           <section>
             <h3 className="font-semibold text-lg mb-2">4. Free Trial</h3>
             <p>
-              Nabor may offer a 14-day free trial of paid features. The trial grants full access for the
+              Nabor HOA may offer a 14-day free trial of paid features. The trial grants full access for the
               trial period at no charge. If you do not select a paid plan before the trial ends, your
               community reverts to the free Starter tier with limited features. No payment is collected
               during the trial.
@@ -94,8 +94,8 @@ export default function TermsOfService() {
             <h3 className="font-semibold text-lg mb-2">5. Account Security &amp; Biometric Sign-In</h3>
             <p>
               You may enable biometric sign-in (Face ID, Touch ID, or fingerprint) for convenience. Your
-              biometric data stays on your device and is managed by your device's operating system; Nabor
-              never receives it. We may also verify new devices and maintain a list of trusted devices to
+              biometric data stays on your device and is managed by your device's operating system;
+              Nabor HOA never receives it. We may also verify new devices and maintain a list of trusted devices to
               protect your account. You are responsible for keeping your device and credentials secure.
             </p>
           </section>
@@ -174,7 +174,7 @@ export default function TermsOfService() {
 
         <div className="mt-10 pt-6 border-t border-border text-center">
           <Link to="/login" className="text-primary font-medium hover:underline text-sm">
-            Back to Nabor
+            Back to Nabor HOA
           </Link>
         </div>
       </div>

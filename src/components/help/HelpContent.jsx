@@ -14,7 +14,7 @@ export default function HelpContent({ role = "homeowner", communityName }) {
     <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       <PageHeader
         title="Help & FAQ"
-        subtitle={`Everything you need to know about using ${communityName || "Nabor"}`}
+        subtitle={`Everything you need to know about using ${communityName || "Nabor HOA"}`}
       />
 
       {/* Intro */}
@@ -24,9 +24,9 @@ export default function HelpContent({ role = "homeowner", communityName }) {
             <Sparkles className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h2 className="font-semibold text-lg mb-2">What is Nabor?</h2>
+            <h2 className="font-semibold text-lg mb-2">What is Nabor HOA?</h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Nabor is your community's all-in-one HOA portal. It's where {isHoa ? "you manage" : "you handle"} everything
+              Nabor HOA is your community's all-in-one HOA portal. It's where {isHoa ? "you manage" : "you handle"} everything
               related to your neighborhood — submitting and tracking maintenance requests, paying dues, reading announcements,
               voting in polls and board elections, viewing community finances, and accessing important documents. Everything
               your HOA does lives in one place, so you always know what's happening.

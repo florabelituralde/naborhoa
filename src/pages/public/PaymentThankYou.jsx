@@ -19,7 +19,7 @@ export default function PaymentThankYou() {
         </h1>
         <p className="text-muted-foreground mb-8">
           {isPlan
-            ? "Your Nabor plan is now active. You're all set to manage your community — welcome aboard!"
+            ? "Your Nabor HOA plan is now active. You're all set to manage your community — welcome aboard!"
             : "Thank you for your payment. Your HOA dues have been processed successfully. You'll receive a confirmation email shortly."}
         </p>
         <div className="flex flex-col gap-3">
@@ -28,7 +28,7 @@ export default function PaymentThankYou() {
           ) : (
             <>
               {joinCode && <Link to={`/c/${joinCode}`}><Button className="w-full h-12">Back to Community</Button></Link>}
-              <Link to="/login"><Button variant="outline" className="w-full h-12"><Home className="w-4 h-4 mr-2" /> Go to Nabor</Button></Link>
+              <Link to="/login"><Button variant="outline" className="w-full h-12"><Home className="w-4 h-4 mr-2" /> Go to Nabor HOA</Button></Link>
             </>
           )}
         </div>

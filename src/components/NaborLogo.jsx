@@ -11,7 +11,7 @@ export default function NaborLogo({
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <NaborMark className={`${iconClassName} text-primary`} />
-      {showText && <span className={textClassName}>Nabor</span>}
+      {showText && <span className={textClassName}>Nabor HOA</span>}
     </span>
   );
 }
