@@ -15,7 +15,6 @@ import LegalLinks from "@/components/LegalLinks";
 import { toast } from "@/components/ui/use-toast";
 import { validatePassword, PASSWORD_RULES } from "@/lib/passwordPolicy";
 import { writeTrust } from "@/lib/deviceTrust";
-import BiometricEnrollment from "@/components/auth/BiometricEnrollment";
 import useRedirectIfAuthed from "@/hooks/useRedirectIfAuthed";
 import GuestAccess from "@/components/auth/GuestAccess";
 import { friendlyAuthError } from "@/lib/authErrors";
@@ -186,7 +185,6 @@ export default function Register() {
         title="You're all set!"
         subtitle={isManager ? "Let's set up your community" : "Let's get you into your community"}
       >
-        <BiometricEnrollment email={email} name={fullName} />
         <Button className="w-full h-12 font-medium" onClick={redirect} disabled={redirecting}>
           {redirecting ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Finishing up…</>) : "Continue"}
         </Button>
