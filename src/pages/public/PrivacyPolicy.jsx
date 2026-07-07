@@ -31,10 +31,10 @@ export default function PrivacyPolicy() {
 
         <div className="prose prose-sm max-w-none space-y-6 text-foreground">
           <p>
-            Nabor ("we," "us," or "our") operates the Nabor mobile and web application (the "Service")
-            that helps homeowners associations and residential communities manage requests, dues,
-            announcements, events, polls, elections, and documents. This Privacy Policy describes how
-            we collect, use, and protect your information when you use the Service.
+            Ituralde Digital Solutions LLC ("we," "us," or "our") operates the Nabor mobile and web
+            application (the "Service") that helps homeowners associations and residential communities
+            manage requests, dues, announcements, events, polls, elections, and documents. This Privacy
+            Policy describes how we collect, use, and protect your information when you use the Service.
           </p>
 
           <section>
@@ -121,8 +121,9 @@ export default function PrivacyPolicy() {
           <section>
             <h3 className="font-semibold text-lg mb-2">9. Contact Us</h3>
             <p>
-              If you have questions about this Privacy Policy or your data, please contact your
-              community's HOA board or reach out through the Help section in the app.
+              If you have questions about this Privacy Policy or your data, please contact Ituralde
+              Digital Solutions LLC through the Help section in the app, or contact your community's
+              HOA board.
             </p>
           </section>
         </div>

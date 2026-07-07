@@ -31,9 +31,9 @@ export default function TermsOfService() {
 
         <div className="prose prose-sm max-w-none space-y-6 text-foreground">
           <p>
-            Welcome to Nabor. By creating an account or using the Nabor mobile and web application (the
-            "Service"), you agree to these Terms of Service ("Terms"). If you do not agree, do not use
-            the Service.
+            Welcome to Nabor. The Nabor mobile and web application (the "Service") is operated by
+            Ituralde Digital Solutions LLC. By creating an account or using the Service, you agree to
+            these Terms of Service ("Terms"). If you do not agree, do not use the Service.
           </p>
 
           <section>
@@ -75,8 +75,8 @@ export default function TermsOfService() {
               They are processed securely through Base44 Payments, or, where your HOA has connected its
               own payment account, through Stripe with funds paid out directly to your HOA. A small
               platform service fee may be applied to payments processed through a connected account.
-              Nabor is not the merchant of record for resident dues and is not responsible for the
-              goods, services, or obligations of your HOA.
+              Ituralde Digital Solutions LLC is not the merchant of record for resident dues and is not
+              responsible for the goods, services, or obligations of your HOA.
             </p>
           </section>
 
@@ -104,8 +104,9 @@ export default function TermsOfService() {
             <h3 className="font-semibold text-lg mb-2">6. Your Content</h3>
             <p>
               You retain ownership of content you create (requests, announcements, documents). You grant
-              Nabor a license to host, display, and process that content within the Service for your
-              community. You are responsible for ensuring you have the rights to upload documents.
+              Ituralde Digital Solutions LLC a license to host, display, and process that content within
+              the Service for your community. You are responsible for ensuring you have the rights to
+              upload documents.
             </p>
           </section>
 
@@ -130,9 +131,9 @@ export default function TermsOfService() {
           <section>
             <h3 className="font-semibold text-lg mb-2">9. Limitation of Liability</h3>
             <p>
-              To the maximum extent permitted by law, Nabor is not liable for indirect, incidental, or
-              consequential damages arising from your use of the Service. Our total liability for any
-              claim is limited to the amount you paid us in the past 12 months.
+              To the maximum extent permitted by law, Ituralde Digital Solutions LLC is not liable for
+              indirect, incidental, or consequential damages arising from your use of the Service. Our
+              total liability for any claim is limited to the amount you paid us in the past 12 months.
             </p>
           </section>
 
@@ -157,16 +158,16 @@ export default function TermsOfService() {
           <section>
             <h3 className="font-semibold text-lg mb-2">12. Governing Law</h3>
             <p>
-              These Terms are governed by the laws of the jurisdiction in which the Service operator is
-              established, without regard to conflict-of-law principles.
+              These Terms are governed by the laws of the jurisdiction in which Ituralde Digital Solutions
+              LLC is established, without regard to conflict-of-law principles.
             </p>
           </section>
 
           <section>
             <h3 className="font-semibold text-lg mb-2">13. Contact</h3>
             <p>
-              Questions about these Terms can be sent through the Help section in the app or to your
-              community's HOA board.
+              Questions about these Terms can be sent to Ituralde Digital Solutions LLC through the
+              Help section in the app, or to your community's HOA board.
             </p>
           </section>
         </div>
