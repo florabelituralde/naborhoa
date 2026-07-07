@@ -11,7 +11,7 @@ import { useCommunityPositions } from "@/hooks/useCommunityPositions";
 
 export default function HomeElections() {
   const { user, community } = useOutletContext();
-  const { positions } = useCommunityPositions(community);
+  const { positions } = useCommunityPositions({ id: community?.id || user?.community_id });
   const [loading, setLoading] = useState(true);
   const [electionResults, setElectionResults] = useState([]);
   const [myVotes, setMyVotes] = useState({});

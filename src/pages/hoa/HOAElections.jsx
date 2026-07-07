@@ -17,7 +17,10 @@ import { useCommunityPositions } from "@/hooks/useCommunityPositions";
 
 export default function HOAElections() {
   const { user, community } = useOutletContext();
-  const { positions } = useCommunityPositions(community);
+  // Fall back to the user's community_id when the Community record itself is
+  // missing (e.g. a community seeded without a Community record) so board
+  // positions still load and the position dropdown isn't empty.
+  const { positions } = useCommunityPositions({ id: community?.id || user?.community_id });
   const [loading, setLoading] = useState(true);
   const [electionResults, setElectionResults] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
