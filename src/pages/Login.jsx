@@ -27,6 +27,7 @@ export default function Login() {
   const [otpPending, setOtpPending] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [credentialsError, setCredentialsError] = useState(false);
   const [showIntro, setShowIntro] = useState(
     () => sessionStorage.getItem("naborIntroSeenLogin") !== "1"
   );
@@ -85,6 +86,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setCredentialsError(false);
     if (!email.trim() || !password) {
       setError("Please enter your email and password");
       return;
@@ -108,7 +110,12 @@ export default function Login() {
         }
         setOtpPending(false);
       } else {
-        setError(friendlyAuthError(err, "Incorrect email or password. Please try again."));
+        // The platform returns a generic "Invalid email or password" for both a
+        // wrong password and an email that was never registered (it intentionally
+        // doesn't reveal which). Surface the error, and offer a direct path to
+        // registration so users without an account can go set one up.
+        setCredentialsError(true);
+        setError("Incorrect email or password. If you don't have an account yet, you'll need to register first.");
       }
     } finally {
       setLoading(false);
@@ -209,7 +216,15 @@ export default function Login() {
 
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-          {error}
+          <p>{error}</p>
+          {credentialsError && (
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-1 mt-2 font-semibold underline hover:opacity-80"
+            >
+              Create an account →
+            </Link>
+          )}
         </div>
       )}
 
