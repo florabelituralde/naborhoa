@@ -29,8 +29,37 @@ export default function HOAElections() {
 
   const loadData = async () => {
     try {
-      const res = await base44.functions.invoke("get-community-results", {});
-      setElectionResults(res?.data?.elections || []);
+      // Load the election list client-side so it follows the builder's
+      // Test/Production toggle; keep the backend call only for vote tallies
+      // (cross-voter counts need the service role). In production the ids
+      // match and tallies populate; in test mode the backend hits prod so
+      // test elections show no tally bars — admin actions still work.
+      const communityId = community?.id || user?.community_id;
+      const [elections, res] = await Promise.all([
+        base44.entities.Election.filter({ community_id: communityId }, "-created_date"),
+        base44.functions.invoke("get-community-results", {}).catch(() => null),
+      ]);
+      const tallyMap = {};
+      for (const el of res?.data?.elections || []) {
+        tallyMap[el.id] = { counts: el.counts, total: el.total };
+      }
+      const results = elections.map(el => {
+        const t = tallyMap[el.id];
+        return {
+          id: el.id,
+          title: el.title,
+          description: el.description,
+          status: el.status,
+          start_date: el.start_date,
+          end_date: el.end_date,
+          promoted: el.promoted,
+          promoted_date: el.promoted_date,
+          candidates: el.candidates,
+          counts: t?.counts || (el.candidates || []).map(() => 0),
+          total: t?.total || 0,
+        };
+      });
+      setElectionResults(results);
     } finally {
       setLoading(false);
     }
