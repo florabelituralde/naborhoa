@@ -5,6 +5,7 @@ import StatusBadge from "@/components/StatusBadge";
 import RequestProgress from "@/components/RequestProgress";
 import RequestTimeline from "@/components/RequestTimeline";
 import RequestAttachments from "@/components/RequestAttachments";
+import RequestManagePanel from "@/components/hoa/RequestManagePanel";
 import { Button } from "@/components/ui/button";
 import MobileTopHeader from "@/components/mobile/MobileTopHeader";
 import { Loader2, ArrowLeft, X } from "lucide-react";
@@ -13,7 +14,7 @@ import { formatDate } from "@/lib/format";
 export default function HomeRequestDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useOutletContext();
+  const { user, community } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [request, setRequest] = useState(null);
 
@@ -73,16 +74,19 @@ export default function HomeRequestDetail() {
             </div>
           )}
 
-          {request.status === "info_requested" && request.info_request && (
-            <div className="mt-6 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 p-4">
-              <p className="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-1">More information needed</p>
-              <p className="text-sm text-amber-800 dark:text-amber-200 whitespace-pre-wrap">{request.info_request}</p>
-            </div>
-          )}
+          {request.status === "info_requested" && request.info_request && (() => {
+            const infoEntry = (request.activity_log || []).slice().reverse().find((e) => e.type === "status_change" && e.status === "info_requested");
+            return (
+              <div className="mt-6 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 p-4">
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-1">More information needed{infoEntry?.actor_name ? ` — requested by ${infoEntry.actor_name}` : ""}</p>
+                <p className="text-sm text-amber-800 dark:text-amber-200 whitespace-pre-wrap">{request.info_request}</p>
+              </div>
+            );
+          })()}
 
           {request.status === "approved" && (
             <div className="mt-6 rounded-xl border border-green-300 bg-green-50 dark:bg-green-500/10 dark:border-green-500/30 p-4">
-              <p className="text-sm font-semibold text-green-800 dark:text-green-200">This request has been approved.</p>
+              <p className="text-sm font-semibold text-green-800 dark:text-green-200">This request has been approved{request.approved_by_name ? ` by ${request.approved_by_name}` : ""}.</p>
             </div>
           )}
 
@@ -118,6 +122,10 @@ export default function HomeRequestDetail() {
             </div>
           )}
         </div>
+
+        {user.board_member_status === "approved" && request.homeowner_id !== user.id && (
+          <RequestManagePanel request={request} community={community} onUpdated={setRequest} />
+        )}
 
         <div className="bg-card rounded-2xl warm-shadow p-5 sm:p-8 mb-6">
           <RequestProgress status={request.status} />

@@ -6,18 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
-// Assign a request to a board member, an external vendor/company, or a custom
-// "Other" party. Board members are passed in from the community's BoardMember
-// list; Vendor and Other reveal a short form whose details are shown to the
-// homeowner.
-export default function RequestAssignPanel({ request, boardMembers, onSave, updating }) {
-  const currentType = request.assignee_type || (request.assigned_to_id ? "staff" : "none");
-  const initialMode =
-    currentType === "vendor" ? "__vendor"
-    : currentType === "other" ? "__other"
-    : request.assigned_to_id || "_none";
-  const [mode, setMode] = useState(initialMode);
-
+// Optional vendor/company or "other" assignee for a request. This is NOT used
+// for approval (admins and board members approve directly) — it's only for
+// recording who will physically perform the work, when relevant.
+export default function RequestAssignPanel({ request, onSave, updating }) {
+  const currentType = request.assignee_type || "none";
+  const [mode, setMode] = useState(
+    currentType === "vendor" ? "__vendor" : currentType === "other" ? "__other" : "_none"
+  );
   const info = request.assignee_info || {};
   const [vendor, setVendor] = useState({
     company: info.company || "",
@@ -34,12 +30,8 @@ export default function RequestAssignPanel({ request, boardMembers, onSave, upda
     setMode(val);
     if (val === "_none") {
       onSave({ assignee_type: "none", assigned_to_id: "", assigned_to_name: "", assignee_info: {} });
-    } else if (val !== "__vendor" && val !== "__other") {
-      const member = boardMembers.find((m) => m.id === val);
-      onSave({ assignee_type: "staff", assigned_to_id: val, assigned_to_name: member?.name || "", assignee_info: {} });
     }
   };
-
   const saveVendor = () => {
     if (!vendor.company.trim()) return;
     onSave({ assignee_type: "vendor", assigned_to_id: "", assigned_to_name: vendor.company.trim(), assignee_info: { ...vendor } });
@@ -51,23 +43,15 @@ export default function RequestAssignPanel({ request, boardMembers, onSave, upda
 
   return (
     <div className="mb-6">
-      <Label>Assign Request</Label>
+      <Label>Vendor / Assignee (optional)</Label>
       <Select value={mode} onValueChange={handleChange}>
-        <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select assignee" /></SelectTrigger>
+        <SelectTrigger className="mt-1.5"><SelectValue placeholder="None" /></SelectTrigger>
         <SelectContent>
-          <SelectItem value="_none">Unassigned</SelectItem>
-          {boardMembers.map((m) => (
-            <SelectItem key={m.id} value={m.id}>
-              {m.name}{m.role ? ` · ${m.role.replace("_", " ")}` : ""}
-            </SelectItem>
-          ))}
+          <SelectItem value="_none">None</SelectItem>
           <SelectItem value="__vendor">Vendor / Company</SelectItem>
           <SelectItem value="__other">Other</SelectItem>
         </SelectContent>
       </Select>
-      {boardMembers.length === 0 && (
-        <p className="text-xs text-muted-foreground mt-2">No board members found — choose Vendor or Other to assign.</p>
-      )}
 
       {mode === "__vendor" && (
         <div className="mt-4 space-y-3 rounded-xl border border-border p-4">

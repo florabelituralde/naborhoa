@@ -46,7 +46,7 @@ export default function RequestTimeline({ request }) {
               </div>
               <div className="pt-1 min-w-0">
                 <p className="text-sm font-medium">{entry.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{formatDateTime(entry.timestamp)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{formatDateTime(entry.timestamp)}{entry.actor_name ? ` · by ${entry.actor_name}` : ""}</p>
               </div>
             </div>
           );
