@@ -34,7 +34,7 @@ export default function InvoiceListWithFilters({ invoices, homeowners, onConfirm
   const [collapsed, setCollapsed] = useState({});
 
   const ownerName = (id) => {
-    const h = homeowners.find((o) => o.id === id);
+    const h = (homeowners || []).find((o) => o.id === id);
     return h?.name || h?.email || "—";
   };
 
