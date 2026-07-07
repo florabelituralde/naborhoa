@@ -3,6 +3,7 @@ import { useOutletContext, useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import MobileTopHeader from "@/components/mobile/MobileTopHeader";
@@ -20,6 +21,9 @@ export default function HOARequestDetail() {
   const [homeowner, setHomeowner] = useState(null);
   const [boardMembers, setBoardMembers] = useState([]);
   const [resolutionNotes, setResolutionNotes] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [infoMessage, setInfoMessage] = useState("");
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
@@ -32,6 +36,8 @@ export default function HOARequestDetail() {
         setRequest(req);
         setBoardMembers(members);
         setResolutionNotes(req.resolution_notes || "");
+        setStartDate(req.start_date || "");
+        setEndDate(req.end_date || "");
         if (req.homeowner_id) {
           base44.entities.User.get(req.homeowner_id).then(h => setHomeowner(h)).catch(() => {});
         }
@@ -49,6 +55,8 @@ export default function HOARequestDetail() {
         resolved: "Request resolved and completed",
         cancelled: "Request cancelled",
         submitted: "Request reopened",
+        approved: "Request approved",
+        info_requested: "More details requested from homeowner",
       };
       entries.push({ type: "status_change", status: updates.status, label: labels[updates.status] || `Status changed to ${updates.status}`, timestamp: now });
     }
@@ -101,8 +109,26 @@ export default function HOARequestDetail() {
     setUpdating(false);
   };
 
+  const today = () => new Date().toISOString().slice(0, 10);
+
+  const handleStartWork = () => {
+    const updates = { status: "in_progress" };
+    if (!startDate) updates.start_date = today();
+    updateRequest(updates);
+    if (!startDate) setStartDate(today());
+  };
   const handleResolve = () => {
-    updateRequest({ status: "resolved", resolution_notes: resolutionNotes });
+    const updates = { status: "resolved", resolution_notes: resolutionNotes };
+    if (!endDate) updates.end_date = today();
+    updateRequest(updates);
+    if (!endDate) setEndDate(today());
+  };
+  const handleApprove = () => {
+    updateRequest({ status: "approved", resolution_notes: resolutionNotes });
+  };
+  const handleAskInfo = () => {
+    updateRequest({ status: "info_requested", info_request: infoMessage.trim() });
+    setInfoMessage("");
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -149,23 +175,69 @@ export default function HOARequestDetail() {
 
         <RequestAssignPanel request={request} boardMembers={boardMembers} onSave={updateRequest} updating={updating} />
 
-        <div className="flex flex-wrap gap-3 mb-6">
-          {request.status === "submitted" && (
-            <Button onClick={() => updateRequest({ status: "in_progress" })} disabled={updating}>
-              <Play className="w-4 h-4 mr-2" /> Start Work
-            </Button>
-          )}
-          {request.status === "in_progress" && (
-            <Button onClick={handleResolve} disabled={updating}>
-              <Check className="w-4 h-4 mr-2" /> Mark Resolved
-            </Button>
-          )}
-          {request.status !== "cancelled" && request.status !== "resolved" && (
-            <Button variant="outline" onClick={() => updateRequest({ status: "cancelled" })} disabled={updating}>
-              <X className="w-4 h-4 mr-2" /> Cancel
-            </Button>
-          )}
+        <div className="grid sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <Label>Start date</Label>
+            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1.5" />
+          </div>
+          <div>
+            <Label>End / completion date</Label>
+            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1.5" />
+          </div>
         </div>
+        {(startDate !== (request.start_date || "") || endDate !== (request.end_date || "")) && (
+          <Button size="sm" variant="secondary" className="mb-6" onClick={() => updateRequest({ start_date: startDate || null, end_date: endDate || null })} disabled={updating}>
+            Save Schedule
+          </Button>
+        )}
+
+        {request.category === "plan_review" ? (
+          <div className="space-y-3 mb-6">
+            {request.status !== "approved" && request.status !== "cancelled" && (
+              <Button onClick={handleApprove} disabled={updating}>
+                <Check className="w-4 h-4 mr-2" /> Approve Request
+              </Button>
+            )}
+            {request.status !== "info_requested" && request.status !== "approved" && request.status !== "cancelled" && (
+              <div className="rounded-xl border border-border p-4">
+                <Label>Ask homeowner for more details</Label>
+                <Textarea value={infoMessage} onChange={(e) => setInfoMessage(e.target.value)} className="mt-1.5" rows={2} placeholder="Describe what information you need from the homeowner..." />
+                <Button size="sm" variant="secondary" className="mt-2" onClick={handleAskInfo} disabled={updating || !infoMessage.trim()}>
+                  Request More Details
+                </Button>
+              </div>
+            )}
+            {request.status === "info_requested" && (
+              <p className="text-sm text-amber-700 dark:text-amber-300">Waiting for the homeowner to provide more details.</p>
+            )}
+            {request.status === "approved" && (
+              <p className="text-sm text-green-700 dark:text-green-300">This request has been approved.</p>
+            )}
+            {request.status !== "cancelled" && request.status !== "approved" && (
+              <Button variant="outline" onClick={() => updateRequest({ status: "cancelled" })} disabled={updating}>
+                <X className="w-4 h-4 mr-2" /> Cancel
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-3 mb-6">
+            {request.status === "submitted" && (
+              <Button onClick={handleStartWork} disabled={updating}>
+                <Play className="w-4 h-4 mr-2" /> Start Work
+              </Button>
+            )}
+            {request.status === "in_progress" && (
+              <Button onClick={handleResolve} disabled={updating}>
+                <Check className="w-4 h-4 mr-2" /> Mark Resolved
+              </Button>
+            )}
+            {request.status !== "cancelled" && request.status !== "resolved" && (
+              <Button variant="outline" onClick={() => updateRequest({ status: "cancelled" })} disabled={updating}>
+                <X className="w-4 h-4 mr-2" /> Cancel
+              </Button>
+            )}
+          </div>
+        )}
 
         <div>
           <Label>Resolution Notes</Label>

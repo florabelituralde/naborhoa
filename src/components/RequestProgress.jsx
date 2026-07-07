@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, AlertCircle } from "lucide-react";
 
 const STAGES = [
   { key: "submitted", label: "Received" },
@@ -17,6 +17,34 @@ export default function RequestProgress({ status }) {
         <div>
           <p className="font-semibold text-destructive">Request Cancelled</p>
           <p className="text-sm text-muted-foreground">This request is no longer active</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "approved") {
+    return (
+      <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-500/10">
+        <div className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center shrink-0">
+          <Check className="w-5 h-5" />
+        </div>
+        <div>
+          <p className="font-semibold text-green-800 dark:text-green-200">Request Approved</p>
+          <p className="text-sm text-muted-foreground">Your request has been approved by the HOA.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "info_requested") {
+    return (
+      <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-500/10">
+        <div className="w-9 h-9 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0">
+          <AlertCircle className="w-5 h-5" />
+        </div>
+        <div>
+          <p className="font-semibold text-amber-800 dark:text-amber-200">More Information Needed</p>
+          <p className="text-sm text-muted-foreground">The HOA needs more details from you — see the message below.</p>
         </div>
       </div>
     );

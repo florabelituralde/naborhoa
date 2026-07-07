@@ -39,7 +39,9 @@
         "submitted",
         "in_progress",
         "resolved",
-        "cancelled"
+        "cancelled",
+        "approved",
+        "info_requested"
       ],
       "default": "submitted"
     },
@@ -85,6 +87,17 @@
           "type": "string"
         }
       }
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "info_request": {
+      "type": "string"
     },
     "image_url": {
       "type": "string"

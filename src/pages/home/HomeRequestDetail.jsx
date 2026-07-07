@@ -66,6 +66,26 @@ export default function HomeRequestDetail() {
             </div>
           )}
 
+          {(request.start_date || request.end_date) && (
+            <div className="mt-6 border-t border-border pt-4 grid sm:grid-cols-2 gap-3 text-sm">
+              {request.start_date && <div><span className="text-muted-foreground">Start date: </span><span className="font-medium">{formatDate(request.start_date)}</span></div>}
+              {request.end_date && <div><span className="text-muted-foreground">Completion date: </span><span className="font-medium">{formatDate(request.end_date)}</span></div>}
+            </div>
+          )}
+
+          {request.status === "info_requested" && request.info_request && (
+            <div className="mt-6 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 p-4">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-1">More information needed</p>
+              <p className="text-sm text-amber-800 dark:text-amber-200 whitespace-pre-wrap">{request.info_request}</p>
+            </div>
+          )}
+
+          {request.status === "approved" && (
+            <div className="mt-6 rounded-xl border border-green-300 bg-green-50 dark:bg-green-500/10 dark:border-green-500/30 p-4">
+              <p className="text-sm font-semibold text-green-800 dark:text-green-200">This request has been approved.</p>
+            </div>
+          )}
+
           {request.assignee_type && request.assignee_type !== "none" && (
             <div className="mt-6 border-t border-border pt-4">
               <p className="text-sm text-muted-foreground mb-2">Assigned to</p>
