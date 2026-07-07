@@ -85,6 +85,10 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    if (!email.trim() || !password) {
+      setError("Please enter your email and password");
+      return;
+    }
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email.trim(), password);
@@ -209,7 +213,7 @@ export default function Login() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <div className="relative">

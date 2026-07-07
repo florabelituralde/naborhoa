@@ -76,6 +76,10 @@ export default function Register() {
       setError("Please enter your company or neighborhood name");
       return;
     }
+    if (!email.trim()) {
+      setError("Please enter your email");
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -266,7 +270,7 @@ export default function Register() {
 
       {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-2">
           <Label>I am a...</Label>
           <div className="grid grid-cols-2 gap-3">
