@@ -41,18 +41,28 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { frequency, amount, description } = body;
-    if (!frequency) {
-      return Response.json({ error: 'Frequency is required' }, { status: 400 });
-    }
-    if (!amount || amount < 0.50) {
-      return Response.json({ error: 'Amount must be at least $0.50' }, { status: 400 });
+    const { frequency, description } = body;
+
+    // Never trust a client-supplied amount. The recurring charge is computed
+    // server-side from the community's configured monthly_dues so a homeowner
+    // can't tamper with the charge amount (e.g. set it to the $0.50 minimum).
+    const FREQ_MONTHS: Record<string, number> = { MONTH: 1, QUARTER: 3, YEAR: 12 };
+    const months = FREQ_MONTHS[frequency];
+    if (!months) {
+      return Response.json({ error: 'Invalid frequency' }, { status: 400 });
     }
 
     const communityId = caller.community_id;
     const community = await base44.asServiceRole.entities.Community.get(communityId);
     if (!community.stripe_account_id || !community.charges_enabled) {
       return Response.json({ error: 'Your HOA has not enabled online payments yet.' }, { status: 400 });
+    }
+
+    // Compute the recurring dues from the community's monthly_dues (server-side
+    // source of truth), not from any client-supplied amount.
+    const duesAmount = (community.monthly_dues || 0) * months;
+    if (duesAmount < 0.50) {
+      return Response.json({ error: 'Dues amount must be at least $0.50' }, { status: 400 });
     }
 
     const secretKey = Deno.env.get("Stripe_api_key");
@@ -76,7 +86,7 @@ Deno.serve(async (req) => {
 
     const stripe = new Stripe(secretKey);
     const origin = safeOrigin(req);
-    const baseAmount = Math.round(amount * 100);
+    const baseAmount = Math.round(duesAmount * 100);
     const feeAmount = Math.round((baseAmount * PLATFORM_FEE_PERCENT) / 100);
     const unitAmount = baseAmount + feeAmount;
     // Compute the exact percentage of the total charge that equals the fee,
@@ -122,7 +132,7 @@ Deno.serve(async (req) => {
       property_address: propertyAddress,
       checkout_id: session.id,
       frequency,
-      amount,
+      amount: duesAmount,
       status: 'pending',
     });
 

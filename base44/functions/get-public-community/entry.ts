@@ -23,7 +23,20 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.BoardMember.filter({ community_id: community.id }),
     ]);
 
-    return Response.json({ community, announcements, events, boardMembers });
+    // Sanitize board members for an unauthenticated caller: expose only the
+    // public directory fields (no email, phone, user_id, or other PII) so the
+    // public endpoint can't be used to harvest private contact details.
+    const safeBoardMembers = boardMembers.map((m) => ({
+      id: m.id,
+      name: m.name,
+      role: m.role,
+      bio: m.bio,
+      photo_url: m.photo_url,
+      term_start: m.term_start,
+      term_end: m.term_end,
+    }));
+
+    return Response.json({ community, announcements, events, boardMembers: safeBoardMembers });
   } catch (error) {
     console.error("get-public-community error:", error);
     return Response.json({ error: error.message }, { status: 500 });
