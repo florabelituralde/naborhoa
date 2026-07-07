@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, ArrowLeft, Loader2, ImagePlus, X, Building2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Loader2, ImagePlus, X } from "lucide-react";
 
 // Step for uploading a cover photo, a logo, and gallery images for the community.
 export default function CommunityPhotosStep({ value, onChange, onNext, onBack }) {
@@ -77,32 +77,6 @@ export default function CommunityPhotosStep({ value, onChange, onNext, onBack })
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleSingle("photo_url", e)} />
               </label>
             )}
-          </div>
-        </div>
-
-        {/* Logo */}
-        <div>
-          <Label>Community logo</Label>
-          <div className="mt-2 flex items-center gap-4">
-            <div className="w-20 h-20 rounded-xl border border-border bg-muted flex items-center justify-center overflow-hidden shrink-0">
-              {value.logo_url ? (
-                <img src={value.logo_url} alt="Logo" className="w-full h-full object-cover" />
-              ) : (
-                <Building2 className="w-7 h-7 text-muted-foreground" />
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-border cursor-pointer text-sm font-medium hover:bg-muted transition-colors">
-                {uploading === "logo" ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
-                {value.logo_url ? "Replace" : "Upload logo"}
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleSingle("logo_url", e)} />
-              </label>
-              {value.logo_url && (
-                <Button type="button" variant="ghost" size="sm" onClick={() => onChange({ ...value, logo_url: "" })}>
-                  Remove
-                </Button>
-              )}
-            </div>
           </div>
         </div>
 

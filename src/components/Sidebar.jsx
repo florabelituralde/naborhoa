@@ -6,6 +6,7 @@ import NaborLogo from "@/components/NaborLogo";
 import NotificationBell from "@/components/NotificationBell";
 import CommunitySwitcher from "@/components/CommunitySwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
+import UserAvatar from "@/components/UserAvatar";
 
 function NavLinkItem({ item, active, onNavigate }) {
   if (item.locked) {
@@ -125,9 +126,7 @@ function SidebarContent({ navItems, user, community, communities, onSwitchCommun
           onClick={onNavigate}
           className="flex items-center gap-3 px-3 mb-3 rounded-lg hover:bg-sidebar-accent transition-colors"
         >
-          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold shrink-0">
-            {user?.full_name?.[0]?.toUpperCase() || "U"}
-          </div>
+          <UserAvatar user={user} className="w-9 h-9" textClass="text-sm" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.full_name || "User"}</p>
             <p className="text-xs text-muted-foreground capitalize">{user?.role?.replace("_", " ")}</p>

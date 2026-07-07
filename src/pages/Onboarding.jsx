@@ -21,7 +21,7 @@ export default function Onboarding() {
   const [submitting, setSubmitting] = useState(false);
   const [org, setOrg] = useState({ name: "", type: "standalone_hoa", description: "" });
   const [community, setCommunity] = useState({ name: "", city: "", state: "", zip: "", description: "" });
-  const [photos, setPhotos] = useState({ photo_url: "", logo_url: "", gallery: [] });
+  const [photos, setPhotos] = useState({ photo_url: "", gallery: [] });
   const [docs, setDocs] = useState([]);
   const [joinCode, setJoinCode] = useState("");
   const [communityId, setCommunityId] = useState("");
@@ -92,7 +92,6 @@ export default function Onboarding() {
       const commRecord = await base44.entities.Community.create({
         ...community,
         photo_url: photos.photo_url || undefined,
-        logo_url: photos.logo_url || undefined,
         gallery: photos.gallery || [],
         organization_id: user.organization_id,
         join_code: code,

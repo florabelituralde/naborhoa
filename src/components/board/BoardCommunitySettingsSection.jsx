@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Loader2, Upload, Check, Image as ImageIcon } from "lucide-react";
 
 // Lets approved board members (and HOA admins) edit community appearance:
-// name, description, location, banner photo, and logo. Gallery is managed in
+// name, description, location, and banner photo. Gallery is managed in
 // the dedicated BoardGallerySection — this section handles the rest.
 export default function BoardCommunitySettingsSection({ community, onSaved }) {
   const { toast } = useToast();
@@ -18,10 +18,8 @@ export default function BoardCommunitySettingsSection({ community, onSaved }) {
   const [stateVal, setStateVal] = useState(community.state || "");
   const [zip, setZip] = useState(community.zip || "");
   const [bannerFile, setBannerFile] = useState(null);
-  const [logoFile, setLogoFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const bannerRef = useRef(null);
-  const logoRef = useRef(null);
 
   const save = async () => {
     setSaving(true);
@@ -37,13 +35,8 @@ export default function BoardCommunitySettingsSection({ community, onSaved }) {
         const { file_url } = await base44.integrations.Core.UploadFile({ file: bannerFile });
         update.photo_url = file_url;
       }
-      if (logoFile) {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file: logoFile });
-        update.logo_url = file_url;
-      }
       await base44.entities.Community.update(community.id, update);
       setBannerFile(null);
-      setLogoFile(null);
       toast({ title: "Community updated" });
       onSaved?.();
     } catch (err) {
@@ -80,41 +73,23 @@ export default function BoardCommunitySettingsSection({ community, onSaved }) {
             <Input value={zip} onChange={(e) => setZip(e.target.value)} className="mt-1.5" />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label>Banner Photo</Label>
-            <div
-              onClick={() => bannerRef.current?.click()}
-              className="mt-1.5 border-2 border-dashed border-border rounded-xl p-3 text-center cursor-pointer hover:border-primary transition-colors"
-            >
-              {bannerFile ? (
-                <p className="text-sm font-medium">{bannerFile.name}</p>
-              ) : community.photo_url ? (
-                <img src={community.photo_url} alt="Banner" className="w-full h-20 object-cover rounded-lg" />
-              ) : (
-                <div className="h-20 flex items-center justify-center">
-                  <Upload className="w-5 h-5 text-muted-foreground" />
-                </div>
-              )}
-            </div>
-            <input ref={bannerRef} type="file" accept="image/*" className="hidden" onChange={(e) => setBannerFile(e.target.files[0])} />
-          </div>
-          <div>
-            <Label>Logo</Label>
-            <div
-              onClick={() => logoRef.current?.click()}
-              className="mt-1.5 border-2 border-dashed border-border rounded-xl h-[112px] flex items-center justify-center cursor-pointer hover:border-primary transition-colors"
-            >
-              {logoFile ? (
-                <p className="text-sm font-medium">{logoFile.name}</p>
-              ) : community.logo_url ? (
-                <img src={community.logo_url} alt="Logo" className="h-16 w-16 object-cover rounded-lg" />
-              ) : (
+        <div>
+          <Label>Banner Photo</Label>
+          <div
+            onClick={() => bannerRef.current?.click()}
+            className="mt-1.5 border-2 border-dashed border-border rounded-xl p-3 text-center cursor-pointer hover:border-primary transition-colors"
+          >
+            {bannerFile ? (
+              <p className="text-sm font-medium">{bannerFile.name}</p>
+            ) : community.photo_url ? (
+              <img src={community.photo_url} alt="Banner" className="w-full h-20 object-cover rounded-lg" />
+            ) : (
+              <div className="h-20 flex items-center justify-center">
                 <Upload className="w-5 h-5 text-muted-foreground" />
-              )}
-            </div>
-            <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={(e) => setLogoFile(e.target.files[0])} />
+              </div>
+            )}
           </div>
+          <input ref={bannerRef} type="file" accept="image/*" className="hidden" onChange={(e) => setBannerFile(e.target.files[0])} />
         </div>
         <Button onClick={save} disabled={saving || !name.trim()}>
           {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}

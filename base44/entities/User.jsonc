@@ -25,6 +25,9 @@
     "phone": {
       "type": "string"
     },
+    "photo_url": {
+      "type": "string"
+    },
     "board_member_status": {
       "type": "string",
       "enum": [

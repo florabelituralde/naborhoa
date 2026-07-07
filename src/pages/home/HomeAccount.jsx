@@ -6,6 +6,7 @@ import StatusBadge from "@/components/StatusBadge";
 import { ClipboardList, Receipt, Loader2, Plus, History, RefreshCw, User as UserIcon, Mail } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import RequestBoardAccessCard from "@/components/board/RequestBoardAccessCard";
+import ProfilePhotoUploader from "@/components/ProfilePhotoUploader";
 import MoveOutDialog from "@/components/MoveOutDialog";
 import LeaveCommunityDialog from "@/components/LeaveCommunityDialog";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
@@ -56,9 +57,7 @@ export default function HomeAccount() {
 
       {/* Profile */}
       <div className="bg-card rounded-2xl warm-shadow p-6 mb-8 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-xl font-bold shrink-0">
-          {user?.full_name?.[0]?.toUpperCase()}
-        </div>
+        <ProfilePhotoUploader user={user} size="w-14 h-14" />
         <div className="min-w-0">
           <p className="font-semibold text-lg truncate flex items-center gap-2"><UserIcon className="w-4 h-4 text-muted-foreground" />{user?.full_name}</p>
           <p className="text-sm text-muted-foreground truncate flex items-center gap-2"><Mail className="w-4 h-4" />{user?.email}</p>
