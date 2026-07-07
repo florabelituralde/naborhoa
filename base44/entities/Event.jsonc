@@ -54,6 +54,18 @@
           "user_condition": {
             "role": "hoa_staff"
           }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "board_member_status": "approved"
+              }
+            },
+            {
+              "data.community_id": "{{user.data.community_id}}"
+            }
+          ]
         }
       ]
     },
@@ -85,6 +97,18 @@
           "user_condition": {
             "role": "hoa_staff"
           }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "board_member_status": "approved"
+              }
+            },
+            {
+              "data.community_id": "{{user.data.community_id}}"
+            }
+          ]
         }
       ]
     },
@@ -99,6 +123,18 @@
           "user_condition": {
             "role": "hoa_staff"
           }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "board_member_status": "approved"
+              }
+            },
+            {
+              "data.community_id": "{{user.data.community_id}}"
+            }
+          ]
         }
       ]
     }
