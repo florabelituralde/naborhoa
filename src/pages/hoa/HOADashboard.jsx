@@ -82,7 +82,7 @@ export default function HOADashboard() {
                 <>
                   <p className="font-semibold text-accent-foreground">Your free trial has ended</p>
                   <p className="text-sm text-muted-foreground">
-                    You've lost the AI resident assistant, automations, invoicing, polls and more. Upgrade to <span className="font-semibold text-foreground">Pro</span> to keep every feature — $199/mo.
+                    You've lost the AI resident assistant, automations, invoicing, polls and more. Upgrade to <span className="font-semibold text-foreground">Pro</span> to keep every feature — $99/mo.
                   </p>
                 </>
               )}

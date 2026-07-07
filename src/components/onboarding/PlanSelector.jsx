@@ -44,7 +44,7 @@ export default function PlanSelector({ onSelect, onTrial, onFree, submitting, in
       </div>
 
       {/* Plan cards */}
-      <div className={`grid gap-4 ${includeFree ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3"}`}>
+      <div className={`grid gap-4 ${includeFree ? "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" : "sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4"}`}>
         {plans.map((plan) => {
           const selected = planId === plan.id;
           const total = priceForCycle(plan, cycle);

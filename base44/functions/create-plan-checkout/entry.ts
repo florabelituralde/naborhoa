@@ -5,7 +5,8 @@ const PLANS: Record<string, { name: string; monthlyPrice: number }> = {
   free: { name: "Nabor Free", monthlyPrice: 0 },
   starter: { name: "Nabor Starter", monthlyPrice: 19 },
   growth: { name: "Nabor Growth", monthlyPrice: 49 },
-  pro: { name: "Nabor Pro", monthlyPrice: 199 },
+  pro: { name: "Nabor Pro", monthlyPrice: 99 },
+  pro_multi: { name: "Nabor Pro Multi", monthlyPrice: 199 },
 };
 
 const CYCLES: Record<string, { multiplier: number; discount: number; frequency: "MONTH" | "YEAR"; interval: number }> = {

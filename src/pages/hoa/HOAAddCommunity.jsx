@@ -1,20 +1,37 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ArrowRight, Building2 } from "lucide-react";
+import { Loader2, ArrowRight, Building2, Lock } from "lucide-react";
+import { getCommunityLimit } from "@/lib/planAccess";
 
 // Lets an existing HOA admin add another community to their organization.
 // The new community becomes their active community and they land on its dashboard.
 export default function HOAAddCommunity() {
   const navigate = useNavigate();
+  const { community } = useOutletContext();
   const [form, setForm] = useState({ name: "", city: "", state: "", zip: "", description: "" });
   const [submitting, setSubmitting] = useState(false);
   const [dupError, setDupError] = useState("");
+  const [blocked, setBlocked] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  // Pro Multi is required to manage more than one community.
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await base44.functions.invoke("get-my-communities", {});
+        const count = (r.data?.communities || []).length;
+        const limit = getCommunityLimit(community);
+        if (limit !== null && count >= limit) setBlocked(true);
+      } catch (e) { /* ignore — fail open */ }
+      setChecking(false);
+    })();
+  }, [community]);
 
   const handleCreate = async () => {
     setDupError("");
@@ -69,6 +86,22 @@ export default function HOAAddCommunity() {
     <div className="p-4 sm:p-8 max-w-2xl mx-auto">
       <PageHeader title="Add Community" subtitle="Create another community under your organization" />
 
+      {checking ? (
+        <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+      ) : blocked ? (
+        <div className="bg-card rounded-2xl warm-shadow p-8 text-center max-w-md mx-auto">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-6 h-6" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">Multiple communities require Pro Multi</h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            Your current plan allows one community. Upgrade to <strong>Pro Multi</strong> ($199/mo) to manage multiple communities from a single account.
+          </p>
+          <Button onClick={() => navigate("/hoa/account")} className="h-12">
+            <ArrowRight className="w-4 h-4 mr-2" /> Upgrade to Pro Multi
+          </Button>
+        </div>
+      ) : (
       <div className="bg-card rounded-2xl warm-shadow p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
@@ -113,6 +146,7 @@ export default function HOAAddCommunity() {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

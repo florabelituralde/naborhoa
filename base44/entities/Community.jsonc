@@ -43,9 +43,11 @@
     "plan_id": {
       "type": "string",
       "enum": [
+        "free",
         "starter",
         "growth",
-        "pro"
+        "pro",
+        "pro_multi"
       ]
     },
     "billing_cycle": {

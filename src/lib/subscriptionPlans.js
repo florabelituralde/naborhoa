@@ -1,5 +1,6 @@
 // Nabor platform subscription plans for HOA managers.
 // Prices are per community. Monthly is the base; quarterly & annual apply discounts.
+// communityLimit = max communities an HOA admin may manage (null = unlimited).
 
 export const BILLING_CYCLES = [
   { id: "monthly", label: "Monthly", frequency: "MONTH", multiplier: 1, discountLabel: null },
@@ -11,27 +12,28 @@ export const PLANS = [
   {
     id: "free",
     name: "Free",
-    tagline: "Get started at no cost",
+    tagline: "Essentials to get started",
     monthlyPrice: 0,
     highlighted: false,
-    unitLimit: "Up to 25 homes",
+    unitLimit: "1 community · up to 25 homes",
+    communityLimit: 1,
     features: [
       "Maintenance & repair requests",
       "Community announcements",
       "Document library",
       "Board directory",
       "Community events",
-      "Email support",
     ],
     modules: ["requests", "announcements", "documents", "board", "events"],
   },
   {
     id: "starter",
     name: "Starter",
-    tagline: "For small, self-managed HOAs",
+    tagline: "Invoicing & expense tracking",
     monthlyPrice: 19,
     highlighted: false,
-    unitLimit: "Up to 50 homes",
+    unitLimit: "1 community · up to 50 homes",
+    communityLimit: 1,
     features: [
       "Everything in Free",
       "Online dues & invoicing",
@@ -46,10 +48,11 @@ export const PLANS = [
   {
     id: "growth",
     name: "Growth",
-    tagline: "Most popular for active communities",
+    tagline: "Full operations, no AI",
     monthlyPrice: 49,
     highlighted: true,
-    unitLimit: "Up to 150 homes",
+    unitLimit: "1 community · up to 150 homes",
+    communityLimit: 1,
     features: [
       "Everything in Starter",
       "Polls & board elections",
@@ -64,17 +67,37 @@ export const PLANS = [
   {
     id: "pro",
     name: "Pro",
-    tagline: "For management companies & large HOAs",
-    monthlyPrice: 199,
+    tagline: "Full HOA ops + AI & automation",
+    monthlyPrice: 99,
     highlighted: false,
-    unitLimit: "Unlimited homes",
+    unitLimit: "1 community · unlimited homes",
+    communityLimit: 1,
     features: [
       "Everything in Growth",
-      "Unlimited communities",
       "AI resident assistant",
       "Automated dues reminders",
       "Dedicated onboarding",
       "Phone & priority support",
+    ],
+    modules: [
+      "requests", "announcements", "documents", "board", "events",
+      "invoices", "expenses", "polls", "elections", "request_types",
+      "ai_assistant", "automations",
+    ],
+  },
+  {
+    id: "pro_multi",
+    name: "Pro Multi",
+    tagline: "Manage multiple communities",
+    monthlyPrice: 199,
+    highlighted: false,
+    unitLimit: "Unlimited communities & homes",
+    communityLimit: null,
+    features: [
+      "Everything in Pro",
+      "Multiple communities per admin",
+      "Cross-community switching",
+      "Dedicated account manager",
     ],
     modules: [
       "requests", "announcements", "documents", "board", "events",

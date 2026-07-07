@@ -52,6 +52,22 @@ export function getAllowedModules(community) {
   return free ? free.modules : null;
 }
 
+// Max communities an HOA admin may manage on the community's plan.
+// null = unlimited (Pro Multi). During the trial, everything is open.
+export function getCommunityLimit(community) {
+  if (!community) return 1;
+  if (isInTrial(community)) return null;
+  const plan = community.plan_id ? getPlan(community.plan_id) : getPlan("free");
+  return plan && typeof plan.communityLimit === "number" ? plan.communityLimit : 1;
+}
+
+// Whether the admin may add another community, given how many they already have.
+export function canAddCommunity(community, currentCount) {
+  const limit = getCommunityLimit(community);
+  if (limit === null) return true;
+  return currentCount < limit;
+}
+
 // Whether a given module is available for the community.
 export function hasModule(community, moduleId) {
   if (CORE_MODULES.includes(moduleId)) return true;
