@@ -58,12 +58,14 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
     if (open) scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, thinking, open]);
 
-  // Allow other parts of the app (e.g. dashboard widget) to open the assistant
+  // Allow other parts of the app (e.g. dashboard widget) to open the assistant.
+  // Re-register when aiEnabled changes so the handler isn't stuck on the stale
+  // false value captured while the community is still loading.
   useEffect(() => {
     const handleOpen = () => { if (aiEnabled) setOpen(true); };
     window.addEventListener("open-ai-chat", handleOpen);
     return () => window.removeEventListener("open-ai-chat", handleOpen);
-  }, []);
+  }, [aiEnabled]);
 
   // Close on Escape (keyboard fallback)
   useEffect(() => {
