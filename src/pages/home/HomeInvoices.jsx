@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Upload, Check, RefreshCw, X, Download, CreditCard } from "lucide-react";
+import { Loader2, Upload, Check, RefreshCw, X, Download, CreditCard, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { exportPaymentStatement } from "@/lib/exportStatement";
@@ -129,6 +129,8 @@ export default function HomeInvoices() {
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
+  const paymentsEnabled = community?.charges_enabled === true;
+
   return (
     <div className="p-4 sm:p-8 max-w-4xl mx-auto">
       <PageHeader
@@ -142,6 +144,20 @@ export default function HomeInvoices() {
           ) : null
         }
       />
+
+      {!paymentsEnabled && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/25 rounded-2xl p-4 mb-6">
+          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-300 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-sm">Online payments not available yet</p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Your HOA hasn't set up online payment processing, so card and auto-pay options are currently unavailable.
+              Please contact your HOA board to enable payments. In the meantime, you can use "Mark Paid" to submit a
+              payment receipt for board confirmation.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Auto-Pay Section */}
       {subscription ? (
@@ -167,7 +183,7 @@ export default function HomeInvoices() {
                 <p className="text-sm text-muted-foreground">Never miss a dues payment</p>
               </div>
             </div>
-            <Button onClick={() => setShowAutopay(true)}>Set Up Auto-Pay</Button>
+            <Button onClick={() => setShowAutopay(true)} disabled={!paymentsEnabled}>Set Up Auto-Pay</Button>
           </div>
         </div>
       )}
@@ -197,7 +213,7 @@ export default function HomeInvoices() {
                   {inv.status === "pending" && (
                     <div className="mt-2">
                       <div className="flex gap-2 justify-end">
-                        <Button size="sm" onClick={() => handlePayNow(inv)} disabled={payingNowId === inv.id}>
+                        <Button size="sm" onClick={() => handlePayNow(inv)} disabled={payingNowId === inv.id || !paymentsEnabled}>
                           {payingNowId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CreditCard className="w-4 h-4 mr-1" />}
                           Pay Now
                         </Button>
