@@ -72,10 +72,10 @@ export default function RequestTypeEditor({ open, onOpenChange, initial, onSave 
                 title="Choose a category"
                 className="mt-1.5"
                 options={[
-                  { value: "maintenance", label: "Maintenance" },
-                  { value: "repair", label: "Repair" },
-                  { value: "plan_review", label: "Plan Review" },
-                  { value: "other", label: "Other" },
+                  { value: "plan_review", label: "Approval — homeowner does the work" },
+                  { value: "maintenance", label: "Maintenance — HOA handles it" },
+                  { value: "repair", label: "Repair — HOA handles it" },
+                  { value: "other", label: "Other — HOA handles it" },
                 ]}
               />
             </div>

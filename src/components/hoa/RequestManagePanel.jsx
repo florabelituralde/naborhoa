@@ -112,22 +112,26 @@ export default function RequestManagePanel({ request, community, onUpdated }) {
     <div className="bg-card rounded-2xl warm-shadow p-5 sm:p-8">
       <h2 className="font-semibold text-lg mb-4">Manage Request</h2>
 
-      <RequestAssignPanel request={request} onSave={updateRequest} updating={updating} />
+      {request.category !== "plan_review" && (
+        <>
+          <RequestAssignPanel request={request} onSave={updateRequest} updating={updating} />
 
-      <div className="grid sm:grid-cols-2 gap-4 mb-4">
-        <div>
-          <Label>Start date</Label>
-          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1.5" />
-        </div>
-        <div>
-          <Label>End / completion date</Label>
-          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1.5" />
-        </div>
-      </div>
-      {(startDate !== (request.start_date || "") || endDate !== (request.end_date || "")) && (
-        <Button size="sm" variant="secondary" className="mb-6" onClick={() => updateRequest({ start_date: startDate || null, end_date: endDate || null })} disabled={updating}>
-          Save Schedule
-        </Button>
+          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label>Start date</Label>
+              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1.5" />
+            </div>
+            <div>
+              <Label>End / completion date</Label>
+              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1.5" />
+            </div>
+          </div>
+          {(startDate !== (request.start_date || "") || endDate !== (request.end_date || "")) && (
+            <Button size="sm" variant="secondary" className="mb-6" onClick={() => updateRequest({ start_date: startDate || null, end_date: endDate || null })} disabled={updating}>
+              Save Schedule
+            </Button>
+          )}
+        </>
       )}
 
       {request.category === "plan_review" ? (

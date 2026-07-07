@@ -49,6 +49,19 @@ export const DEFAULT_REQUEST_TYPES = [
     ],
   },
   {
+    name: "Fence Repair (Broken / Damaged)",
+    description: "Request approval to repair a broken or damaged fence on your property. Homeowners perform the repair; the HOA approves it.",
+    icon: "Fence",
+    category: "plan_review",
+    requires_attachment: true,
+    attachment_label: "Photos of the damage (required)",
+    custom_fields: [
+      { label: "Describe the damage", type: "textarea", required: true, options: [] },
+      { label: "Repair / replacement material", type: "select", required: true, options: ["Wood", "Vinyl", "Aluminum", "Chain-link", "Composite", "Match existing"] },
+      { label: "Will you hire a contractor?", type: "select", required: false, options: ["Yes", "No"] },
+    ],
+  },
+  {
     name: "Shed / Outbuilding",
     description: "Request approval to install a shed or outbuilding.",
     icon: "Home",
@@ -94,6 +107,42 @@ export const DEFAULT_REQUEST_TYPES = [
     attachment_label: "Photos / plans (optional)",
     custom_fields: [
       { label: "Describe the work", type: "textarea", required: true, options: [] },
+    ],
+  },
+  {
+    name: "Satellite Dish / Antenna",
+    description: "Request approval to install a satellite dish or antenna.",
+    icon: "Zap",
+    category: "plan_review",
+    requires_attachment: true,
+    attachment_label: "Placement photo / diagram (required)",
+    custom_fields: [
+      { label: "Type", type: "select", required: true, options: ["Satellite dish", "TV antenna", "Other"] },
+      { label: "Proposed location", type: "text", required: true, options: [] },
+    ],
+  },
+  {
+    name: "Solar Panel Installation",
+    description: "Request approval to install solar panels on your roof or property.",
+    icon: "Zap",
+    category: "plan_review",
+    requires_attachment: true,
+    attachment_label: "Site plan & panel layout (required)",
+    custom_fields: [
+      { label: "Roof or ground mount", type: "select", required: true, options: ["Roof", "Ground"] },
+      { label: "Installer / contractor", type: "text", required: false, options: [] },
+    ],
+  },
+  {
+    name: "Deck / Patio Installation",
+    description: "Request approval to install or modify a deck or patio.",
+    icon: "Hammer",
+    category: "plan_review",
+    requires_attachment: true,
+    attachment_label: "Plans & dimensions (required)",
+    custom_fields: [
+      { label: "Dimensions (L x W)", type: "text", required: true, options: [] },
+      { label: "Material", type: "text", required: true, options: [] },
     ],
   },
   {
