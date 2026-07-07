@@ -23,7 +23,7 @@ export default function ChooseRole() {
     setError("");
     setSubmitting(true);
     try {
-      await base44.auth.updateMe({ role });
+      await base44.functions.invoke("set-user-role", { role });
       window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
     } catch (err) {
       setError(friendlyAuthError(err, "We couldn't save your choice. Please try again."));

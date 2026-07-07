@@ -123,7 +123,7 @@ export default function Register() {
           writeTrust(me.id);
         } catch {}
         try {
-          await base44.auth.updateMe({
+          await base44.functions.invoke("set-user-role", {
             role,
             ...(role === "hoa_admin" ? { pending_org_name: orgName } : {}),
             ...(role === "homeowner" && isBoardMember ? { board_member_status: "pending" } : {}),
