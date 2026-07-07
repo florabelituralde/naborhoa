@@ -2,49 +2,57 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
+import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Trophy } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Plus, Trash2, Trophy, Search } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import { notifyCommunity } from "@/lib/notify";
+import { POSITIONS } from "@/lib/electionPositions";
 
 export default function HOAElections() {
   const { user, community } = useOutletContext();
   const [loading, setLoading] = useState(true);
-  const [elections, setElections] = useState([]);
-  const [votes, setVotes] = useState({});
+  const [electionResults, setElectionResults] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", start_date: "", end_date: "", candidates: [{ name: "", bio: "", statement: "" }] });
+  const [homeowners, setHomeowners] = useState([]);
+  const [search, setSearch] = useState({});
+  const [form, setForm] = useState({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: "president", name: "", bio: "", statement: "" }] });
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
     try {
-      const els = await base44.entities.Election.filter({ community_id: community.id }, "-created_date");
-      setElections(els);
-      const voteMap = {};
-      for (const el of els) {
-        voteMap[el.id] = await base44.entities.ElectionVote.filter({ election_id: el.id });
-      }
-      setVotes(voteMap);
+      const res = await base44.functions.invoke("get-community-results", {});
+      setElectionResults(res?.data?.elections || []);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (community) loadData();
-    else setLoading(false);
-  }, [community]);
+  useEffect(() => { if (community) loadData(); else setLoading(false); }, [community]);
 
-  const addCandidate = () => setForm({ ...form, candidates: [...form.candidates, { name: "", bio: "", statement: "" }] });
+  const loadHomeowners = async () => {
+    if (!community) return;
+    const hs = await base44.entities.User.filter({ community_id: community.id, role: "homeowner" });
+    setHomeowners(hs);
+  };
+  useEffect(() => { if (showCreate && community) loadHomeowners(); }, [showCreate]);
+
+  const addCandidate = () => setForm({ ...form, candidates: [...form.candidates, { position: "member_at_large", name: "", bio: "", statement: "" }] });
   const removeCandidate = (i) => setForm({ ...form, candidates: form.candidates.filter((_, idx) => idx !== i) });
   const updateCandidate = (i, field, val) => setForm({
     ...form,
     candidates: form.candidates.map((c, idx) => idx === i ? { ...c, [field]: val } : c)
   });
+  const pickHomeowner = (i, h) => {
+    updateCandidate(i, "name", h.full_name || "");
+    updateCandidate(i, "bio", h.email || "");
+    setSearch(s => ({ ...s, [i]: "" }));
+  };
 
   const handleCreate = async () => {
     setCreating(true);
@@ -63,7 +71,7 @@ export default function HOAElections() {
       body: `Voting is open until ${form.end_date}`,
       related_id: election.id,
     });
-    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ name: "", bio: "", statement: "" }] });
+    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: "president", name: "", bio: "", statement: "" }] });
     setShowCreate(false);
     setCreating(false);
     loadData();
@@ -84,26 +92,28 @@ export default function HOAElections() {
         action={<Button onClick={() => setShowCreate(true)}><Plus className="w-4 h-4 mr-2" /> New Election</Button>}
       />
 
-      {elections.length === 0 ? (
+      {electionResults.length === 0 ? (
         <div className="bg-card rounded-2xl warm-shadow p-12 text-center">
           <Trophy className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
           <p className="text-muted-foreground">No elections yet</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {elections.map(el => {
-            const elVotes = votes[el.id] || [];
-            const counts = el.candidates.map((_, i) => elVotes.filter(v => v.candidate_index === i).length);
-            const total = elVotes.length;
+          {electionResults.map(el => {
+            const total = el.total;
+            const byPosition = {};
+            (el.candidates || []).forEach((c, i) => {
+              const key = c.position || "member_at_large";
+              if (!byPosition[key]) byPosition[key] = [];
+              byPosition[key].push({ ...c, count: el.counts[i] || 0 });
+            });
             return (
               <div key={el.id} className="bg-card rounded-2xl warm-shadow p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-lg">{el.title}</h3>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${el.status === "active" ? "bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-300" : "bg-gray-100 text-gray-600 dark:bg-gray-500/15 dark:text-gray-400"}`}>
-                        {el.status}
-                      </span>
+                      <StatusBadge status={el.status} />
                     </div>
                     {el.description && <p className="text-sm text-muted-foreground mt-1">{el.description}</p>}
                     <p className="text-xs text-muted-foreground mt-1">
@@ -114,23 +124,36 @@ export default function HOAElections() {
                     <Button variant="outline" size="sm" onClick={() => handleClose(el)}>Close</Button>
                   )}
                 </div>
-                <div className="space-y-2">
-                  {el.candidates.map((c, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                          {c.name?.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">{c.name}</p>
-                          <p className="text-xs text-muted-foreground">{counts[i]} vote{counts[i] !== 1 ? "s" : ""}</p>
+                <div className="space-y-4">
+                  {POSITIONS.map(p => {
+                    const cands = byPosition[p.value];
+                    if (!cands || cands.length === 0) return null;
+                    return (
+                      <div key={p.value}>
+                        <p className="text-sm font-semibold mb-2">{p.label}</p>
+                        <div className="space-y-2">
+                          {cands.map((c, idx) => (
+                            <div key={idx} className="p-3 rounded-xl bg-muted/50">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                                  {c.name?.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm">{c.name}</p>
+                                  {c.bio && <p className="text-xs text-muted-foreground">{c.bio}</p>}
+                                  {c.statement && <p className="text-xs text-muted-foreground italic mt-1">"{c.statement}"</p>}
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-xs text-muted-foreground">{c.count} vote{c.count !== 1 ? "s" : ""}</p>
+                                  {total > 0 && <p className="text-sm font-medium text-primary">{Math.round(c.count / total * 100)}%</p>}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      {total > 0 && (
-                        <span className="text-sm font-medium text-primary">{Math.round(counts[i] / total * 100)}%</span>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 <p className="text-xs text-muted-foreground mt-3">{total} total vote{total !== 1 ? "s" : ""}</p>
               </div>
@@ -170,14 +193,47 @@ export default function HOAElections() {
                 {form.candidates.map((c, i) => (
                   <div key={i} className="p-3 rounded-xl border border-border space-y-2">
                     <div className="flex items-center gap-2">
-                      <Input value={c.name} onChange={e => updateCandidate(i, "name", e.target.value)} placeholder="Candidate name" className="h-9" />
+                      <Select value={c.position} onValueChange={v => updateCandidate(i, "position", v)}>
+                        <SelectTrigger className="h-9 w-44"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {POSITIONS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                       {form.candidates.length > 1 && (
-                        <button onClick={() => removeCandidate(i)} className="text-muted-foreground hover:text-destructive">
+                        <button onClick={() => removeCandidate(i)} className="text-muted-foreground hover:text-destructive ml-auto">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       )}
                     </div>
-                    <Input value={c.bio} onChange={e => updateCandidate(i, "bio", e.target.value)} placeholder="Brief bio (optional)" className="h-9" />
+                    <div className="relative">
+                      <div className="flex items-center gap-2">
+                        <Search className="w-4 h-4 text-muted-foreground" />
+                        <Input
+                          value={search[i] || ""}
+                          onChange={e => setSearch(s => ({ ...s, [i]: e.target.value }))}
+                          placeholder="Search homeowner to pre-fill"
+                          className="h-9"
+                        />
+                      </div>
+                      {search[i] && (
+                        <div className="absolute z-20 mt-1 w-full bg-card border border-border rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                          {homeowners
+                            .filter(h => (h.full_name || "").toLowerCase().includes((search[i] || "").toLowerCase()) || (h.email || "").toLowerCase().includes((search[i] || "").toLowerCase()))
+                            .slice(0, 6)
+                            .map(h => (
+                              <button key={h.id} type="button" onClick={() => pickHomeowner(i, h)} className="w-full text-left px-3 py-2 hover:bg-muted/50 text-sm">
+                                <p className="font-medium">{h.full_name}</p>
+                                {h.email && <p className="text-xs text-muted-foreground">{h.email}</p>}
+                              </button>
+                            ))}
+                          {homeowners.filter(h => (h.full_name || "").toLowerCase().includes((search[i] || "").toLowerCase()) || (h.email || "").toLowerCase().includes((search[i] || "").toLowerCase())).length === 0 && (
+                            <p className="px-3 py-2 text-xs text-muted-foreground">No homeowners found</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <Input value={c.name} onChange={e => updateCandidate(i, "name", e.target.value)} placeholder="Candidate name" className="h-9" />
+                    <Input value={c.bio} onChange={e => updateCandidate(i, "bio", e.target.value)} placeholder="Brief bio / email (optional)" className="h-9" />
                     <Textarea value={c.statement} onChange={e => updateCandidate(i, "statement", e.target.value)} placeholder="Campaign statement (optional)" rows={2} />
                   </div>
                 ))}

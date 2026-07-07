@@ -6,7 +6,8 @@ import { Loader2 } from "lucide-react";
 import BoardRequestsSection from "@/components/board/BoardRequestsSection";
 import BoardAnnouncementSection from "@/components/board/BoardAnnouncementSection";
 import BoardEventSection from "@/components/board/BoardEventSection";
-import BoardPollResultsSection from "@/components/board/BoardPollResultsSection";
+import BoardPollSection from "@/components/board/BoardPollSection";
+import BoardElectionResultsSection from "@/components/board/BoardElectionResultsSection";
 import BoardGallerySection from "@/components/board/BoardGallerySection";
 import BoardCommunitySettingsSection from "@/components/board/BoardCommunitySettingsSection";
 import BoardRequestsApprovalSection from "@/components/board/BoardRequestsApprovalSection";
@@ -18,25 +19,24 @@ export default function HOABoardHub() {
   const [requests, setRequests] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [events, setEvents] = useState([]);
-  const [polls, setPolls] = useState([]);
-  const [votes, setVotes] = useState([]);
+  const [pollResults, setPollResults] = useState([]);
+  const [electionResults, setElectionResults] = useState([]);
   const [gallery, setGallery] = useState([]);
   const [pendingMembers, setPendingMembers] = useState([]);
 
   const loadData = async () => {
-    const [reqs, anns, evs, p, v, pendingRes] = await Promise.all([
+    const [reqs, anns, evs, resultsRes, pendingRes] = await Promise.all([
       base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 10),
       base44.entities.Event.filter({ community_id: community.id }, "start_time"),
-      base44.entities.Poll.filter({ community_id: community.id }, "-created_date"),
-      base44.entities.PollVote.filter({}),
+      base44.functions.invoke("get-community-results", {}),
       base44.functions.invoke("get-board-access-requests", {}),
     ]);
     setRequests(reqs);
     setAnnouncements(anns);
     setEvents(evs);
-    setPolls(p);
-    setVotes(v);
+    setPollResults(resultsRes?.data?.polls || []);
+    setElectionResults(resultsRes?.data?.elections || []);
     setGallery(community.gallery || []);
     setPendingMembers(pendingRes?.data?.pendingMembers || []);
     setLoading(false);
@@ -56,7 +56,8 @@ export default function HOABoardHub() {
         <BoardRequestsSection requests={requests} />
         <BoardAnnouncementSection community={community} user={user} announcements={announcements} onChange={loadData} />
         <BoardEventSection community={community} user={user} events={events} onChange={loadData} />
-        <BoardPollResultsSection polls={polls} votes={votes} />
+        <BoardPollSection community={community} user={user} pollResults={pollResults} votePath="/hoa/polls" onChange={loadData} />
+        <BoardElectionResultsSection electionResults={electionResults} viewPath="/hoa/elections" />
       </div>
 
       <div className="mt-6 space-y-6">

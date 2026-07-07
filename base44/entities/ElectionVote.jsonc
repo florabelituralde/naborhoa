@@ -10,12 +10,23 @@
     },
     "candidate_index": {
       "type": "number"
+    },
+    "position": {
+      "type": "string",
+      "enum": [
+        "president",
+        "vice_president",
+        "treasurer",
+        "secretary",
+        "member_at_large"
+      ]
     }
   },
   "required": [
     "election_id",
     "voter_id",
-    "candidate_index"
+    "candidate_index",
+    "position"
   ],
   "rls": {
     "create": {
