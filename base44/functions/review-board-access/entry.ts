@@ -50,6 +50,7 @@ Deno.serve(async (req) => {
         name: member.full_name,
         role: chosenRole,
         email: member.email,
+        user_id: member.id,
       });
     }
 

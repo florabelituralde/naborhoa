@@ -30,10 +30,10 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { community_id, amount, description, invoice_id, join_code } = body;
+    const { community_id, description, invoice_id, join_code } = body;
 
-    if (!community_id || !amount || amount < 0.50) {
-      return Response.json({ error: "Amount must be at least $0.50" }, { status: 400 });
+    if (!community_id) {
+      return Response.json({ error: "Missing community_id" }, { status: 400 });
     }
 
     const secretKey = Deno.env.get("Stripe_api_key");
@@ -52,7 +52,10 @@ Deno.serve(async (req) => {
     // When paying a specific invoice, trust the stored invoice amount — never the
     // client-supplied amount — so the charge can't be tampered with. Also verify
     // the invoice belongs to this community and isn't already settled.
-    let chargeAmount = amount;
+    // Non-invoice (guest dues) payments: compute from the community's configured
+    // monthly_dues server-side — never trust a client-supplied amount — so the
+    // charge can't be tampered with. Invoice payments override this below.
+    let chargeAmount = community.monthly_dues || 45;
     let chargeDescription = description;
     if (invoice_id) {
       const invoice = await base44.asServiceRole.entities.Invoice.get(invoice_id).catch(() => null);

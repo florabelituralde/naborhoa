@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
         name: c.name || h?.full_name || '',
         role: c.position,
         bio: c.statement || c.bio || '',
-        email: h?.email || c.bio || '',
+        email: h?.email || '',
         phone: h?.phone || '',
         photo_url: c.photo_url || '',
         term_start: election.start_date || '',
