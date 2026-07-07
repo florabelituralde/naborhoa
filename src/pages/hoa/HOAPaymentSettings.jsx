@@ -145,7 +145,7 @@ export default function HOAPaymentSettings() {
         {!connected ? (
           <div className="p-4 rounded-xl bg-muted/50 mb-4">
             <p className="text-sm text-muted-foreground mb-3">
-              No Stripe account connected yet. Connect to route payments to your bank. Until then, payments use the default Base44 Payments gateway.
+              No Stripe account connected yet. Connect to route payments to your bank. Until Stripe is connected, residents won't be able to pay dues or invoices online.
             </p>
             <Button onClick={connect} disabled={busy === "connect"}>
               {busy === "connect" ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Landmark className="w-4 h-4 mr-2" />}

@@ -102,20 +102,20 @@ export default function HomeInvoices() {
     try {
       const opt = FREQ_OPTIONS.find((f) => f.value === autopayFreq) || FREQ_OPTIONS[0];
       const amount = (community.monthly_dues || 45) * opt.multiplier;
-      const res = await base44.functions.invoke("create-checkout", {
+      const res = await base44.functions.invoke("stripe-subscription-checkout", {
         community_id: community.id,
-        join_code: community.join_code,
         amount,
         description: `HOA Dues Auto-Pay (${opt.label}) - ${community.name}`,
         frequency: autopayFreq,
-        homeowner_id: user.id,
       });
       if (res.data?.redirectUrl) {
         window.location.href = res.data.redirectUrl;
       } else {
+        toast({ title: "Couldn't start auto-pay", description: res.data?.error || "Please try again." });
         setSettingUpAutopay(false);
       }
     } catch {
+      toast({ title: "Couldn't start auto-pay", description: "Please try again." });
       setSettingUpAutopay(false);
     }
   };

@@ -43,6 +43,29 @@ Deno.serve(async (req) => {
           stripe_details_submitted: !!acc.details_submitted,
         });
       }
+    } else if (event.type === "checkout.session.completed" && event.data.object.mode === "subscription") {
+      const obj = event.data.object;
+      try {
+        const subs = await base44.asServiceRole.entities.Subscription.filter({ checkout_id: obj.id });
+        if (subs.length > 0) {
+          await base44.asServiceRole.entities.Subscription.update(subs[0].id, {
+            status: "active",
+            subscription_id: obj.subscription || "",
+          });
+        }
+      } catch (e) {
+        console.error("stripe-webhook: subscription activate failed", e);
+      }
+    } else if (event.type === "customer.subscription.deleted") {
+      const obj = event.data.object;
+      try {
+        const subs = await base44.asServiceRole.entities.Subscription.filter({ subscription_id: obj.id });
+        if (subs.length > 0) {
+          await base44.asServiceRole.entities.Subscription.update(subs[0].id, { status: "canceled" });
+        }
+      } catch (e) {
+        console.error("stripe-webhook: subscription cancel failed", e);
+      }
     } else if (
       event.type === "checkout.session.completed" ||
       event.type === "payment_intent.succeeded"

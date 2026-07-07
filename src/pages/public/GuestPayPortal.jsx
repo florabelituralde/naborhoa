@@ -32,12 +32,11 @@ export default function GuestPayPortal() {
     setPaying(true);
     setError("");
     base44.functions
-      .invoke("create-checkout", {
+      .invoke("stripe-checkout", {
         community_id: community.id,
         join_code: community.join_code,
         amount: community.monthly_dues || 45,
         description: `HOA Dues - ${community.name}`,
-        property_address: address,
       })
       .then((res) => {
         if (res.data?.redirectUrl) {
@@ -127,7 +126,7 @@ export default function GuestPayPortal() {
             <div className="mt-5 p-3 rounded-xl bg-muted/50 flex items-start gap-2">
               <Shield className="w-4 h-4 text-primary shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground">
-                Secure payment via Base44 Payments. Sign up later to set up auto-pay and track payment history.
+                Secure payment via Stripe. Sign up later to set up auto-pay and track payment history.
               </p>
             </div>
           </div>

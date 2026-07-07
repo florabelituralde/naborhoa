@@ -36,16 +36,19 @@ export default function GuestInvoicePay() {
     if (!invoice || !community || paying) return;
     setPaying(true);
     setError("");
-    const useStripe = community.stripe_account_id && community.charges_enabled;
     base44.functions
-      .invoke(useStripe ? "stripe-checkout" : "create-checkout", useStripe
-        ? { community_id: community.id, join_code: community.join_code, amount: invoice.amount, description: invoice.description || `${TYPE_LABELS[invoice.type] || "HOA Payment"} - ${community.name}`, invoice_id: invoice.id }
-        : { community_id: community.id, join_code: community.join_code, amount: invoice.amount, description: invoice.description || `${TYPE_LABELS[invoice.type] || "HOA Payment"} - ${community.name}`, invoice_id: invoice.id })
+      .invoke("stripe-checkout", {
+        community_id: community.id,
+        join_code: community.join_code,
+        amount: invoice.amount,
+        description: invoice.description || `${TYPE_LABELS[invoice.type] || "HOA Payment"} - ${community.name}`,
+        invoice_id: invoice.id,
+      })
       .then((res) => {
         if (res.data?.redirectUrl) {
           window.location.href = res.data.redirectUrl;
         } else {
-          setError(res.data?.error || "Failed to start payment");
+          setError(res.data?.error || "Your HOA hasn't enabled online payments yet.");
           setPaying(false);
         }
       })
@@ -121,7 +124,7 @@ export default function GuestInvoicePay() {
             <div className="mt-5 p-3 rounded-xl bg-muted/50 flex items-start gap-2">
               <Shield className="w-4 h-4 text-primary shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground">
-                Secure payment via Base44 Payments. Sign up later to set up auto-pay and track payment history.
+                Secure payment via Stripe. Sign up later to set up auto-pay and track payment history.
               </p>
             </div>
           </div>
