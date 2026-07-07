@@ -66,25 +66,28 @@ export default function HOAElections() {
 
   const handleCreate = async () => {
     setCreating(true);
-    const election = await base44.entities.Election.create({
-      title: form.title,
-      description: form.description,
-      start_date: form.start_date,
-      end_date: form.end_date,
-      candidates: form.candidates.filter(c => c.name.trim()),
-      community_id: community.id,
-      created_by_id: user.id,
-    });
-    await notifyCommunity(community.id, {
-      type: "election",
-      title: `New election: ${form.title}`,
-      body: `Voting is open until ${form.end_date}`,
-      related_id: election.id,
-    });
-    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: positions[0]?.name || "President", homeowner_id: "", name: "", bio: "", statement: "" }] });
-    setShowCreate(false);
-    setCreating(false);
-    loadData();
+    try {
+      const election = await base44.entities.Election.create({
+        title: form.title,
+        description: form.description,
+        start_date: form.start_date,
+        end_date: form.end_date,
+        candidates: form.candidates.filter(c => c.name.trim()),
+        community_id: community.id,
+        created_by_id: user.id,
+      });
+      await notifyCommunity(community.id, {
+        type: "election",
+        title: `New election: ${form.title}`,
+        body: `Voting is open until ${form.end_date}`,
+        related_id: election.id,
+      });
+      setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: positions[0]?.name || "President", homeowner_id: "", name: "", bio: "", statement: "" }] });
+      setShowCreate(false);
+      loadData();
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleClose = async (el) => {

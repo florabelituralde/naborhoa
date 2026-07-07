@@ -58,16 +58,19 @@ export default function HOABoard() {
 
   const handleSave = async () => {
     setCreating(true);
-    if (editingId) {
-      await base44.entities.BoardMember.update(editingId, form);
-    } else {
-      await base44.entities.BoardMember.create({ ...form, community_id: community.id });
+    try {
+      if (editingId) {
+        await base44.entities.BoardMember.update(editingId, form);
+      } else {
+        await base44.entities.BoardMember.create({ ...form, community_id: community.id });
+      }
+      setForm({ name: "", role: positions[0]?.name || "Member at Large", bio: "", email: "", term_start: "", term_end: "" });
+      setEditingId(null);
+      setShowAdd(false);
+      loadData();
+    } finally {
+      setCreating(false);
     }
-    setForm({ name: "", role: positions[0]?.name || "Member at Large", bio: "", email: "", term_start: "", term_end: "" });
-    setEditingId(null);
-    setShowAdd(false);
-    setCreating(false);
-    loadData();
   };
 
   const handleDelete = async (id) => {

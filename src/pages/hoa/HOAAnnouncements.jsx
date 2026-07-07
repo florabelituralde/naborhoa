@@ -37,21 +37,24 @@ export default function HOAAnnouncements() {
 
   const handleCreate = async () => {
     setCreating(true);
-    const ann = await base44.entities.Announcement.create({
-      ...form,
-      community_id: community.id,
-      author_id: user.id,
-    });
-    await notifyCommunity(community.id, {
-      type: "announcement",
-      title: `New announcement: ${form.title}`,
-      body: form.body,
-      related_id: ann.id,
-    });
-    setForm({ title: "", body: "", pinned: false, attachments: [] });
-    setShowCreate(false);
-    setCreating(false);
-    loadData();
+    try {
+      const ann = await base44.entities.Announcement.create({
+        ...form,
+        community_id: community.id,
+        author_id: user.id,
+      });
+      await notifyCommunity(community.id, {
+        type: "announcement",
+        title: `New announcement: ${form.title}`,
+        body: form.body,
+        related_id: ann.id,
+      });
+      setForm({ title: "", body: "", pinned: false, attachments: [] });
+      setShowCreate(false);
+      loadData();
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleDelete = async (id) => {

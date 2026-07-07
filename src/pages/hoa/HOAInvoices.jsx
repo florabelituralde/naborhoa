@@ -71,47 +71,53 @@ export default function HOAInvoices() {
 
   const handleSaveDues = async () => {
     setSavingDues(true);
-    const mult = CYCLE_MULT[duesCycle] || 1;
-    const monthlyEquivalent = dues ? parseFloat(dues) / mult : 0;
-    await base44.entities.Community.update(community.id, {
-      monthly_dues: Number(monthlyEquivalent.toFixed(2)),
-      billing_cycle: duesCycle,
-    });
-    setSavingDues(false);
-    setDuesSaved(true);
-    setTimeout(() => setDuesSaved(false), 2000);
+    try {
+      const mult = CYCLE_MULT[duesCycle] || 1;
+      const monthlyEquivalent = dues ? parseFloat(dues) / mult : 0;
+      await base44.entities.Community.update(community.id, {
+        monthly_dues: Number(monthlyEquivalent.toFixed(2)),
+        billing_cycle: duesCycle,
+      });
+      setDuesSaved(true);
+      setTimeout(() => setDuesSaved(false), 2000);
+    } finally {
+      setSavingDues(false);
+    }
   };
 
   const handleCreate = async () => {
     setCreating(true);
-    const amount = parseFloat(form.amount);
-    // One invoice (and a notification) per selected homeowner.
-    const selected = homeowners.filter((h) => form.homeowner_ids.includes(h.id));
-    const created = await base44.entities.Invoice.bulkCreate(
-      selected.map((h) => ({
-        community_id: community.id,
-        homeowner_id: h.id,
-        amount,
-        type: form.type,
-        due_date: form.due_date,
-        description: form.description,
-        status: "pending",
-      }))
-    );
-    await base44.entities.Notification.bulkCreate(
-      created.map((inv) => ({
-        community_id: community.id,
-        user_id: inv.homeowner_id,
-        type: "invoice_created",
-        title: "New invoice",
-        body: `${form.type} - ${formatCurrency(amount)}`,
-        related_id: inv.id,
-      }))
-    );
-    setForm({ homeowner_ids: [], amount: "", type: "dues", due_date: "", description: "" });
-    setShowCreate(false);
-    setCreating(false);
-    loadData();
+    try {
+      const amount = parseFloat(form.amount);
+      // One invoice (and a notification) per selected homeowner.
+      const selected = homeowners.filter((h) => form.homeowner_ids.includes(h.id));
+      const created = await base44.entities.Invoice.bulkCreate(
+        selected.map((h) => ({
+          community_id: community.id,
+          homeowner_id: h.id,
+          amount,
+          type: form.type,
+          due_date: form.due_date,
+          description: form.description,
+          status: "pending",
+        }))
+      );
+      await base44.entities.Notification.bulkCreate(
+        created.map((inv) => ({
+          community_id: community.id,
+          user_id: inv.homeowner_id,
+          type: "invoice_created",
+          title: "New invoice",
+          body: `${form.type} - ${formatCurrency(amount)}`,
+          related_id: inv.id,
+        }))
+      );
+      setForm({ homeowner_ids: [], amount: "", type: "dues", due_date: "", description: "" });
+      setShowCreate(false);
+      loadData();
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleDelete = async () => {

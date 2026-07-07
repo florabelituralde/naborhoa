@@ -25,24 +25,27 @@ export default function HOABoardHub() {
   const [pendingMembers, setPendingMembers] = useState([]);
 
   const loadData = async () => {
-    const [reqs, anns, evs, resultsRes, pendingRes] = await Promise.all([
-      base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
-      base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 10),
-      base44.entities.Event.filter({ community_id: community.id }, "start_time"),
-      base44.functions.invoke("get-community-results", {}),
-      base44.functions.invoke("get-board-access-requests", {}),
-    ]);
-    setRequests(reqs);
-    setAnnouncements(anns);
-    setEvents(evs);
-    setPollResults(resultsRes?.data?.polls || []);
-    setElectionResults(resultsRes?.data?.elections || []);
-    setGallery(community.gallery || []);
-    setPendingMembers(pendingRes?.data?.pendingMembers || []);
-    setLoading(false);
+    try {
+      const [reqs, anns, evs, resultsRes, pendingRes] = await Promise.all([
+        base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
+        base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 10),
+        base44.entities.Event.filter({ community_id: community.id }, "start_time"),
+        base44.functions.invoke("get-community-results", {}),
+        base44.functions.invoke("get-board-access-requests", {}),
+      ]);
+      setRequests(reqs || []);
+      setAnnouncements(anns || []);
+      setEvents(evs || []);
+      setPollResults(resultsRes?.data?.polls || []);
+      setElectionResults(resultsRes?.data?.elections || []);
+      setGallery(community.gallery || []);
+      setPendingMembers(pendingRes?.data?.pendingMembers || []);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => { if (community) loadData(); else setLoading(false); }, [community]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 

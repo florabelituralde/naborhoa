@@ -40,27 +40,30 @@ export default function HOAExpenses() {
 
   const handleCreate = async () => {
     setSaving(true);
-    let receipt_url;
-    if (receiptFile) {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: receiptFile });
-      receipt_url = file_url;
+    try {
+      let receipt_url;
+      if (receiptFile) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: receiptFile });
+        receipt_url = file_url;
+      }
+      await base44.entities.Expense.create({
+        community_id: community.id,
+        title: form.title,
+        description: form.description,
+        amount: Number(form.amount),
+        category: form.category,
+        vendor: form.vendor,
+        expense_date: form.expense_date,
+        receipt_url,
+        created_by_id: user.id,
+      });
+      setForm(emptyForm);
+      setReceiptFile(null);
+      setShowCreate(false);
+      loadData();
+    } finally {
+      setSaving(false);
     }
-    await base44.entities.Expense.create({
-      community_id: community.id,
-      title: form.title,
-      description: form.description,
-      amount: Number(form.amount),
-      category: form.category,
-      vendor: form.vendor,
-      expense_date: form.expense_date,
-      receipt_url,
-      created_by_id: user.id,
-    });
-    setForm(emptyForm);
-    setReceiptFile(null);
-    setShowCreate(false);
-    setSaving(false);
-    loadData();
   };
 
   const handleDelete = async (id) => {

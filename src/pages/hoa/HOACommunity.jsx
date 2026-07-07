@@ -37,17 +37,20 @@ export default function HOACommunity() {
   const galleryInputRef = useRef(null);
 
   const loadData = async () => {
-    const res = await base44.functions.invoke("get-community-homeowners", {});
-    const data = res.data || {};
-    setHomeowners(data.homeowners || []);
-    setStaff(data.staff || []);
-    setProperties(data.properties || []);
-    setGallery(community.gallery || []);
-    setLoading(false);
+    try {
+      const res = await base44.functions.invoke("get-community-homeowners", {});
+      const data = res.data || {};
+      setHomeowners(data.homeowners || []);
+      setStaff(data.staff || []);
+      setProperties(data.properties || []);
+      setGallery(community.gallery || []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (!community) return;
+    if (!community) { setLoading(false); return; }
     loadData();
     setName(community.name || "");
     setDescription(community.description || "");

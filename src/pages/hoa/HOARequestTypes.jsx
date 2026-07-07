@@ -36,11 +36,14 @@ export default function HOARequestTypes() {
 
   const seedDefaults = async () => {
     setSeeding(true);
-    await base44.entities.RequestType.bulkCreate(
-      DEFAULT_REQUEST_TYPES.map((t, i) => ({ ...t, community_id: community.id, active: true, sort_order: i }))
-    );
-    await load();
-    setSeeding(false);
+    try {
+      await base44.entities.RequestType.bulkCreate(
+        DEFAULT_REQUEST_TYPES.map((t, i) => ({ ...t, community_id: community.id, active: true, sort_order: i }))
+      );
+      await load();
+    } finally {
+      setSeeding(false);
+    }
   };
 
   const handleSave = async (form) => {

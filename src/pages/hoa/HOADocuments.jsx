@@ -45,22 +45,25 @@ export default function HOADocuments() {
 
   const handleUpload = async () => {
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedFile });
-    await base44.entities.Document.create({
-      community_id: community.id,
-      title: form.title,
-      description: form.description,
-      file_url,
-      file_type: selectedFile.type,
-      category: form.category,
-      uploaded_by_id: user.id,
-      is_public: true,
-    });
-    setUploading(false);
-    setForm({ title: "", description: "", category: "other" });
-    setSelectedFile(null);
-    setShowUpload(false);
-    loadData();
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedFile });
+      await base44.entities.Document.create({
+        community_id: community.id,
+        title: form.title,
+        description: form.description,
+        file_url,
+        file_type: selectedFile.type,
+        category: form.category,
+        uploaded_by_id: user.id,
+        is_public: true,
+      });
+      setForm({ title: "", description: "", category: "other" });
+      setSelectedFile(null);
+      setShowUpload(false);
+      loadData();
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDelete = async (id) => {
