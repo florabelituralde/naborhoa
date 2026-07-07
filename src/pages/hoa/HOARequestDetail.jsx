@@ -7,8 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MobileTopHeader from "@/components/mobile/MobileTopHeader";
-import { Loader2, ArrowLeft, Check, X, Play, FileText } from "lucide-react";
+import { Loader2, ArrowLeft, Check, X, Play } from "lucide-react";
 import { formatDate } from "@/lib/format";
+import RequestAttachments from "@/components/RequestAttachments";
 
 export default function HOARequestDetail() {
   const { id } = useParams();
@@ -22,18 +23,21 @@ export default function HOARequestDetail() {
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      base44.entities.Request.get(id),
-      base44.entities.User.filter({ community_id: community.id, role: "hoa_staff" }),
-    ]).then(([req, staffList]) => {
-      setRequest(req);
-      setStaff(staffList);
-      setResolutionNotes(req.resolution_notes || "");
-      if (req.homeowner_id) {
-        base44.entities.User.get(req.homeowner_id).then(h => setHomeowner(h)).catch(() => {});
-      }
-      setLoading(false);
-    });
+    const reqPromise = base44.entities.Request.get(id);
+    const staffPromise = community?.id
+      ? base44.entities.User.filter({ community_id: community.id, role: "hoa_staff" }).catch(() => [])
+      : Promise.resolve([]);
+    Promise.all([reqPromise, staffPromise])
+      .then(([req, staffList]) => {
+        setRequest(req);
+        setStaff(staffList);
+        setResolutionNotes(req.resolution_notes || "");
+        if (req.homeowner_id) {
+          base44.entities.User.get(req.homeowner_id).then(h => setHomeowner(h)).catch(() => {});
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [id, community]);
 
   const buildActivityEntries = (updates) => {
@@ -124,29 +128,7 @@ export default function HOARequestDetail() {
           </div>
         )}
 
-        {(request.attachments?.length > 0 || request.image_url) && (
-          <div className="mt-6 border-t border-border pt-4">
-            <p className="text-sm text-muted-foreground mb-2">Attachments</p>
-            <div className="flex flex-wrap gap-3">
-              {(request.attachments?.length > 0
-                ? request.attachments
-                : [{ name: "Attachment", url: request.image_url }]
-              ).map((att, i) => {
-                const isImage = /\.(png|jpe?g|gif|webp|bmp)$/i.test(att.url || "");
-                return isImage ? (
-                  <a key={i} href={att.url} target="_blank" rel="noreferrer">
-                    <img src={att.url} alt={att.name} className="rounded-xl h-28 w-28 object-cover border border-border" />
-                  </a>
-                ) : (
-                  <a key={i} href={att.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm hover:border-primary">
-                    <FileText className="w-4 h-4 text-primary" />
-                    <span className="truncate max-w-[160px]">{att.name}</span>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        <RequestAttachments attachments={request.attachments} image_url={request.image_url} />
       </div>
 
       <div className="bg-card rounded-2xl warm-shadow p-5 sm:p-8">

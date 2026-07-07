@@ -11,6 +11,15 @@ import { Loader2, ArrowLeft, Upload, FileText, X, ChevronRight } from "lucide-re
 import MobileTopHeader from "@/components/mobile/MobileTopHeader";
 import { getRequestTypeIcon } from "@/lib/requestTypeIcon";
 
+const ATTACHMENT_CATEGORIES = [
+  "Photo / Evidence",
+  "Document",
+  "Receipt / Invoice",
+  "Permit / Approval",
+  "Plan / Drawing",
+  "Other",
+];
+
 export default function HomeNewRequest() {
   const navigate = useNavigate();
   const { user, community } = useOutletContext();
@@ -41,7 +50,11 @@ export default function HomeNewRequest() {
   };
 
   const addFiles = (fileList) => {
-    setFiles(prev => [...prev, ...Array.from(fileList)]);
+    const next = Array.from(fileList).map((file) => ({
+      file,
+      category: file.type?.startsWith("image/") ? "Photo / Evidence" : "Document",
+    }));
+    setFiles(prev => [...prev, ...next]);
   };
 
   const removeFile = (i) => setFiles(prev => prev.filter((_, idx) => idx !== i));
@@ -60,9 +73,9 @@ export default function HomeNewRequest() {
     setSubmitError(null);
     try {
       const uploaded = [];
-      for (const file of files) {
-        const result = await base44.integrations.Core.UploadFile({ file });
-        uploaded.push({ name: file.name, url: result.file_url });
+      for (const item of files) {
+        const result = await base44.integrations.Core.UploadFile({ file: item.file });
+        uploaded.push({ name: item.file.name, url: result.file_url, category: item.category });
       }
 
       await base44.entities.Request.create({
@@ -211,16 +224,27 @@ export default function HomeNewRequest() {
                   className="mt-1.5 border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary transition-colors"
                 >
                   <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Click to upload photos or files</p>
+                  <p className="text-sm text-muted-foreground">Click to upload photos or files — you'll label each one</p>
                 </div>
                 <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" className="hidden" onChange={e => addFiles(e.target.files)} />
                 {files.length > 0 && (
                   <div className="mt-3 space-y-2">
-                    {files.map((f, i) => (
-                      <div key={i} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2">
-                        <FileText className="w-4 h-4 text-primary shrink-0" />
-                        <span className="text-sm truncate flex-1">{f.name}</span>
-                        <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive shrink-0"><X className="w-4 h-4" /></button>
+                    {files.map((item, i) => (
+                      <div key={i} className="rounded-lg border border-border px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-primary shrink-0" />
+                          <span className="text-sm truncate flex-1">{item.file.name}</span>
+                          <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive shrink-0"><X className="w-4 h-4" /></button>
+                        </div>
+                        <Select
+                          value={item.category}
+                          onValueChange={(v) => setFiles(prev => prev.map((p, idx) => idx === i ? { ...p, category: v } : p))}
+                        >
+                          <SelectTrigger className="mt-2 h-8 text-xs"><SelectValue placeholder="What is this file?" /></SelectTrigger>
+                          <SelectContent>
+                            {ATTACHMENT_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
                       </div>
                     ))}
                   </div>
