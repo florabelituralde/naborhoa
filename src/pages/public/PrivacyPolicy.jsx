@@ -31,7 +31,7 @@ export default function PrivacyPolicy() {
 
         <div className="prose prose-sm max-w-none space-y-6 text-foreground">
           <p>
-            Ituralde Digital Solutions LLC ("we," "us," or "our") operates the Nabor mobile and web
+            Ituralde Digital Solutions LLC ("we," "us," or "our") operates the NaborHOA mobile and web
             application (the "Service") that helps homeowners associations and residential communities
             manage requests, dues, announcements, events, polls, elections, and documents. This Privacy
             Policy describes how we collect, use, and protect your information when you use the Service.
@@ -130,7 +130,7 @@ export default function PrivacyPolicy() {
 
         <div className="mt-10 pt-6 border-t border-border text-center">
           <Link to="/login" className="text-primary font-medium hover:underline text-sm">
-            Back to Nabor
+            Back to NaborHOA
           </Link>
         </div>
       </div>

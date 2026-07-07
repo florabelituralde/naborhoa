@@ -11,7 +11,7 @@ export default function NaborLogo({
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <NaborMark className={`${iconClassName} text-primary`} />
-      {showText && <span className={textClassName}>Nabor</span>}
+      {showText && <span className={textClassName}>NaborHOA</span>}
     </span>
   );
 }
@@ -23,7 +23,7 @@ export function NaborMark({ className = "w-8 h-8" }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      aria-label="Nabor"
+      aria-label="NaborHOA"
       role="img"
     >
       {/* Roof line */}

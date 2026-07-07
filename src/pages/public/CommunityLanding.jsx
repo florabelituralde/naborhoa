@@ -71,7 +71,7 @@ export default function CommunityLanding() {
         <Home className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="text-2xl font-bold mb-2">Community Not Found</h1>
         <p className="text-muted-foreground mb-6">{error}</p>
-        <Link to="/login"><Button>Go to Nabor</Button></Link>
+        <Link to="/login"><Button>Go to NaborHOA</Button></Link>
       </div>
     </div>
   );
@@ -238,7 +238,7 @@ export default function CommunityLanding() {
         )}
 
         <div className="mt-12 pt-8 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground">Powered by <span className="font-semibold text-primary">Nabor</span></p>
+          <p className="text-sm text-muted-foreground">Powered by <span className="font-semibold text-primary">NaborHOA</span></p>
         </div>
       </div>
     </div>

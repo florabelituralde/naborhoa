@@ -1,4 +1,4 @@
-// Nabor platform subscription plans for HOA managers.
+// NaborHOA platform subscription plans for HOA managers.
 // Prices are per community. Monthly is the base; quarterly & annual apply discounts.
 
 export const BILLING_CYCLES = [

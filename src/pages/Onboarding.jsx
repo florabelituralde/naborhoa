@@ -173,7 +173,7 @@ export default function Onboarding() {
       <div className="h-20 bg-primary flex items-center px-8">
         <div className="flex items-center gap-2">
           <Home className="w-7 h-7 text-white" />
-          <span className="text-white font-bold text-xl">Nabor</span>
+          <span className="text-white font-bold text-xl">NaborHOA</span>
         </div>
       </div>
 

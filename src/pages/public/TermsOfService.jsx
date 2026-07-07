@@ -31,7 +31,7 @@ export default function TermsOfService() {
 
         <div className="prose prose-sm max-w-none space-y-6 text-foreground">
           <p>
-            Welcome to Nabor. The Nabor mobile and web application (the "Service") is operated by
+            Welcome to NaborHOA. The NaborHOA mobile and web application (the "Service") is operated by
             Ituralde Digital Solutions LLC. By creating an account or using the Service, you agree to
             these Terms of Service ("Terms"). If you do not agree, do not use the Service.
           </p>
@@ -174,7 +174,7 @@ export default function TermsOfService() {
 
         <div className="mt-10 pt-6 border-t border-border text-center">
           <Link to="/login" className="text-primary font-medium hover:underline text-sm">
-            Back to Nabor
+            Back to NaborHOA
           </Link>
         </div>
       </div>
