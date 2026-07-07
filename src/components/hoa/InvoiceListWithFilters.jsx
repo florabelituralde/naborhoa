@@ -32,6 +32,7 @@ export default function InvoiceListWithFilters({ invoices, homeowners, onConfirm
   const [dateTo, setDateTo] = useState("");
   const [groupBy, setGroupBy] = useState("type");
   const [collapsed, setCollapsed] = useState({});
+  const [showFilters, setShowFilters] = useState(false);
 
   const ownerName = (id) => {
     const h = (homeowners || []).find((o) => o.id === id);
@@ -91,6 +92,7 @@ export default function InvoiceListWithFilters({ invoices, homeowners, onConfirm
   }, [filtered, groupBy]);
 
   const hasActiveFilters = search || typeFilter !== "all" || statusFilter !== "all" || dateFrom || dateTo;
+  const advancedCount = (typeFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (dateFrom ? 1 : 0) + (dateTo ? 1 : 0);
   const clearFilters = () => {
     setSearch(""); setTypeFilter("all"); setStatusFilter("all"); setDateFrom(""); setDateTo("");
   };
@@ -109,23 +111,30 @@ export default function InvoiceListWithFilters({ invoices, homeowners, onConfirm
     <div>
       {/* Filters */}
       <div className="bg-card rounded-2xl warm-shadow p-4 mb-4">
-        <div className="flex items-center gap-2 mb-3 text-sm font-medium">
-          <Filter className="w-4 h-4 text-muted-foreground" />
-          <span>Filter & Search</span>
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search description, owner, type…" className="pl-9" />
+        </div>
+        <div className="flex items-center gap-2 mt-3">
+          <button
+            onClick={() => setShowFilters((s) => !s)}
+            className="sm:hidden inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-border bg-background"
+          >
+            <Filter className="w-4 h-4" />
+            Filters
+            {advancedCount > 0 && <span className="ml-0.5 text-xs bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 leading-none">{advancedCount}</span>}
+          </button>
+          <span className="hidden sm:flex items-center gap-2 text-sm font-medium">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            Filter &amp; Search
+          </span>
           {hasActiveFilters && (
             <button onClick={clearFilters} className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-              <X className="w-3 h-3" /> Clear
+              <X className="w-3 h-3" /> Clear all
             </button>
           )}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <div className="lg:col-span-1">
-            <Label className="text-xs">Search</Label>
-            <div className="relative mt-1">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Description, owner, type…" className="pl-9" />
-            </div>
-          </div>
+        <div className={`${showFilters ? "grid" : "hidden"} grid-cols-2 sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3`}>
           <div>
             <Label className="text-xs">Type</Label>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
@@ -154,7 +163,7 @@ export default function InvoiceListWithFilters({ invoices, homeowners, onConfirm
             <Label className="text-xs">Due to</Label>
             <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="mt-1" />
           </div>
-          <div>
+          <div className="col-span-2 lg:col-span-1">
             <Label className="text-xs">Group by</Label>
             <Select value={groupBy} onValueChange={setGroupBy}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
