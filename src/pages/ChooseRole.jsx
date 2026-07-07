@@ -52,7 +52,7 @@ export default function ChooseRole() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary mb-4">
             <Home className="w-7 h-7 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome to NaborHOA</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome to Nabor</h1>
           <p className="text-muted-foreground mt-2">Tell us how you'll use the platform</p>
         </div>
         <div className="space-y-4">

@@ -53,7 +53,7 @@ export default function GuestPay() {
       <div className="text-center max-w-md">
         <Home className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="text-2xl font-bold mb-2">Community Not Found</h1>
-        <Link to="/login"><Button>Go to NaborHOA</Button></Link>
+        <Link to="/login"><Button>Go to Nabor</Button></Link>
       </div>
     </div>
   );
