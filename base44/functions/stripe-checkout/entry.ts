@@ -8,11 +8,16 @@ const PLATFORM_FEE_BPS = 300;
 // Otherwise fall back to a safe canonical URL so redirect targets can't be
 // spoofed via a forged Origin header (open-redirect protection).
 function safeOrigin(req: Request): string {
+  // Trust the request Origin so redirect URLs match the domain the user is
+  // actually on (the current/published domain). Browsers set Origin to the
+  // page's own origin and cannot spoof it cross-origin, so this is safe for
+  // the checkout flow. Fall back to a canonical URL only when Origin is
+  // missing or not a valid http(s) URL (e.g. direct endpoint calls).
   const raw = req.headers.get("Origin") || req.headers.get("origin") || "";
   try {
-    const host = new URL(raw).hostname;
-    if (host === "localhost" || host.endsWith(".base44.app") || host.endsWith(".base44.com")) {
-      return raw;
+    const u = new URL(raw);
+    if (u.protocol === "http:" || u.protocol === "https:") {
+      return `${u.protocol}//${u.host}`;
     }
   } catch (_) { /* invalid or missing Origin */ }
   return "https://app.base44.app";

@@ -13,6 +13,17 @@ const CYCLES: Record<string, { multiplier: number; discount: number; frequency: 
   annual: { multiplier: 12, discount: 0.2, frequency: "YEAR", interval: 1 },
 };
 
+function safeOrigin(req: Request): string {
+  const raw = req.headers.get("Origin") || req.headers.get("origin") || "";
+  try {
+    const u = new URL(raw);
+    if (u.protocol === "http:" || u.protocol === "https:") {
+      return `${u.protocol}//${u.host}`;
+    }
+  } catch (_) { /* invalid or missing Origin */ }
+  return "https://app.base44.app";
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -45,7 +56,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Amount must be at least $0.50" }, { status: 400 });
     }
 
-    const origin = req.headers.get("Origin") || req.headers.get("origin") || "";
+    const origin = safeOrigin(req);
     const WIX_API_KEY = Deno.env.get("WIX_PAYMENTS_API_KEY");
     const WIX_SITE_ID = Deno.env.get("WIX_PAYMENTS_SITE_ID");
 
