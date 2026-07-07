@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import {
   HelpCircle, ChevronDown, Home, ClipboardList, Receipt, Wallet, Megaphone,
-  Vote, Trophy, Calendar, FileText, Contact, MessageCircle, ListChecks, Users, Sparkles, ArrowRight,
+  Vote, Trophy, Calendar, FileText, Contact, MessageCircle, ListChecks, Users, Sparkles, ArrowRight, Globe,
 } from "lucide-react";
 
 // Role-aware Help & FAQ content. `role` is "homeowner" or "hoa".
@@ -201,6 +201,16 @@ const HOMEOWNER_SECTIONS = [
       "Selling or relocating? Use <strong>Moving Out / Selling</strong> in your account to notify the HOA — this removes your membership and access, so only do it when you're actually leaving.",
     ],
   },
+  {
+    icon: Globe,
+    title: "What you can do without an account",
+    steps: [
+      "Neighbors can <strong>view the community page</strong> — announcements, events, board members, and gallery — using the community's shareable link, no sign-in needed.",
+      "Anyone with the link can <strong>pay HOA dues or a specific invoice</strong> online without creating an account.",
+      "If your community is on the <strong>Connected</strong> plan, guests can also <strong>ask the AI assistant</strong> questions without signing in.",
+      "Without an account you <strong>cannot</strong> submit requests, vote in polls or elections, view documents, or get notifications — create an account to access everything.",
+    ],
+  },
 ];
 
 const HOA_SECTIONS = [
@@ -301,6 +311,16 @@ const HOA_SECTIONS = [
       "Residents (and guests via a shared link) can ask the <strong>AI assistant</strong> questions answered from your uploaded documents.",
       "Keep your <strong>Documents</strong> (bylaws, rules, policies) up to date so the assistant gives accurate answers.",
       "When the assistant can't answer, it directs residents to contact the HOA directly.",
+    ],
+  },
+  {
+    icon: Globe,
+    title: "What's public (no account needed)",
+    steps: [
+      "Your community's public page shows announcements, events, board members, and gallery to anyone with the link.",
+      "Homeowners can pay dues or a specific invoice online without an account.",
+      "The <strong>AI assistant</strong> is available to guests only on the <strong>Connected</strong> plan; on other plans the guest AI is locked.",
+      "Submitting requests, voting, viewing documents, and notifications always require an account.",
     ],
   },
 ];

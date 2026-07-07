@@ -112,6 +112,14 @@ export default function CommunityLanding() {
           <p className="text-lg text-muted-foreground mb-8 max-w-3xl">{community.description}</p>
         )}
 
+        {/* Public access disclosure */}
+        <div className="flex items-start gap-3 bg-accent/50 rounded-2xl p-4 mb-8 text-sm">
+          <Shield className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+          <p className="text-muted-foreground">
+            <strong className="text-foreground">No account needed</strong> to pay dues or ask the AI assistant. Sign up to submit requests, vote in polls, and access documents.
+          </p>
+        </div>
+
         {/* Actions */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
           <Link to="/join">

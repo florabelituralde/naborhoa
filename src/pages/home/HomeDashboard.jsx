@@ -3,8 +3,9 @@ import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import StatusBadge from "@/components/StatusBadge";
 import PullToRefresh from "@/components/mobile/PullToRefresh";
-import { Vote, Loader2, UserCircle, Calendar as CalendarIcon, Megaphone, Contact, ShieldCheck, Clock } from "lucide-react";
+import { Vote, Loader2, UserCircle, Calendar as CalendarIcon, Megaphone, Contact, ShieldCheck, Clock, Lock } from "lucide-react";
 import { formatDate } from "@/lib/format";
+import { hasModule } from "@/lib/planAccess";
 import AnnouncementsWidget from "@/components/widgets/AnnouncementsWidget";
 import AIChatWidget from "@/components/widgets/AIChatWidget";
 import CommunityCalendar from "@/components/widgets/CommunityCalendar";
@@ -20,7 +21,9 @@ export default function HomeDashboard() {
   const loadData = useCallback(async () => {
     if (!community) return;
     const [activePolls, anns, evs] = await Promise.all([
-      base44.entities.Poll.filter({ community_id: community.id, status: "active" }, "-created_date", 3),
+      hasModule(community, "polls")
+        ? base44.entities.Poll.filter({ community_id: community.id, status: "active" }, "-created_date", 3)
+        : Promise.resolve([]),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 3),
       base44.entities.Event.filter({ community_id: community.id }, "start_time"),
     ]);
@@ -100,27 +103,38 @@ export default function HomeDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AnnouncementsWidget announcements={announcements} />
 
-        <div className="bg-card rounded-2xl warm-shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-lg flex items-center gap-2"><Vote className="w-5 h-5 text-primary" /> Active Polls</h2>
-            <Link to="/home/polls" className="text-sm text-primary font-medium hover:underline">View all</Link>
-          </div>
-          {polls.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No active polls</p>
-          ) : (
-            <div className="space-y-2">
-              {polls.map(poll => (
-                <Link key={poll.id} to="/home/polls" className="flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors">
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm truncate">{poll.title}</p>
-                    <p className="text-xs text-muted-foreground">Deadline: {formatDate(poll.deadline)}</p>
-                  </div>
-                  <StatusBadge status={poll.status} />
-                </Link>
-              ))}
+        {hasModule(community, "polls") ? (
+          <div className="bg-card rounded-2xl warm-shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-lg flex items-center gap-2"><Vote className="w-5 h-5 text-primary" /> Active Polls</h2>
+              <Link to="/home/polls" className="text-sm text-primary font-medium hover:underline">View all</Link>
             </div>
-          )}
-        </div>
+            {polls.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">No active polls</p>
+            ) : (
+              <div className="space-y-2">
+                {polls.map(poll => (
+                  <Link key={poll.id} to="/home/polls" className="flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{poll.title}</p>
+                      <p className="text-xs text-muted-foreground">Deadline: {formatDate(poll.deadline)}</p>
+                    </div>
+                    <StatusBadge status={poll.status} />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-card rounded-2xl warm-shadow p-6 flex flex-col">
+            <h2 className="font-semibold text-lg flex items-center gap-2 mb-4"><Vote className="w-5 h-5 text-primary" /> Active Polls</h2>
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+              <Lock className="w-8 h-8 text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground mb-1">Polls aren't on your community's plan.</p>
+              <p className="text-xs text-muted-foreground">Ask your HOA manager about upgrading.</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
