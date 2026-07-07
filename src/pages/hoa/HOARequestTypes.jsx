@@ -9,9 +9,11 @@ import { getRequestTypeIcon } from "@/lib/requestTypeIcon";
 import { DEFAULT_REQUEST_TYPES } from "@/lib/defaultRequestTypes";
 import RequestTypeEditor from "@/components/hoa/RequestTypeEditor";
 import TemplateLibraryDialog from "@/components/hoa/TemplateLibraryDialog";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function HOARequestTypes() {
   const { community } = useOutletContext();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [types, setTypes] = useState([]);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -56,13 +58,23 @@ export default function HOARequestTypes() {
     setSavingTemplateId(t.id);
     const data = { community_id: community.id };
     TEMPLATE_FIELDS.forEach((k) => { if (t[k] !== undefined) data[k] = t[k]; });
-    await base44.entities.RequestTypeTemplate.create(data);
+    try {
+      await base44.entities.RequestTypeTemplate.create(data);
+      toast({ title: "Template saved", description: `"${t.name}" is now in your template library.` });
+    } catch (err) {
+      toast({ title: "Couldn't save template", description: err?.message || "Please try again.", variant: "destructive" });
+    }
     setSavingTemplateId(null);
   };
 
   const deployTemplate = async (tpl) => {
-    await base44.entities.RequestType.create({ ...tpl, community_id: community.id, active: true, sort_order: types.length });
-    await load();
+    try {
+      await base44.entities.RequestType.create({ ...tpl, community_id: community.id, active: true, sort_order: types.length });
+      await load();
+      toast({ title: "Template deployed", description: `"${tpl.name}" added to your request types.` });
+    } catch (err) {
+      toast({ title: "Couldn't deploy template", description: err?.message || "Please try again.", variant: "destructive" });
+    }
   };
 
   const toggleActive = async (t) => {
