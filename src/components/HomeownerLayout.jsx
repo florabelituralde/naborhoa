@@ -62,7 +62,6 @@ export default function HomeownerLayout() {
     { path: "/home/account", label: "My Account", icon: UserCircle },
 
     { path: "/home/invoices", label: "My Bills", icon: Receipt, group: "Finances" },
-    { path: "/home/invoice-assistant", label: "Invoice Assistant", icon: Sparkles, group: "Finances" },
     { path: "/home/expenses", label: "Community Finances", icon: Wallet, group: "Finances" },
 
     { path: "/home/polls", label: "Polls", icon: Vote, group: "Get Involved" },

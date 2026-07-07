@@ -3,7 +3,6 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send, MessageCircle, Sparkles, X, Mail } from "lucide-react";
 import ContactHOAPanel from "@/components/ContactHOAPanel";
-import AIChatInvoiceMode from "@/components/AIChatInvoiceMode";
 
 const NO_ANSWER_MARKER = "i don't have that information in the community's official documents";
 
@@ -27,7 +26,6 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
   const [boardMembers, setBoardMembers] = useState([]);
   const [managerEmail, setManagerEmail] = useState(null);
   const [managerName, setManagerName] = useState(null);
-  const [mode, setMode] = useState("docs");
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -166,25 +164,6 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
             </button>
           </div>
 
-          {/* Mode tabs */}
-          <div className="flex gap-1 px-3 py-2 border-b border-border bg-card shrink-0">
-            <button
-              onClick={() => setMode("docs")}
-              className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${mode === "docs" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
-            >
-              Community Rules
-            </button>
-            <button
-              onClick={() => setMode("invoice")}
-              className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${mode === "invoice" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
-            >
-              Invoices & Plans
-            </button>
-          </div>
-
-          {mode === "invoice" ? (
-            <AIChatInvoiceMode user={user} community={community} />
-          ) : (
           <>
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -282,7 +261,6 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
             )}
           </div>
           </>
-          )}
         </div>
       )}
     </>
