@@ -5,28 +5,21 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import AppleIcon from "@/components/AppleIcon";
 import IntroPreview from "@/components/auth/IntroPreview";
 import LegalLinks from "@/components/LegalLinks";
-import { toast } from "@/components/ui/use-toast";
 import useRedirectIfAuthed from "@/hooks/useRedirectIfAuthed";
 import GuestAccess from "@/components/auth/GuestAccess";
-import { friendlyAuthError, isUnverifiedError } from "@/lib/authErrors";
+import { isUnverifiedError } from "@/lib/authErrors";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
-  const [otpPending, setOtpPending] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
   const [credentialsError, setCredentialsError] = useState(false);
   const [showIntro, setShowIntro] = useState(
     () => sessionStorage.getItem("naborIntroSeenLogin") !== "1"
@@ -39,49 +32,6 @@ export default function Login() {
     sessionStorage.setItem("naborIntroSeenLogin", "1");
     setShowIntro(false);
   };
-
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const t = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [resendCooldown]);
-
-  const handleVerifyOtp = async () => {
-    setError("");
-    setOtpLoading(true);
-    try {
-      const result = await base44.auth.verifyOtp({ email: email.trim(), otpCode });
-      if (!result?.access_token) {
-        throw new Error("Verification failed. Please try again.");
-      }
-      base44.auth.setToken(result.access_token);
-      window.location.href = "/";
-    } catch (err) {
-      setError(friendlyAuthError(err, "Verification failed. Please try again."));
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    if (resendCooldown > 0) return;
-    setError("");
-    try {
-      await base44.auth.resendOtp(email.trim());
-      setResendCooldown(30);
-      toast({ title: "Code sent", description: "Check your email for the new code." });
-    } catch (err) {
-      setError(friendlyAuthError(err, "Failed to resend code"));
-    }
-  };
-
-  // Auto-submit the OTP the moment all six digits are entered.
-  useEffect(() => {
-    if (showOtp && !otpPending && !otpLoading && otpCode.length === 6) {
-      handleVerifyOtp();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [otpCode, otpPending]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,19 +46,9 @@ export default function Login() {
       await base44.auth.loginViaEmailPassword(email.trim(), password);
       window.location.href = "/";
     } catch (err) {
-      // If the account exists but the email was never verified, jump to the
-      // OTP screen so the user can verify and get in without leaving login.
       if (isUnverifiedError(err)) {
-        setError("");
-        setShowOtp(true);
-        setOtpPending(true);
-        try {
-          await base44.auth.resendOtp(email.trim());
-          setResendCooldown(30);
-        } catch (resendErr) {
-          toast({ title: "Couldn't send code", description: friendlyAuthError(resendErr), variant: "destructive" });
-        }
-        setOtpPending(false);
+        setCredentialsError(false);
+        setError("Your email isn't verified yet. Please complete your registration to verify your email, then log in.");
       } else {
         // The platform returns a generic "Invalid email or password" for both a
         // wrong password and an email that was never registered (it intentionally
@@ -129,44 +69,6 @@ export default function Login() {
   const handleApple = () => {
     base44.auth.loginWithProvider("apple", "/");
   };
-
-  if (showOtp) {
-    return (
-      <AuthLayout icon={Mail} title="Verify your email" subtitle={otpPending ? `Sending a code to ${email.trim()}…` : `We sent a code to ${email.trim()}`}>
-        {error && (
-          <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>
-        )}
-        <div className="flex justify-center mb-6">
-          <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} autoFocus autoComplete="one-time-code">
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
-        </div>
-        <Button className="w-full h-12 font-medium" onClick={handleVerifyOtp} disabled={otpLoading || otpPending || otpCode.length < 6}>
-          {otpLoading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Verifying…</>) : otpPending ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending code…</>) : ("Verify")}
-        </Button>
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          Didn't receive the code?{" "}
-          <button onClick={handleResendOtp} disabled={otpPending || resendCooldown > 0} className="text-primary font-medium hover:underline disabled:opacity-50 disabled:no-underline">
-            {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend"}
-          </button>
-        </p>
-        <button
-          type="button"
-          onClick={() => { setShowOtp(false); setOtpCode(""); setError(""); }}
-          className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground hover:underline"
-        >
-          Back to login
-        </button>
-      </AuthLayout>
-    );
-  }
 
   return (
     <>
