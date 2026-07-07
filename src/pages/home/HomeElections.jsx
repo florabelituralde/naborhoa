@@ -54,7 +54,7 @@ export default function HomeElections() {
       setElectionResults(results);
       const myV = {};
       for (const v of myAllVotes) {
-        myV[`${v.election_id}:${v.position}`] = v.candidate_index;
+        myV[`${v.election_id}:${positionLabel(v.position)}`] = v.candidate_index;
       }
       setMyVotes(myV);
     } finally {
@@ -124,7 +124,9 @@ export default function HomeElections() {
             const total = el.total;
             const byPosition = {};
             (el.candidates || []).forEach((c, i) => {
-              const key = c.position || "member_at_large";
+              // Normalize to the display label so legacy enum values and
+              // display names group together instead of duplicating sections.
+              const key = positionLabel(c.position || "member_at_large");
               if (!byPosition[key]) byPosition[key] = [];
               byPosition[key].push({ ...c, _index: i, count: el.counts[i] || 0 });
             });

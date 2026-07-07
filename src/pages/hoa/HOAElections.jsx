@@ -70,13 +70,18 @@ export default function HOAElections() {
 
   useEffect(() => { if (community) loadData(); else setLoading(false); }, [community]);
 
+  // Use the backend function (service role) so the admin can list residents
+  // in their community — the User entity's built-in RLS blocks hoa_admin from
+  // filtering other users directly, which is why the search came back empty.
   const loadHomeowners = async () => {
-    const communityId = community?.id || user?.community_id;
-    if (!communityId) return;
-    const hs = await base44.entities.User.filter({ community_id: communityId, role: "homeowner" });
-    setHomeowners(hs);
+    try {
+      const res = await base44.functions.invoke("get-community-homeowners", {});
+      setHomeowners(res?.data?.homeowners || []);
+    } catch {
+      setHomeowners([]);
+    }
   };
-  useEffect(() => { if (showCreate) loadHomeowners(); }, [showCreate, community?.id, user?.community_id]);
+  useEffect(() => { if (showCreate) loadHomeowners(); }, [showCreate]);
 
   const addCandidate = () => setForm({ ...form, candidates: [...form.candidates, { position: positions[0]?.name || "President", homeowner_id: "", name: "", bio: "", statement: "" }] });
   const removeCandidate = (i) => setForm({ ...form, candidates: form.candidates.filter((_, idx) => idx !== i) });
@@ -163,15 +168,18 @@ export default function HOAElections() {
             const total = el.total;
             const byPosition = {};
             (el.candidates || []).forEach((c, i) => {
-              const key = c.position || "member_at_large";
+              // Normalize to the display label so legacy enum values
+              // ("member_at_large") and display names ("Member at Large")
+              // group together instead of rendering duplicate sections.
+              const key = positionLabel(c.position || "member_at_large");
               if (!byPosition[key]) byPosition[key] = [];
               byPosition[key].push({ ...c, count: el.counts[i] || 0 });
             });
             return (
               <div key={el.id} className="bg-card rounded-2xl warm-shadow p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-lg">{el.title}</h3>
                       <StatusBadge status={el.status} />
                     </div>
