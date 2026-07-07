@@ -148,7 +148,7 @@ export default function Onboarding() {
   const handleStartTrial = () => setStep(6);
 
   // Use the free version now: mark the community "ended" so it drops straight to
-  // the free Starter tier with locked features visible in the nav.
+  // the Free tier with locked features visible in the nav.
   const handleUseFreeVersion = async () => {
     setSubmitting(true);
     try {

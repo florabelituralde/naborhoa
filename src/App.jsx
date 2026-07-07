@@ -118,8 +118,8 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/account" element={<HOAAccount />} />
           <Route path="/hoa/payment-settings" element={<HOAPaymentSettings />} />
           <Route path="/hoa/add-community" element={<HOAAddCommunity />} />
-          <Route path="/hoa/requests" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequests /></PlanGate>} />
-          <Route path="/hoa/requests/:id" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequestDetail /></PlanGate>} />
+          <Route path="/hoa/requests" element={<PlanGate module="requests" homePath="/hoa/dashboard"><HOARequests /></PlanGate>} />
+          <Route path="/hoa/requests/:id" element={<PlanGate module="requests" homePath="/hoa/dashboard"><HOARequestDetail /></PlanGate>} />
           <Route path="/hoa/request-types" element={<PlanGate module="request_types" homePath="/hoa/dashboard"><HOARequestTypes /></PlanGate>} />
           <Route path="/hoa/invoices" element={<PlanGate module="invoices" homePath="/hoa/dashboard"><HOAInvoices /></PlanGate>} />
           <Route path="/hoa/expenses" element={<PlanGate module="expenses" homePath="/hoa/dashboard"><HOAExpenses /></PlanGate>} />
@@ -139,9 +139,9 @@ const AuthenticatedApp = () => {
           <Route path="/home/dashboard" element={<HomeDashboard />} />
           <Route path="/home/account" element={<HomeAccount />} />
           <Route path="/home/notifications" element={<HomeNotifications />} />
-          <Route path="/home/requests" element={<PlanGate module="request_types" homePath="/home/dashboard"><HomeRequests /></PlanGate>} />
-          <Route path="/home/requests/new" element={<PlanGate module="request_types" homePath="/home/dashboard"><HomeNewRequest /></PlanGate>} />
-          <Route path="/home/requests/:id" element={<PlanGate module="request_types" homePath="/home/dashboard"><HomeRequestDetail /></PlanGate>} />
+          <Route path="/home/requests" element={<PlanGate module="requests" homePath="/home/dashboard"><HomeRequests /></PlanGate>} />
+          <Route path="/home/requests/new" element={<PlanGate module="requests" homePath="/home/dashboard"><HomeNewRequest /></PlanGate>} />
+          <Route path="/home/requests/:id" element={<PlanGate module="requests" homePath="/home/dashboard"><HomeRequestDetail /></PlanGate>} />
           <Route path="/home/invoices" element={<PlanGate module="invoices" homePath="/home/dashboard"><HomeInvoices /></PlanGate>} />
           <Route path="/home/expenses" element={<PlanGate module="expenses" homePath="/home/dashboard"><HomeExpenses /></PlanGate>} />
           <Route path="/home/announcements" element={<HomeAnnouncements />} />

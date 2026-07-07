@@ -22,7 +22,7 @@ export default function PlanBillingSection({ community }) {
   const plan = community.plan_id ? getPlan(community.plan_id) : null;
   const cycle = community.billing_cycle ? getCycle(community.billing_cycle) : null;
   const status = community.subscription_status || "pending";
-  // After a trial ends (no plan, not in trial) push the highest tier (Pro).
+  // After a trial ends (no plan, not in trial) push the highest tier (Connected).
   const postTrial = !community.plan_id && !isInTrial(community);
 
   const handleSelect = async (planId, cycleId) => {
@@ -89,7 +89,7 @@ export default function PlanBillingSection({ community }) {
 
       <Button onClick={() => setShowChange(true)} variant={plan ? "outline" : "default"}>
         <ArrowUpRight className="w-4 h-4 mr-2" />
-        {plan ? "Change plan" : postTrial ? "Upgrade to Pro" : "Upgrade plan"}
+        {plan ? "Change plan" : postTrial ? "Upgrade to Connected" : "Upgrade plan"}
       </Button>
 
       <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">

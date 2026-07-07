@@ -9,6 +9,7 @@ const ROUTE_MODULE = {
   elections: "elections",
   "request-types": "request_types",
   documents: "documents",
+  requests: "requests",
 };
 
 // Modules that make up the always-available core (available on every plan).

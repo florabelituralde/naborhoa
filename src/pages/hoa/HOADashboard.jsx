@@ -82,7 +82,7 @@ export default function HOADashboard() {
                 <>
                   <p className="font-semibold text-accent-foreground">Your free trial has ended</p>
                   <p className="text-sm text-muted-foreground">
-                    You've lost the AI resident assistant, automations, invoicing, polls and more. Upgrade to <span className="font-semibold text-foreground">Pro</span> to keep every feature — $99/mo.
+                    You've lost the AI resident assistant, automations, invoicing, polls and more. Upgrade to <span className="font-semibold text-foreground">Connected</span> to keep every feature — $99/mo.
                   </p>
                 </>
               )}
@@ -92,7 +92,7 @@ export default function HOADashboard() {
             to="/hoa/account"
             className="shrink-0 inline-flex items-center justify-center h-10 px-5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
           >
-            {isInTrial(community) ? "Choose a plan" : "Upgrade to Pro"}
+            {isInTrial(community) ? "Choose a plan" : "Upgrade to Connected"}
           </Link>
         </div>
       )}

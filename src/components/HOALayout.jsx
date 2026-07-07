@@ -65,7 +65,7 @@ export default function HOALayout() {
   // collapsible sections so the sidebar stays focused.
   const navItems = [
     { path: "/hoa/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "request_types" },
+    { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "requests" },
     { path: "/hoa/announcements", label: "Announcements", icon: Megaphone },
     { label: "AI Chat", icon: Sparkles, module: "ai_assistant", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
 
@@ -92,7 +92,7 @@ export default function HOALayout() {
   // Key mobile destinations for the native-style bottom tab bar.
   const bottomNavItems = [
     { path: "/hoa/dashboard", label: "Home", icon: LayoutDashboard },
-    { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "request_types" },
+    { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "requests" },
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt },
     { label: "AI Chat", icon: Sparkles, module: "ai_assistant", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
     ...(isAdmin

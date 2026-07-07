@@ -85,7 +85,7 @@ export default function HomeownerLayout() {
   // Key mobile destinations for the native-style bottom tab bar.
   const bottomNavItems = markNavLocks([
     { path: "/home/dashboard", label: "Home", icon: Home },
-    { path: "/home/requests", label: "Requests", icon: ClipboardList, module: "request_types" },
+    { path: "/home/requests", label: "Requests", icon: ClipboardList, module: "requests" },
     { path: "/home/invoices", label: "Bills", icon: Receipt },
     { label: "AI Chat", icon: Sparkles, module: "ai_assistant", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
     { path: "/home/account", label: "Account", icon: UserCircle },
