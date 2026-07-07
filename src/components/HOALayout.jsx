@@ -108,7 +108,7 @@ export default function HOALayout() {
           <Outlet context={{ user, community, refreshCommunity }} />
         </PageTransition>
       </main>
-      <BottomNav items={markNavLocks(bottomNavItems, community)} />
+      <BottomNav items={markNavLocks(bottomNavItems, community)} upgradePath="/hoa/account" />
       <AIChatBubble user={user} community={community} hideButton />
     </div>
   );

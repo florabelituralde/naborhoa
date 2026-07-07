@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 // Each tab preserves its own navigation stack: switching to a tab returns you
 // to the last screen you were on within that tab. Tapping the tab you're
 // already on resets it back to the tab's root path.
-export default function BottomNav({ items }) {
+export default function BottomNav({ items, upgradePath }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -37,8 +37,13 @@ export default function BottomNav({ items }) {
   }, [location.pathname, location.search, items]);
 
   const handleTab = (item) => {
-    // Locked tabs aren't available on the community's plan.
+    // Locked tabs aren't available on the community's plan. HOA admins get
+    // sent straight to the upgrade page; homeowners just get a notice.
     if (item.locked) {
+      if (upgradePath) {
+        navigate(upgradePath);
+        return;
+      }
       toast({
         title: "Not available on your plan",
         description: `${item.label} isn't included in your community's current plan.`,

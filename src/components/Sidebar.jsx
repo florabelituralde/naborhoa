@@ -8,16 +8,35 @@ import CommunitySwitcher from "@/components/CommunitySwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
 import UserAvatar from "@/components/UserAvatar";
 
-function NavLinkItem({ item, active, onNavigate }) {
+function NavLinkItem({ item, active, onNavigate, upgradePath }) {
   if (item.locked) {
-    return (
-      <div
-        title="Not available on your community's plan"
-        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground/60 cursor-not-allowed select-none"
-      >
+    const inner = (
+      <>
         <item.icon className="w-5 h-5" />
         <span className="flex-1">{item.label}</span>
         <Lock className="w-4 h-4" />
+      </>
+    );
+    // HOA admins/staff get a direct link to the upgrade page; homeowners can't
+    // upgrade themselves, so their locked items stay non-clickable with a hint.
+    if (upgradePath) {
+      return (
+        <Link
+          to={upgradePath}
+          onClick={onNavigate}
+          title="Not available on your plan — upgrade to unlock"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground/60 hover:text-muted-foreground hover:bg-sidebar-accent/50 transition-colors"
+        >
+          {inner}
+        </Link>
+      );
+    }
+    return (
+      <div
+        title="Not available on your community's plan — ask your HOA manager to upgrade"
+        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground/60 cursor-not-allowed select-none"
+      >
+        {inner}
       </div>
     );
   }
@@ -44,7 +63,7 @@ function NavLinkItem({ item, active, onNavigate }) {
   );
 }
 
-function NavGroup({ title, items, pathname, onNavigate }) {
+function NavGroup({ title, items, pathname, onNavigate, upgradePath }) {
   const hasActive = items.some((i) => i.path === pathname);
   const [open, setOpen] = useState(hasActive);
 
@@ -64,7 +83,7 @@ function NavGroup({ title, items, pathname, onNavigate }) {
       {open && (
         <div className="space-y-1">
           {items.map((item) => (
-            <NavLinkItem key={item.path} item={item} active={pathname === item.path} onNavigate={onNavigate} />
+            <NavLinkItem key={item.path} item={item} active={pathname === item.path} onNavigate={onNavigate} upgradePath={upgradePath} />
           ))}
         </div>
       )}
@@ -74,6 +93,7 @@ function NavGroup({ title, items, pathname, onNavigate }) {
 
 function SidebarContent({ navItems, user, community, communities, onSwitchCommunity, onNavigate }) {
   const location = useLocation();
+  const upgradePath = user?.role === "homeowner" ? null : "/hoa/account";
 
   const topLevel = navItems.filter((i) => !i.group);
   const groupOrder = [];
@@ -116,10 +136,10 @@ function SidebarContent({ navItems, user, community, communities, onSwitchCommun
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {topLevel.map((item) => (
-          <NavLinkItem key={item.path || item.label} item={item} active={location.pathname === item.path} onNavigate={onNavigate} />
+          <NavLinkItem key={item.path || item.label} item={item} active={location.pathname === item.path} onNavigate={onNavigate} upgradePath={upgradePath} />
         ))}
         {groupOrder.map((title) => (
-          <NavGroup key={title} title={title} items={grouped[title]} pathname={location.pathname} onNavigate={onNavigate} />
+          <NavGroup key={title} title={title} items={grouped[title]} pathname={location.pathname} onNavigate={onNavigate} upgradePath={upgradePath} />
         ))}
       </nav>
 
