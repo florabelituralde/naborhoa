@@ -45,7 +45,7 @@ export default function HOAInvoices() {
         base44.functions.invoke("get-community-homeowners", {}),
       ]);
       setInvoices(invs);
-      setHomeowners(homesRes?.homeowners || []);
+      setHomeowners(homesRes?.data?.homeowners || []);
       const cycle = community.billing_cycle || "monthly";
       setDuesCycle(cycle);
       const mult = CYCLE_MULT[cycle] || 1;
@@ -83,19 +83,46 @@ export default function HOAInvoices() {
 
   const handleCreate = async () => {
     setCreating(true);
-    const inv = await base44.entities.Invoice.create({
-      ...form,
-      amount: parseFloat(form.amount),
-      community_id: community.id,
-    });
-    await base44.entities.Notification.create({
-      community_id: community.id,
-      user_id: form.homeowner_id,
-      type: "invoice_created",
-      title: "New invoice",
-      body: `${form.type} - ${formatCurrency(form.amount)}`,
-      related_id: inv.id,
-    });
+    const amount = parseFloat(form.amount);
+    // "All homeowners" creates one invoice per homeowner (bulk) plus a
+    // notification each; a specific homeowner creates a single invoice.
+    if (form.homeowner_id === "__all__") {
+      const created = await base44.entities.Invoice.bulkCreate(
+        homeowners.map((h) => ({
+          community_id: community.id,
+          homeowner_id: h.id,
+          amount,
+          type: form.type,
+          due_date: form.due_date,
+          description: form.description,
+          status: "pending",
+        }))
+      );
+      await base44.entities.Notification.bulkCreate(
+        created.map((inv) => ({
+          community_id: community.id,
+          user_id: inv.homeowner_id,
+          type: "invoice_created",
+          title: "New invoice",
+          body: `${form.type} - ${formatCurrency(amount)}`,
+          related_id: inv.id,
+        }))
+      );
+    } else {
+      const inv = await base44.entities.Invoice.create({
+        ...form,
+        amount,
+        community_id: community.id,
+      });
+      await base44.entities.Notification.create({
+        community_id: community.id,
+        user_id: form.homeowner_id,
+        type: "invoice_created",
+        title: "New invoice",
+        body: `${form.type} - ${formatCurrency(amount)}`,
+        related_id: inv.id,
+      });
+    }
     setForm({ homeowner_id: "", amount: "", type: "dues", due_date: "", description: "" });
     setShowCreate(false);
     setCreating(false);
@@ -237,6 +264,9 @@ export default function HOAInvoices() {
               <Select value={form.homeowner_id} onValueChange={v => setForm({ ...form, homeowner_id: v })}>
                 <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select homeowner" /></SelectTrigger>
                 <SelectContent>
+                  {homeowners.length > 0 && (
+                    <SelectItem value="__all__">All homeowners ({homeowners.length})</SelectItem>
+                  )}
                   {homeowners.map(h => <SelectItem key={h.id} value={h.id}>{h.full_name}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -267,7 +297,7 @@ export default function HOAInvoices() {
             </div>
             <Button onClick={handleCreate} disabled={!form.homeowner_id || !form.amount || !form.due_date || creating} className="w-full">
               {creating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Create Invoice
+              {form.homeowner_id === "__all__" ? `Create ${homeowners.length} Invoices` : "Create Invoice"}
             </Button>
           </div>
         </DialogContent>
