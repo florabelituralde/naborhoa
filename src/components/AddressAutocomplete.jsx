@@ -48,24 +48,10 @@ export default function AddressAutocomplete({ value, onChange, placeholder = "Se
     runSearch(v);
   };
 
-  const pick = async (s) => {
+  const pick = (s) => {
     setOpen(false);
-    setLoading(true);
-    try {
-      const res = await base44.functions.invoke("google-address-search", { action: "details", place_id: s.place_id });
-      const d = res?.data;
-      if (d?.formatted_address) {
-        setInput(d.formatted_address);
-        onChange({ address: d.formatted_address, zip: d.zip || "" });
-      } else {
-        setInput(s.description);
-        onChange({ address: s.description, zip: "" });
-      }
-    } catch {
-      setInput(s.description);
-      onChange({ address: s.description, zip: "" });
-    }
-    setLoading(false);
+    setInput(s.description);
+    onChange({ address: s.formatted_address || s.description, zip: s.zip || "" });
   };
 
   return (
