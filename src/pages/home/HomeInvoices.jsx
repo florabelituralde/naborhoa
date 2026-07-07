@@ -38,9 +38,11 @@ export default function HomeInvoices() {
 
   const loadData = async () => {
     try {
-      const invs = await base44.entities.Invoice.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date");
+      const [invs, subs] = await Promise.all([
+        base44.entities.Invoice.filter({ community_id: community.id, homeowner_id: user.id }, "-created_date"),
+        base44.entities.Subscription.filter({ community_id: community.id, homeowner_id: user.id, status: "active" }),
+      ]);
       setInvoices(invs);
-      const subs = await base44.entities.Subscription.filter({ community_id: community.id, homeowner_id: user.id, status: "active" });
       setSubscription(subs.length > 0 ? subs[0] : null);
     } finally {
       setLoading(false);
@@ -54,20 +56,25 @@ export default function HomeInvoices() {
 
   const handlePay = async () => {
     setPaying(true);
-    let proofUrl = null;
-    if (proofFile) {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: proofFile });
-      proofUrl = file_url;
+    try {
+      let proofUrl = null;
+      if (proofFile) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: proofFile });
+        proofUrl = file_url;
+      }
+      await base44.entities.Invoice.update(payingInvoice.id, {
+        status: "paid",
+        paid_date: new Date().toISOString().split("T")[0],
+        payment_proof_url: proofUrl,
+      });
+      setPayingInvoice(null);
+      setProofFile(null);
+      loadData();
+    } catch {
+      toast({ title: "Couldn't submit payment", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setPaying(false);
     }
-    await base44.entities.Invoice.update(payingInvoice.id, {
-      status: "paid",
-      paid_date: new Date().toISOString().split("T")[0],
-      payment_proof_url: proofUrl,
-    });
-    setPaying(false);
-    setPayingInvoice(null);
-    setProofFile(null);
-    loadData();
   };
 
   const handlePayNow = async (inv) => {

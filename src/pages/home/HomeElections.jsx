@@ -41,14 +41,17 @@ export default function HomeElections() {
 
   const handleVote = async (el, position, candidateIndex) => {
     setVoting(`${el.id}:${position}:${candidateIndex}`);
-    await base44.entities.ElectionVote.create({
-      election_id: el.id,
-      voter_id: user.id,
-      candidate_index: candidateIndex,
-      position,
-    });
-    setVoting(null);
-    loadData();
+    try {
+      await base44.entities.ElectionVote.create({
+        election_id: el.id,
+        voter_id: user.id,
+        candidate_index: candidateIndex,
+        position,
+      });
+      loadData();
+    } finally {
+      setVoting(null);
+    }
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;

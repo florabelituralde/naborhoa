@@ -24,22 +24,25 @@ export default function HomeBoardHub() {
   const [gallery, setGallery] = useState([]);
 
   const loadData = async () => {
-    const [reqs, anns, evs, resultsRes] = await Promise.all([
-      base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
-      base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 10),
-      base44.entities.Event.filter({ community_id: community.id }, "start_time"),
-      base44.functions.invoke("get-community-results", {}),
-    ]);
-    setRequests(reqs);
-    setAnnouncements(anns);
-    setEvents(evs);
-    setPollResults(resultsRes?.data?.polls || []);
-    setElectionResults(resultsRes?.data?.elections || []);
-    setGallery(community.gallery || []);
-    setLoading(false);
+    try {
+      const [reqs, anns, evs, resultsRes] = await Promise.all([
+        base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
+        base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 10),
+        base44.entities.Event.filter({ community_id: community.id }, "start_time"),
+        base44.functions.invoke("get-community-results", {}),
+      ]);
+      setRequests(reqs || []);
+      setAnnouncements(anns || []);
+      setEvents(evs || []);
+      setPollResults(resultsRes?.data?.polls || []);
+      setElectionResults(resultsRes?.data?.elections || []);
+      setGallery(community.gallery || []);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (community) loadData(); }, [community]);
+  useEffect(() => { if (community) loadData(); else setLoading(false); }, [community]);
 
   if (user.board_member_status !== "approved") return <Navigate to="/home/dashboard" replace />;
 

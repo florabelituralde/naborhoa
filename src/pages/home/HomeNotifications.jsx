@@ -31,9 +31,12 @@ export default function HomeNotifications() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const rows = await base44.entities.Notification.filter({ user_id: user.id }, "-created_date", 100);
-    setItems(rows);
-    setLoading(false);
+    try {
+      const rows = await base44.entities.Notification.filter({ user_id: user.id }, "-created_date", 100);
+      setItems(rows);
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
 
   useEffect(() => {
