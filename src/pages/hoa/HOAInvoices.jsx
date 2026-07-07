@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import HomeownerMultiSelect from "@/components/hoa/HomeownerMultiSelect";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -247,29 +247,20 @@ export default function HOAInvoices() {
             <div>
               <Label>Homeowner</Label>
               <div>
-                <div className="flex items-center justify-between">
-                  <Label>Homeowner(s)</Label>
+                <Label>Homeowner(s)</Label>
+                <div className="mt-1.5">
+                  <HomeownerMultiSelect
+                    homeowners={homeowners}
+                    selected={form.homeowner_ids}
+                    onChange={(ids) => setForm((f) => ({ ...f, homeowner_ids: ids }))}
+                  />
+                </div>
+                <div className="flex items-center justify-between mt-1.5 text-xs">
+                  <span className="text-muted-foreground">{form.homeowner_ids.length} selected</span>
                   {form.homeowner_ids.length > 0 && (
-                    <button type="button" className="text-xs text-muted-foreground hover:text-foreground underline" onClick={() => setForm((f) => ({ ...f, homeowner_ids: [] }))}>Clear</button>
+                    <button type="button" className="text-muted-foreground hover:text-foreground underline" onClick={() => setForm((f) => ({ ...f, homeowner_ids: [] }))}>Clear</button>
                   )}
                 </div>
-                <div className="mt-1.5 max-h-56 overflow-y-auto rounded-md border border-input p-1">
-                  {homeowners.length === 0 ? (
-                    <p className="text-sm text-muted-foreground py-6 text-center">No homeowners found.</p>
-                  ) : homeowners.map((h) => (
-                    <label key={h.id} className="flex items-center gap-2.5 p-2 rounded-md hover:bg-accent cursor-pointer">
-                      <Checkbox
-                        checked={form.homeowner_ids.includes(h.id)}
-                        onCheckedChange={(c) => setForm((f) => ({
-                          ...f,
-                          homeowner_ids: c ? [...f.homeowner_ids, h.id] : f.homeowner_ids.filter((id) => id !== h.id),
-                        }))}
-                      />
-                      <span className="text-sm">{h.full_name}</span>
-                    </label>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1.5">{form.homeowner_ids.length} selected</p>
               </div>
             </div>
             <div>
