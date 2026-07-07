@@ -57,21 +57,23 @@ export default function Onboarding() {
     setSubmitting(false);
   };
 
-  // Blocks continuing past the details step if a community already exists in the same city/state.
+  // Blocks continuing past the details step if a community with the same name
+  // already exists in the same zip code. Multiple communities may share a zip
+  // code as long as their names differ.
   const handleCommunityContinue = async () => {
     setDupError("");
     setSubmitting(true);
     try {
-      const city = community.city.trim().toLowerCase();
-      const state = community.state.trim().toLowerCase();
-      if (city) {
+      const name = (community.name || org.name || "").trim().toLowerCase();
+      const zip = community.zip.trim().toLowerCase();
+      if (name && zip) {
         const existing = await base44.entities.Community.list();
         const clash = existing.find(c =>
-          (c.city || "").trim().toLowerCase() === city &&
-          (c.state || "").trim().toLowerCase() === state
+          (c.name || "").trim().toLowerCase() === name &&
+          (c.zip || "").trim().toLowerCase() === zip
         );
         if (clash) {
-          setDupError(`A community already exists in ${community.city}${community.state ? ", " + community.state : ""} ("${clash.name}"). Only one community per location is allowed.`);
+          setDupError(`A community named "${clash.name}" already exists in zip code ${community.zip}. Please choose a different name.`);
           setSubmitting(false);
           return;
         }
@@ -79,7 +81,7 @@ export default function Onboarding() {
       setStep(3);
     } catch (err) {
       console.error(err);
-      setDupError("Could not verify location. Please try again.");
+      setDupError("Could not verify community name. Please try again.");
     }
     setSubmitting(false);
   };

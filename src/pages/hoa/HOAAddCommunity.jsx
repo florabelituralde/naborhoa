@@ -27,17 +27,18 @@ export default function HOAAddCommunity() {
         return;
       }
 
-      // Prevent two communities in the exact same city/state.
-      const city = form.city.trim().toLowerCase();
-      const state = form.state.trim().toLowerCase();
-      if (city) {
+      // Prevent two communities with the same name in the same zip code.
+      // Multiple communities may share a zip code as long as their names differ.
+      const name = form.name.trim().toLowerCase();
+      const zip = form.zip.trim().toLowerCase();
+      if (name && zip) {
         const existing = await base44.entities.Community.list();
         const clash = existing.find(c =>
-          (c.city || "").trim().toLowerCase() === city &&
-          (c.state || "").trim().toLowerCase() === state
+          (c.name || "").trim().toLowerCase() === name &&
+          (c.zip || "").trim().toLowerCase() === zip
         );
         if (clash) {
-          setDupError(`A community already exists in ${form.city}${form.state ? ", " + form.state : ""} ("${clash.name}").`);
+          setDupError(`A community named "${clash.name}" already exists in zip code ${form.zip}. Please choose a different name.`);
           setSubmitting(false);
           return;
         }
