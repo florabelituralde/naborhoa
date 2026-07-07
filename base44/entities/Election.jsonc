@@ -30,6 +30,9 @@
           },
           "position": {
             "type": "string"
+          },
+          "homeowner_id": {
+            "type": "string"
           }
         }
       }
@@ -52,6 +55,14 @@
     },
     "created_by_id": {
       "type": "string"
+    },
+    "promoted": {
+      "type": "boolean",
+      "default": false
+    },
+    "promoted_date": {
+      "type": "string",
+      "format": "date"
     }
   },
   "required": [

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Trash2, Trophy, Search } from "lucide-react";
+import { Loader2, Plus, Trash2, Trophy, Search, UserCheck, Check } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import { notifyCommunity } from "@/lib/notify";
 import { orderedPositionKeys, positionLabel } from "@/lib/electionPositions";
@@ -23,8 +23,9 @@ export default function HOAElections() {
   const [showCreate, setShowCreate] = useState(false);
   const [homeowners, setHomeowners] = useState([]);
   const [search, setSearch] = useState({});
-  const [form, setForm] = useState({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: "President", name: "", bio: "", statement: "" }] });
+  const [form, setForm] = useState({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: "President", homeowner_id: "", name: "", bio: "", statement: "" }] });
   const [creating, setCreating] = useState(false);
+  const [promoting, setPromoting] = useState(null);
 
   const loadData = async () => {
     try {
@@ -44,7 +45,7 @@ export default function HOAElections() {
   };
   useEffect(() => { if (showCreate && community) loadHomeowners(); }, [showCreate]);
 
-  const addCandidate = () => setForm({ ...form, candidates: [...form.candidates, { position: positions[0]?.name || "President", name: "", bio: "", statement: "" }] });
+  const addCandidate = () => setForm({ ...form, candidates: [...form.candidates, { position: positions[0]?.name || "President", homeowner_id: "", name: "", bio: "", statement: "" }] });
   const removeCandidate = (i) => setForm({ ...form, candidates: form.candidates.filter((_, idx) => idx !== i) });
   const updateCandidate = (i, field, val) => setForm({
     ...form,
@@ -53,12 +54,13 @@ export default function HOAElections() {
   const pickHomeowner = (i, h) => {
     updateCandidate(i, "name", h.full_name || "");
     updateCandidate(i, "bio", h.email || "");
+    updateCandidate(i, "homeowner_id", h.id || "");
     setSearch(s => ({ ...s, [i]: "" }));
   };
 
   const openCreate = () => {
     const first = positions[0]?.name || "President";
-    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: first, name: "", bio: "", statement: "" }] });
+    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: first, homeowner_id: "", name: "", bio: "", statement: "" }] });
     setShowCreate(true);
   };
 
@@ -79,7 +81,7 @@ export default function HOAElections() {
       body: `Voting is open until ${form.end_date}`,
       related_id: election.id,
     });
-    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: positions[0]?.name || "President", name: "", bio: "", statement: "" }] });
+    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: positions[0]?.name || "President", homeowner_id: "", name: "", bio: "", statement: "" }] });
     setShowCreate(false);
     setCreating(false);
     loadData();
@@ -88,6 +90,20 @@ export default function HOAElections() {
   const handleClose = async (el) => {
     await base44.entities.Election.update(el.id, { status: "closed" });
     loadData();
+  };
+
+  const handlePromote = async (el) => {
+    if (!window.confirm("Approve the election winners and promote them to the board? Current board members will be removed automatically after one week.")) return;
+    setPromoting(el.id);
+    try {
+      const res = await base44.functions.invoke("promote-election-winners", { election_id: el.id });
+      if (res?.data?.error) throw new Error(res.data.error);
+      await loadData();
+    } catch (err) {
+      window.alert(err.message || "Failed to promote winners");
+    } finally {
+      setPromoting(null);
+    }
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -128,9 +144,22 @@ export default function HOAElections() {
                       {el.start_date ? formatDate(el.start_date) : "Now"} — {formatDate(el.end_date)}
                     </p>
                   </div>
-                  {el.status === "active" && (
-                    <Button variant="outline" size="sm" onClick={() => handleClose(el)}>Close</Button>
-                  )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {el.status === "active" && (
+                      <Button variant="outline" size="sm" onClick={() => handleClose(el)}>Close</Button>
+                    )}
+                    {el.status === "closed" && !el.promoted && (
+                      <Button size="sm" onClick={() => handlePromote(el)} disabled={promoting === el.id}>
+                        {promoting === el.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <UserCheck className="w-4 h-4 mr-1" />}
+                        Approve Winners
+                      </Button>
+                    )}
+                    {el.promoted && (
+                      <span className="text-xs font-medium text-primary flex items-center gap-1 whitespace-nowrap">
+                        <Check className="w-3.5 h-3.5" /> Promoted{el.promoted_date ? ` ${formatDate(el.promoted_date)}` : ""}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-4">
                   {orderedPositionKeys(byPosition, positions).map(key => {

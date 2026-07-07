@@ -44,6 +44,8 @@ Deno.serve(async (req) => {
         status: el.status,
         start_date: el.start_date,
         end_date: el.end_date,
+        promoted: el.promoted,
+        promoted_date: el.promoted_date,
         candidates: el.candidates,
         counts,
         total: votes.length,

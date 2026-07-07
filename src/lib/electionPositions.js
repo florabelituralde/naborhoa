@@ -5,7 +5,6 @@ export const DEFAULT_POSITIONS = [
   "Vice President",
   "Treasurer",
   "Secretary",
-  "Member at Large",
 ];
 
 // Legacy enum keys kept so historical records (stored as enum values) still
