@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, CreditCard, Check, ArrowUpRight, Sparkles } from "lucide-react";
 import { getPlan, getCycle, priceForCycle, effectiveMonthly } from "@/lib/subscriptionPlans";
+import { isInTrial } from "@/lib/planAccess";
 import PlanSelector from "@/components/onboarding/PlanSelector";
 
 const STATUS_STYLES = {
@@ -21,6 +22,8 @@ export default function PlanBillingSection({ community }) {
   const plan = community.plan_id ? getPlan(community.plan_id) : null;
   const cycle = community.billing_cycle ? getCycle(community.billing_cycle) : null;
   const status = community.subscription_status || "pending";
+  // After a trial ends (no plan, not in trial) push the highest tier (Pro).
+  const postTrial = !community.plan_id && !isInTrial(community);
 
   const handleSelect = async (planId, cycleId) => {
     setSubmitting(true);
@@ -86,7 +89,7 @@ export default function PlanBillingSection({ community }) {
 
       <Button onClick={() => setShowChange(true)} variant={plan ? "outline" : "default"}>
         <ArrowUpRight className="w-4 h-4 mr-2" />
-        {plan ? "Change plan" : "Upgrade plan"}
+        {plan ? "Change plan" : postTrial ? "Upgrade to Pro" : "Upgrade plan"}
       </Button>
 
       <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
@@ -98,7 +101,7 @@ export default function PlanBillingSection({ community }) {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Choose your plan</DialogTitle></DialogHeader>
           {error && <p className="text-sm text-destructive mb-2">{error}</p>}
-          <PlanSelector onSelect={handleSelect} submitting={submitting} includeFree={false} />
+          <PlanSelector onSelect={handleSelect} submitting={submitting} includeFree={false} defaultPlanId={postTrial ? "pro" : "growth"} />
         </DialogContent>
       </Dialog>
     </div>

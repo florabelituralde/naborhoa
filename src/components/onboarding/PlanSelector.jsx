@@ -8,9 +8,9 @@ import {
   effectiveMonthly,
 } from "@/lib/subscriptionPlans";
 
-export default function PlanSelector({ onSelect, onTrial, onFree, submitting, includeFree = true }) {
+export default function PlanSelector({ onSelect, onTrial, onFree, submitting, includeFree = true, defaultPlanId = "growth" }) {
   const [cycleId, setCycleId] = useState("monthly");
-  const [planId, setPlanId] = useState("growth");
+  const [planId, setPlanId] = useState(defaultPlanId);
 
   const cycle = BILLING_CYCLES.find((c) => c.id === cycleId);
   const plans = includeFree ? PLANS : PLANS.filter((p) => p.id !== "free");
