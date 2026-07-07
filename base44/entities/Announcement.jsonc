@@ -17,6 +17,21 @@
     },
     "author_id": {
       "type": "string"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
     }
   },
   "required": [
@@ -37,6 +52,18 @@
           "user_condition": {
             "role": "hoa_staff"
           }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "board_member_status": "approved"
+              }
+            },
+            {
+              "data.community_id": "{{user.data.community_id}}"
+            }
+          ]
         }
       ]
     },
@@ -68,6 +95,18 @@
           "user_condition": {
             "role": "hoa_staff"
           }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "board_member_status": "approved"
+              }
+            },
+            {
+              "data.community_id": "{{user.data.community_id}}"
+            }
+          ]
         }
       ]
     },
@@ -82,6 +121,18 @@
           "user_condition": {
             "role": "hoa_staff"
           }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "board_member_status": "approved"
+              }
+            },
+            {
+              "data.community_id": "{{user.data.community_id}}"
+            }
+          ]
         }
       ]
     }
