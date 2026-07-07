@@ -84,9 +84,12 @@ function SidebarContent({ navItems, user, community, communities, onSwitchCommun
     grouped[i.group].push(i);
   });
 
-  const handleLogout = async () => {
-    await base44.auth.logout();
-    window.location.href = "/login";
+  const handleLogout = () => {
+    // Let the SDK hit its server-side logout endpoint so the HTTP-only session
+    // cookie is actually cleared, then return to /login. Don't set
+    // window.location.href afterwards — that overrides the SDK's redirect and
+    // skips cookie clearing (the reason logout previously needed two clicks).
+    base44.auth.logout(`${window.location.origin}/login`);
   };
 
   return (

@@ -142,7 +142,14 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed inset-0 z-[60] w-full h-full bg-card flex flex-col overflow-hidden">
+        <>
+        {/* Desktop backdrop — click anywhere to close */}
+        <div
+          className="hidden md:block fixed inset-0 z-[60] bg-black/40"
+          onClick={() => setOpen(false)}
+        />
+        {/* Panel: floating card on desktop, fullscreen on mobile */}
+        <div className="fixed inset-0 z-[61] w-full h-full bg-card flex flex-col overflow-hidden md:inset-auto md:right-5 md:bottom-5 md:w-[400px] md:max-w-[calc(100vw-2.5rem)] md:h-[600px] md:max-h-[calc(100vh-2.5rem)] md:rounded-2xl md:warm-shadow-lg md:border md:border-border">
           {/* Header */}
           <div className="relative z-10 flex items-center justify-between gap-2 px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0 safe-top safe-x">
             <div className="flex items-center gap-2 min-w-0">
@@ -156,7 +163,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
             </div>
             <button
               type="button"
-              onPointerDown={(e) => { e.preventDefault(); setOpen(false); }}
+              onClick={() => setOpen(false)}
               className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-white/15 hover:bg-white/25 active:bg-white/30 touch-manipulation"
               aria-label="Close"
             >
@@ -262,6 +269,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
           </div>
           </>
         </div>
+        </>
       )}
     </>
   );
