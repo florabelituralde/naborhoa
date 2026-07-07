@@ -180,11 +180,11 @@
           "$and": [
             {
               "user_condition": {
-                "data.board_member_status": "approved"
+                "role": "hoa_board"
               }
             },
             {
-              "data.id": "{{user.data.community_id}}"
+              "id": "{{user.data.community_id}}"
             }
           ]
         }
