@@ -35,7 +35,8 @@ Deno.serve(async (req) => {
 
     const secretKey = Deno.env.get("Stripe_api_key");
     if (!secretKey) {
-      // Stripe not configured yet — frontend should fall back to Base44 Payments (create-checkout).
+      // Stripe not configured yet — frontend should tell the resident their HOA
+      // hasn't enabled online payments yet (HOA payments never fall back to the platform).
       return Response.json({ error: "Stripe not configured", fallback: true }, { status: 503 });
     }
 

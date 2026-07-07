@@ -45,15 +45,17 @@ export default function CommunityLanding() {
     setPayError("");
     try {
       const community = data?.community;
-      const res = await base44.functions.invoke("create-checkout", {
+      const res = await base44.functions.invoke("stripe-checkout", {
         community_id: community.id,
         join_code: joinCode,
         amount: community.monthly_dues || 45,
         description: `HOA Dues - ${community.name}`,
-        property_address: address,
       });
       if (res.data?.redirectUrl) {
         window.location.href = res.data.redirectUrl;
+      } else if (res.data?.fallback) {
+        setPayError("This community hasn't enabled online payments yet. Please contact your HOA.");
+        setPaying(false);
       } else {
         setPayError(res.data?.error || "Failed to start payment");
         setPaying(false);
@@ -154,7 +156,7 @@ export default function CommunityLanding() {
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
             <Shield className="w-4 h-4 text-primary" />
-            <span>Secure payment via Base44 Payments. <Link to="/join" className="text-primary font-medium hover:underline">Sign up</Link> to set up auto-pay and track payment history.</span>
+            <span>Secure payment via Stripe. <Link to="/join" className="text-primary font-medium hover:underline">Sign up</Link> to set up auto-pay and track payment history.</span>
           </div>
         </div>
 
