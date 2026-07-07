@@ -56,6 +56,36 @@
     "assigned_to_id": {
       "type": "string"
     },
+    "assigned_to_name": {
+      "type": "string"
+    },
+    "assignee_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "staff",
+        "vendor",
+        "other"
+      ],
+      "default": "none"
+    },
+    "assignee_info": {
+      "type": "object",
+      "properties": {
+        "company": {
+          "type": "string"
+        },
+        "contact": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "details": {
+          "type": "string"
+        }
+      }
+    },
     "image_url": {
       "type": "string"
     },

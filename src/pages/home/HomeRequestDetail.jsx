@@ -66,6 +66,29 @@ export default function HomeRequestDetail() {
             </div>
           )}
 
+          {request.assignee_type && request.assignee_type !== "none" && (
+            <div className="mt-6 border-t border-border pt-4">
+              <p className="text-sm text-muted-foreground mb-2">Assigned to</p>
+              {request.assignee_type === "staff" && (
+                <p className="text-sm font-medium">{request.assigned_to_name || "Board member"}</p>
+              )}
+              {request.assignee_type === "vendor" && (
+                <div className="text-sm space-y-1">
+                  <p className="font-medium">{request.assignee_info?.company}</p>
+                  {request.assignee_info?.category && <p className="text-muted-foreground">Type of work: {request.assignee_info.category}</p>}
+                  {request.assignee_info?.contact && <p className="text-muted-foreground">Contact: {request.assignee_info.contact}</p>}
+                  {request.assignee_info?.details && <p className="text-muted-foreground whitespace-pre-wrap">{request.assignee_info.details}</p>}
+                </div>
+              )}
+              {request.assignee_type === "other" && (
+                <div className="text-sm space-y-1">
+                  <p className="font-medium">{request.assigned_to_name}</p>
+                  {request.assignee_info?.details && <p className="text-muted-foreground whitespace-pre-wrap">{request.assignee_info.details}</p>}
+                </div>
+              )}
+            </div>
+          )}
+
           <RequestAttachments attachments={request.attachments} image_url={request.image_url} />
 
           {request.resolution_notes && (

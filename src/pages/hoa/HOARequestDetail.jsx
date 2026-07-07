@@ -5,11 +5,11 @@ import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MobileTopHeader from "@/components/mobile/MobileTopHeader";
 import { Loader2, ArrowLeft, Check, X, Play } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import RequestAttachments from "@/components/RequestAttachments";
+import RequestAssignPanel from "@/components/hoa/RequestAssignPanel";
 
 export default function HOARequestDetail() {
   const { id } = useParams();
@@ -18,19 +18,19 @@ export default function HOARequestDetail() {
   const [loading, setLoading] = useState(true);
   const [request, setRequest] = useState(null);
   const [homeowner, setHomeowner] = useState(null);
-  const [staff, setStaff] = useState([]);
+  const [boardMembers, setBoardMembers] = useState([]);
   const [resolutionNotes, setResolutionNotes] = useState("");
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     const reqPromise = base44.entities.Request.get(id);
-    const staffPromise = community?.id
-      ? base44.entities.User.filter({ community_id: community.id, role: "hoa_staff" }).catch(() => [])
+    const membersPromise = community?.id
+      ? base44.entities.BoardMember.filter({ community_id: community.id }).catch(() => [])
       : Promise.resolve([]);
-    Promise.all([reqPromise, staffPromise])
-      .then(([req, staffList]) => {
+    Promise.all([reqPromise, membersPromise])
+      .then(([req, members]) => {
         setRequest(req);
-        setStaff(staffList);
+        setBoardMembers(members);
         setResolutionNotes(req.resolution_notes || "");
         if (req.homeowner_id) {
           base44.entities.User.get(req.homeowner_id).then(h => setHomeowner(h)).catch(() => {});
@@ -52,12 +52,15 @@ export default function HOARequestDetail() {
       };
       entries.push({ type: "status_change", status: updates.status, label: labels[updates.status] || `Status changed to ${updates.status}`, timestamp: now });
     }
-    if (updates.assigned_to_id !== undefined) {
-      if (updates.assigned_to_id) {
-        const member = staff.find((s) => s.id === updates.assigned_to_id);
-        entries.push({ type: "assigned", label: `Assigned to ${member?.full_name || "a staff member"}`, timestamp: now });
-      } else {
+    if (updates.assignee_type !== undefined) {
+      if (updates.assignee_type === "none") {
         entries.push({ type: "unassigned", label: "Assignment removed", timestamp: now });
+      } else if (updates.assignee_type === "staff") {
+        entries.push({ type: "assigned", label: `Assigned to ${updates.assigned_to_name || "board member"}`, timestamp: now });
+      } else if (updates.assignee_type === "vendor") {
+        entries.push({ type: "assigned", label: `Assigned to vendor: ${updates.assigned_to_name}`, timestamp: now });
+      } else if (updates.assignee_type === "other") {
+        entries.push({ type: "assigned", label: `Assigned to ${updates.assigned_to_name}`, timestamp: now });
       }
     }
     if (updates.resolution_notes !== undefined && !updates.status) {
@@ -82,6 +85,16 @@ export default function HOARequestDetail() {
         type: "request_update",
         title: `Request "${request.title}" updated`,
         body: `Status changed to ${updates.status.replace("_", " ")}`,
+        related_id: id,
+      });
+    }
+    if (updates.assignee_type && updates.assignee_type !== "none") {
+      await base44.entities.Notification.create({
+        community_id: community.id,
+        user_id: request.homeowner_id,
+        type: "request_update",
+        title: `Request "${request.title}" assigned`,
+        body: `Assigned to ${updates.assigned_to_name}`,
         related_id: id,
       });
     }
@@ -134,20 +147,7 @@ export default function HOARequestDetail() {
       <div className="bg-card rounded-2xl warm-shadow p-5 sm:p-8">
         <h2 className="font-semibold text-lg mb-4">Manage Request</h2>
 
-        <div className="mb-6">
-          <Label>Assign to Staff</Label>
-          <Select
-            value={request.assigned_to_id || "_none"}
-            onValueChange={(val) => updateRequest({ assigned_to_id: val === "_none" ? "" : val })}
-          >
-            <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select staff member" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_none">Unassigned</SelectItem>
-              {staff.map(s => <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          {staff.length === 0 && <p className="text-xs text-muted-foreground mt-2">No staff members yet.</p>}
-        </div>
+        <RequestAssignPanel request={request} boardMembers={boardMembers} onSave={updateRequest} updating={updating} />
 
         <div className="flex flex-wrap gap-3 mb-6">
           {request.status === "submitted" && (
