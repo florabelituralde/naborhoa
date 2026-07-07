@@ -167,7 +167,12 @@ export default function Register() {
     const redirect = async () => {
       setRedirecting(true);
       try {
-        await profileSaveRef.current;
+        // Cap the background role-save wait so a stalled call can never trap the
+        // user on "Finishing up…". The save is fast and best-effort.
+        await Promise.race([
+          profileSaveRef.current,
+          new Promise((resolve) => setTimeout(resolve, 8000)),
+        ]);
       } catch {}
       window.location.href = isManager ? "/onboarding" : "/join";
     };

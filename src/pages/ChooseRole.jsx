@@ -23,7 +23,10 @@ export default function ChooseRole() {
     setError("");
     setSubmitting(true);
     try {
-      await base44.functions.invoke("set-user-role", { role });
+      await Promise.race([
+        base44.functions.invoke("set-user-role", { role }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 12000)),
+      ]);
       window.location.href = role === "hoa_admin" ? "/onboarding" : "/join";
     } catch (err) {
       setError(friendlyAuthError(err, "We couldn't save your choice. Please try again."));
