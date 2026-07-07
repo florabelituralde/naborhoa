@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -29,7 +30,7 @@ export default function HOAInvoices() {
   const [homeowners, setHomeowners] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
   const [showBulk, setShowBulk] = useState(false);
-  const [form, setForm] = useState({ homeowner_id: "", amount: "", type: "dues", due_date: "", description: "" });
+  const [form, setForm] = useState({ homeowner_ids: [], amount: "", type: "dues", due_date: "", description: "" });
   const [creating, setCreating] = useState(false);
   const [dues, setDues] = useState("");
   const [duesCycle, setDuesCycle] = useState("monthly");
@@ -84,46 +85,30 @@ export default function HOAInvoices() {
   const handleCreate = async () => {
     setCreating(true);
     const amount = parseFloat(form.amount);
-    // "All homeowners" creates one invoice per homeowner (bulk) plus a
-    // notification each; a specific homeowner creates a single invoice.
-    if (form.homeowner_id === "__all__") {
-      const created = await base44.entities.Invoice.bulkCreate(
-        homeowners.map((h) => ({
-          community_id: community.id,
-          homeowner_id: h.id,
-          amount,
-          type: form.type,
-          due_date: form.due_date,
-          description: form.description,
-          status: "pending",
-        }))
-      );
-      await base44.entities.Notification.bulkCreate(
-        created.map((inv) => ({
-          community_id: community.id,
-          user_id: inv.homeowner_id,
-          type: "invoice_created",
-          title: "New invoice",
-          body: `${form.type} - ${formatCurrency(amount)}`,
-          related_id: inv.id,
-        }))
-      );
-    } else {
-      const inv = await base44.entities.Invoice.create({
-        ...form,
+    // One invoice (and a notification) per selected homeowner.
+    const selected = homeowners.filter((h) => form.homeowner_ids.includes(h.id));
+    const created = await base44.entities.Invoice.bulkCreate(
+      selected.map((h) => ({
+        community_id: community.id,
+        homeowner_id: h.id,
         amount,
+        type: form.type,
+        due_date: form.due_date,
+        description: form.description,
+        status: "pending",
+      }))
+    );
+    await base44.entities.Notification.bulkCreate(
+      created.map((inv) => ({
         community_id: community.id,
-      });
-      await base44.entities.Notification.create({
-        community_id: community.id,
-        user_id: form.homeowner_id,
+        user_id: inv.homeowner_id,
         type: "invoice_created",
         title: "New invoice",
         body: `${form.type} - ${formatCurrency(amount)}`,
         related_id: inv.id,
-      });
-    }
-    setForm({ homeowner_id: "", amount: "", type: "dues", due_date: "", description: "" });
+      }))
+    );
+    setForm({ homeowner_ids: [], amount: "", type: "dues", due_date: "", description: "" });
     setShowCreate(false);
     setCreating(false);
     loadData();
@@ -261,15 +246,31 @@ export default function HOAInvoices() {
           <div className="space-y-4">
             <div>
               <Label>Homeowner</Label>
-              <Select value={form.homeowner_id} onValueChange={v => setForm({ ...form, homeowner_id: v })}>
-                <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select homeowner" /></SelectTrigger>
-                <SelectContent>
-                  {homeowners.length > 0 && (
-                    <SelectItem value="__all__">All homeowners ({homeowners.length})</SelectItem>
+              <div>
+                <div className="flex items-center justify-between">
+                  <Label>Homeowner(s)</Label>
+                  {form.homeowner_ids.length > 0 && (
+                    <button type="button" className="text-xs text-muted-foreground hover:text-foreground underline" onClick={() => setForm((f) => ({ ...f, homeowner_ids: [] }))}>Clear</button>
                   )}
-                  {homeowners.map(h => <SelectItem key={h.id} value={h.id}>{h.full_name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+                </div>
+                <div className="mt-1.5 max-h-56 overflow-y-auto rounded-md border border-input p-1">
+                  {homeowners.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-6 text-center">No homeowners found.</p>
+                  ) : homeowners.map((h) => (
+                    <label key={h.id} className="flex items-center gap-2.5 p-2 rounded-md hover:bg-accent cursor-pointer">
+                      <Checkbox
+                        checked={form.homeowner_ids.includes(h.id)}
+                        onCheckedChange={(c) => setForm((f) => ({
+                          ...f,
+                          homeowner_ids: c ? [...f.homeowner_ids, h.id] : f.homeowner_ids.filter((id) => id !== h.id),
+                        }))}
+                      />
+                      <span className="text-sm">{h.full_name}</span>
+                    </label>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1.5">{form.homeowner_ids.length} selected</p>
+              </div>
             </div>
             <div>
               <Label>Type</Label>
@@ -295,9 +296,9 @@ export default function HOAInvoices() {
               <Label>Description</Label>
               <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="mt-1.5" rows={2} />
             </div>
-            <Button onClick={handleCreate} disabled={!form.homeowner_id || !form.amount || !form.due_date || creating} className="w-full">
+            <Button onClick={handleCreate} disabled={form.homeowner_ids.length === 0 || !form.amount || !form.due_date || creating} className="w-full">
               {creating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {form.homeowner_id === "__all__" ? `Create ${homeowners.length} Invoices` : "Create Invoice"}
+              {form.homeowner_ids.length > 1 ? `Create ${form.homeowner_ids.length} Invoices` : "Create Invoice"}
             </Button>
           </div>
         </DialogContent>
