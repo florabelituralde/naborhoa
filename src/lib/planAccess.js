@@ -8,10 +8,11 @@ const ROUTE_MODULE = {
   polls: "polls",
   elections: "elections",
   "request-types": "request_types",
+  documents: "documents",
 };
 
 // Modules that make up the always-available core (available on every plan).
-const CORE_MODULES = ["requests", "announcements", "documents", "board", "events"];
+const CORE_MODULES = ["announcements", "board", "events"];
 
 // Length of the free trial (in days) for communities with no plan.
 const TRIAL_DAYS = 14;

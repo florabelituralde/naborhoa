@@ -127,7 +127,7 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/polls" element={<PlanGate module="polls" homePath="/hoa/dashboard"><HOAPolls /></PlanGate>} />
           <Route path="/hoa/events" element={<HOAEvents />} />
           <Route path="/hoa/elections" element={<PlanGate module="elections" homePath="/hoa/dashboard"><HOAElections /></PlanGate>} />
-          <Route path="/hoa/documents" element={<HOADocuments />} />
+          <Route path="/hoa/documents" element={<PlanGate module="documents" homePath="/hoa/dashboard"><HOADocuments /></PlanGate>} />
           <Route path="/hoa/community" element={<HOACommunity />} />
           <Route path="/hoa/board-hub" element={<HOABoardHub />} />
           <Route path="/hoa/board" element={<HOABoard />} />
@@ -139,16 +139,16 @@ const AuthenticatedApp = () => {
           <Route path="/home/dashboard" element={<HomeDashboard />} />
           <Route path="/home/account" element={<HomeAccount />} />
           <Route path="/home/notifications" element={<HomeNotifications />} />
-          <Route path="/home/requests" element={<HomeRequests />} />
-          <Route path="/home/requests/new" element={<HomeNewRequest />} />
-          <Route path="/home/requests/:id" element={<HomeRequestDetail />} />
+          <Route path="/home/requests" element={<PlanGate module="request_types" homePath="/home/dashboard"><HomeRequests /></PlanGate>} />
+          <Route path="/home/requests/new" element={<PlanGate module="request_types" homePath="/home/dashboard"><HomeNewRequest /></PlanGate>} />
+          <Route path="/home/requests/:id" element={<PlanGate module="request_types" homePath="/home/dashboard"><HomeRequestDetail /></PlanGate>} />
           <Route path="/home/invoices" element={<PlanGate module="invoices" homePath="/home/dashboard"><HomeInvoices /></PlanGate>} />
           <Route path="/home/expenses" element={<PlanGate module="expenses" homePath="/home/dashboard"><HomeExpenses /></PlanGate>} />
           <Route path="/home/announcements" element={<HomeAnnouncements />} />
           <Route path="/home/polls" element={<PlanGate module="polls" homePath="/home/dashboard"><HomePolls /></PlanGate>} />
           <Route path="/home/events" element={<HomeEvents />} />
           <Route path="/home/elections" element={<PlanGate module="elections" homePath="/home/dashboard"><HomeElections /></PlanGate>} />
-          <Route path="/home/documents" element={<HomeDocuments />} />
+          <Route path="/home/documents" element={<PlanGate module="documents" homePath="/home/dashboard"><HomeDocuments /></PlanGate>} />
           <Route path="/home/board-hub" element={<HomeBoardHub />} />
           <Route path="/home/board" element={<HomeBoard />} />
           <Route path="/home/help" element={<HomeHelp />} />
