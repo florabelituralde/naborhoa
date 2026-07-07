@@ -45,11 +45,17 @@ export function trialDaysLeft(community) {
 // - No plan, still in trial: everything (null => no gating).
 // - No plan, trial expired: the Free plan's modules (free tier).
 export function getAllowedModules(community) {
-  if (community?.plan_id) {
+  // Free trial (no plan yet) => full access to every feature.
+  if (isInTrial(community)) return null;
+  // Paid subscription: only an active or canceled (paid-for-current-period)
+  // subscription unlocks the plan's modules. "pending" means checkout was
+  // started but payment hasn't completed, so premium features stay locked
+  // until the webhook confirms payment. "ended" drops back to the Free tier.
+  const status = community?.subscription_status;
+  if (community?.plan_id && (status === "active" || status === "canceled")) {
     const plan = getPlan(community.plan_id);
     return plan ? plan.modules : null;
   }
-  if (isInTrial(community)) return null; // full access during trial
   const free = getPlan("free");
   return free ? free.modules : null;
 }

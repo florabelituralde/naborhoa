@@ -103,10 +103,14 @@ Deno.serve(async (req) => {
 
     const checkoutId = data.checkoutSession.id;
 
+    // Stage the selected plan/billing cycle without granting it yet — plan_id
+    // is only promoted once payment is confirmed by the webhook. This keeps
+    // premium features locked until the subscription is actually paid for. An
+    // already-active subscription keeps its current plan_id/access during a plan
+    // change, so residents aren't disrupted mid-checkout.
     await base44.asServiceRole.entities.Community.update(community_id, {
-      plan_id,
-      billing_cycle,
-      subscription_status: "pending",
+      pending_plan_id: plan_id,
+      pending_billing_cycle: billing_cycle,
       platform_checkout_id: checkoutId,
     });
 

@@ -22,12 +22,19 @@ Deno.serve(async (req) => {
     const AI_PLANS = ["pro", "pro_multi"];
     const TRIAL_DAYS = 14;
     function aiAvailable(c) {
-      if (c.plan_id) return AI_PLANS.includes(c.plan_id);
-      if (c.subscription_status === "ended") return false;
-      const created = c.created_date ? new Date(c.created_date) : null;
-      if (!created || isNaN(created.getTime())) return false;
-      const trialEnd = new Date(created.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
-      return Date.now() < trialEnd.getTime();
+      // Free trial (no plan yet) => full access, same as the in-app gate.
+      if (!c.plan_id) {
+        if (c.subscription_status === "ended") return false;
+        const created = c.created_date ? new Date(c.created_date) : null;
+        if (!created || isNaN(created.getTime())) return false;
+        const trialEnd = new Date(created.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+        return Date.now() < trialEnd.getTime();
+      }
+      // Paid plan: only active or canceled (paid-for-current-period) unlocks it.
+      // "pending" means checkout started but not paid => locked, consistent with
+      // the in-app hasModule gate so public + in-app access always match.
+      if (c.subscription_status !== "active" && c.subscription_status !== "canceled") return false;
+      return AI_PLANS.includes(c.plan_id);
     }
     if (!aiAvailable(community)) {
       return Response.json({ unavailable: true });

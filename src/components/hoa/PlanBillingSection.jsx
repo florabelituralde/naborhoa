@@ -21,9 +21,10 @@ export default function PlanBillingSection({ community }) {
 
   const plan = community.plan_id ? getPlan(community.plan_id) : null;
   const cycle = community.billing_cycle ? getCycle(community.billing_cycle) : null;
+  const pendingPlan = community.pending_plan_id ? getPlan(community.pending_plan_id) : null;
   const status = community.subscription_status || "pending";
   // After a trial ends (no plan, not in trial) push the highest tier (Connected).
-  const postTrial = !community.plan_id && !isInTrial(community);
+  const postTrial = !community.plan_id && !community.pending_plan_id && !isInTrial(community);
 
   const handleSelect = async (planId, cycleId) => {
     setSubmitting(true);
@@ -81,6 +82,14 @@ export default function PlanBillingSection({ community }) {
             )}
           </div>
         </div>
+      ) : pendingPlan ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/25 p-4 mb-4">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-lg">{pendingPlan.name}</span>
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">Pending activation</span>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">Complete your checkout to activate this plan and unlock its features.</p>
+        </div>
       ) : (
         <div className="rounded-xl border border-dashed border-border p-4 mb-4 text-center">
           <p className="text-sm text-muted-foreground">You're on the free plan. Upgrade to unlock premium features.</p>
@@ -89,7 +98,7 @@ export default function PlanBillingSection({ community }) {
 
       <Button onClick={() => setShowChange(true)} variant={plan ? "outline" : "default"}>
         <ArrowUpRight className="w-4 h-4 mr-2" />
-        {plan ? "Change plan" : postTrial ? "Upgrade to Connected" : "Upgrade plan"}
+        {plan ? "Change plan" : pendingPlan ? "Change plan" : postTrial ? "Upgrade to Connected" : "Upgrade plan"}
       </Button>
 
       <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">

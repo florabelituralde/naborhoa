@@ -58,6 +58,24 @@
         "annual"
       ]
     },
+    "pending_plan_id": {
+      "type": "string",
+      "enum": [
+        "free",
+        "starter",
+        "growth",
+        "pro",
+        "pro_multi"
+      ]
+    },
+    "pending_billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "quarterly",
+        "annual"
+      ]
+    },
     "subscription_status": {
       "type": "string",
       "enum": [

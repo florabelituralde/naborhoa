@@ -28,10 +28,16 @@ Deno.serve(async (req) => {
         // HOA manager platform subscription?
         const comms = await base44.asServiceRole.entities.Community.filter({ platform_checkout_id: checkoutId });
         if (comms.length > 0) {
-          await base44.asServiceRole.entities.Community.update(comms[0].id, {
+          const update = {
             subscription_status: "active",
             platform_subscription_id: subId || "",
-          });
+          };
+          // Promote the staged plan into plan_id once payment is confirmed.
+          if (comms[0].pending_plan_id) {
+            update.plan_id = comms[0].pending_plan_id;
+            update.billing_cycle = comms[0].pending_billing_cycle;
+          }
+          await base44.asServiceRole.entities.Community.update(comms[0].id, update);
         }
 
         const subs = await base44.asServiceRole.entities.Subscription.filter({ checkout_id: checkoutId });
