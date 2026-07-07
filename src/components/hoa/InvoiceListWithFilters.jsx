@@ -24,7 +24,7 @@ function monthLabel(key) {
   return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
 }
 
-export default function InvoiceListWithFilters({ invoices, homeowners, onConfirm, onDelete, confirmingId }) {
+export default function InvoiceListWithFilters({ invoices, homeowners, onConfirm, onDelete, confirmingId, actions, emptyMessage = "No invoices yet. Create one to get started." }) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -100,7 +100,7 @@ export default function InvoiceListWithFilters({ invoices, homeowners, onConfirm
   if (invoices.length === 0) {
     return (
       <div className="bg-card rounded-2xl warm-shadow p-12 text-center">
-        <p className="text-muted-foreground">No invoices yet. Create one to get started.</p>
+        <p className="text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }
@@ -210,20 +210,22 @@ export default function InvoiceListWithFilters({ invoices, homeowners, onConfirm
                         </div>
                         <div className="text-right flex flex-col items-end gap-2 shrink-0">
                           <p className="text-lg font-bold">{formatCurrency(inv.amount)}</p>
-                          <div className="flex items-center gap-2">
-                            {inv.status === "pending" && (
-                              <CopyLinkButton url={`${window.location.origin}/pay/invoice/${inv.id}`} label="Share" />
-                            )}
-                            {inv.status === "paid" && (
-                              <Button size="sm" onClick={() => onConfirm(inv)} disabled={confirmingId === inv.id}>
-                                {confirmingId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                                {confirmingId === inv.id ? "Confirming" : "Confirm"}
+                          {actions ? actions(inv) : (
+                            <div className="flex items-center gap-2">
+                              {inv.status === "pending" && (
+                                <CopyLinkButton url={`${window.location.origin}/pay/invoice/${inv.id}`} label="Share" />
+                              )}
+                              {inv.status === "paid" && (
+                                <Button size="sm" onClick={() => onConfirm(inv)} disabled={confirmingId === inv.id}>
+                                  {confirmingId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
+                                  {confirmingId === inv.id ? "Confirming" : "Confirm"}
+                                </Button>
+                              )}
+                              <Button size="icon" variant="ghost" onClick={() => onDelete(inv)} aria-label="Delete invoice">
+                                <Trash2 className="w-4 h-4 text-destructive" />
                               </Button>
-                            )}
-                            <Button size="icon" variant="ghost" onClick={() => onDelete(inv)} aria-label="Delete invoice">
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

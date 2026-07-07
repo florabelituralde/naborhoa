@@ -2,16 +2,16 @@ import React, { useState, useEffect, useRef } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
-import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Upload, Check, RefreshCw, X, Download, CreditCard, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { exportPaymentStatement } from "@/lib/exportStatement";
 import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
+import InvoiceListWithFilters from "@/components/hoa/InvoiceListWithFilters";
 
 // Auto-pay frequency options. Amount is derived from the community's monthly dues.
 const FREQ_OPTIONS = [
@@ -195,49 +195,28 @@ export default function HomeInvoices() {
         </div>
       )}
 
-      {invoices.length === 0 ? (
-        <div className="bg-card rounded-2xl warm-shadow p-12 text-center">
-          <p className="text-muted-foreground">No invoices yet</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {invoices.map(inv => (
-            <div key={inv.id} className="bg-card rounded-2xl warm-shadow p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-semibold capitalize">{inv.type}</h3>
-                    <StatusBadge status={inv.status} />
-                  </div>
-                  <p className="text-sm text-muted-foreground">{inv.description}</p>
-                  <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-                    <span>Due: {formatDate(inv.due_date)}</span>
-                    {inv.paid_date && <span>Paid: {formatDate(inv.paid_date)}</span>}
-                  </div>
-                </div>
-                <div className="text-right ml-4">
-                  <p className="text-xl font-bold">{formatCurrency(inv.amount)}</p>
-                  {inv.status === "pending" && (
-                    <div className="mt-2">
-                      <div className="flex gap-2 justify-end">
-                        <Button size="sm" onClick={() => handlePayNow(inv)} disabled={payingNowId === inv.id || !paymentsEnabled}>
-                          {payingNowId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CreditCard className="w-4 h-4 mr-1" />}
-                          Pay Now
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setPayingInvoice(inv)}>
-                          <Check className="w-4 h-4 mr-1" /> Mark Paid
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1 text-right">A 1.5% processing fee applies at checkout</p>
-                    </div>
-                  )}
-                  {inv.status === "paid" && <p className="text-xs text-muted-foreground mt-2">Awaiting confirmation</p>}
-                </div>
+      <InvoiceListWithFilters
+        invoices={invoices}
+        emptyMessage="No invoices yet"
+        actions={(inv) =>
+          inv.status === "pending" ? (
+            <div>
+              <div className="flex gap-2 justify-end">
+                <Button size="sm" onClick={() => handlePayNow(inv)} disabled={payingNowId === inv.id || !paymentsEnabled}>
+                  {payingNowId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CreditCard className="w-4 h-4 mr-1" />}
+                  Pay Now
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setPayingInvoice(inv)}>
+                  <Check className="w-4 h-4 mr-1" /> Mark Paid
+                </Button>
               </div>
+              <p className="text-xs text-muted-foreground mt-1 text-right">A 1.5% processing fee applies at checkout</p>
             </div>
-          ))}
-        </div>
-      )}
+          ) : inv.status === "paid" ? (
+            <p className="text-xs text-muted-foreground">Awaiting confirmation</p>
+          ) : null
+        }
+      />
 
       <Dialog open={!!payingInvoice} onOpenChange={() => { setPayingInvoice(null); setProofFile(null); }}>
         <DialogContent className="max-w-md">

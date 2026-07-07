@@ -9,9 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Trash2, Wallet, Paperclip } from "lucide-react";
-import { formatDate, formatCurrency } from "@/lib/format";
-import { EXPENSE_CATEGORIES, getCategory } from "@/lib/expenseCategories";
+import { Loader2, Plus } from "lucide-react";
+import { EXPENSE_CATEGORIES } from "@/lib/expenseCategories";
+import ExpenseListWithFilters from "@/components/hoa/ExpenseListWithFilters";
 
 const emptyForm = { title: "", description: "", amount: "", category: "maintenance", vendor: "", expense_date: new Date().toISOString().slice(0, 10) };
 
@@ -87,43 +87,7 @@ export default function HOAExpenses() {
         </div>
       )}
 
-      {expenses.length === 0 ? (
-        <div className="bg-card rounded-2xl warm-shadow p-12 text-center">
-          <Wallet className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground">No expenses recorded yet</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {expenses.map(exp => {
-            const cat = getCategory(exp.category);
-            return (
-              <div key={exp.id} className="bg-card rounded-2xl warm-shadow p-5 flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <h3 className="font-semibold">{exp.title}</h3>
-                    <span className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: cat.color }}>{cat.label}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(exp.expense_date)}{exp.vendor ? ` · ${exp.vendor}` : ""}
-                  </p>
-                  {exp.description && <p className="text-sm text-foreground mt-2 whitespace-pre-wrap">{exp.description}</p>}
-                  {exp.receipt_url && (
-                    <a href={exp.receipt_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-2">
-                      <Paperclip className="w-3 h-3" /> View receipt
-                    </a>
-                  )}
-                </div>
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                  <span className="font-bold">{formatCurrency(exp.amount)}</span>
-                  <button onClick={() => handleDelete(exp.id)} className="text-muted-foreground hover:text-destructive">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <ExpenseListWithFilters expenses={expenses} canDelete onDelete={handleDelete} />
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="max-w-md">
