@@ -2,9 +2,10 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 // Plan pricing mirror (server-side source of truth to prevent tampering).
 const PLANS: Record<string, { name: string; monthlyPrice: number }> = {
+  free: { name: "Nabor Free", monthlyPrice: 0 },
   starter: { name: "Nabor Starter", monthlyPrice: 19 },
   growth: { name: "Nabor Growth", monthlyPrice: 49 },
-  pro: { name: "Nabor Pro", monthlyPrice: 99 },
+  pro: { name: "Nabor Pro", monthlyPrice: 199 },
 };
 
 const CYCLES: Record<string, { multiplier: number; discount: number; frequency: "MONTH" | "YEAR"; interval: number }> = {

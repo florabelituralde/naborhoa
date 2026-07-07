@@ -9,10 +9,10 @@ export const BILLING_CYCLES = [
 
 export const PLANS = [
   {
-    id: "starter",
-    name: "Starter",
-    tagline: "For small, self-managed HOAs",
-    monthlyPrice: 19,
+    id: "free",
+    name: "Free",
+    tagline: "Get started at no cost",
+    monthlyPrice: 0,
     highlighted: false,
     unitLimit: "Up to 25 homes",
     features: [
@@ -20,9 +20,28 @@ export const PLANS = [
       "Community announcements",
       "Document library",
       "Board directory",
+      "Community events",
       "Email support",
     ],
     modules: ["requests", "announcements", "documents", "board", "events"],
+  },
+  {
+    id: "starter",
+    name: "Starter",
+    tagline: "For small, self-managed HOAs",
+    monthlyPrice: 19,
+    highlighted: false,
+    unitLimit: "Up to 50 homes",
+    features: [
+      "Everything in Free",
+      "Online dues & invoicing",
+      "Expense tracking",
+      "Priority email support",
+    ],
+    modules: [
+      "requests", "announcements", "documents", "board", "events",
+      "invoices", "expenses",
+    ],
   },
   {
     id: "growth",
@@ -33,8 +52,6 @@ export const PLANS = [
     unitLimit: "Up to 150 homes",
     features: [
       "Everything in Starter",
-      "Online dues & invoicing",
-      "Expense tracking & finances",
       "Polls & board elections",
       "Custom request types",
       "Priority support",
@@ -48,7 +65,7 @@ export const PLANS = [
     id: "pro",
     name: "Pro",
     tagline: "For management companies & large HOAs",
-    monthlyPrice: 99,
+    monthlyPrice: 199,
     highlighted: false,
     unitLimit: "Unlimited homes",
     features: [

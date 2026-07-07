@@ -98,7 +98,7 @@ export default function PlanBillingSection({ community }) {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Choose your plan</DialogTitle></DialogHeader>
           {error && <p className="text-sm text-destructive mb-2">{error}</p>}
-          <PlanSelector onSelect={handleSelect} submitting={submitting} />
+          <PlanSelector onSelect={handleSelect} submitting={submitting} includeFree={false} />
         </DialogContent>
       </Dialog>
     </div>

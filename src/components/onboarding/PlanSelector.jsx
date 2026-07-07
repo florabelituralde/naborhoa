@@ -8,11 +8,14 @@ import {
   effectiveMonthly,
 } from "@/lib/subscriptionPlans";
 
-export default function PlanSelector({ onSelect, onTrial, onFree, submitting }) {
+export default function PlanSelector({ onSelect, onTrial, onFree, submitting, includeFree = true }) {
   const [cycleId, setCycleId] = useState("monthly");
   const [planId, setPlanId] = useState("growth");
 
   const cycle = BILLING_CYCLES.find((c) => c.id === cycleId);
+  const plans = includeFree ? PLANS : PLANS.filter((p) => p.id !== "free");
+  const selectedPlan = plans.find((p) => p.id === planId) || plans[0];
+  const isFreePlan = selectedPlan?.monthlyPrice === 0;
 
   return (
     <div className="bg-card rounded-2xl warm-shadow-md p-6 sm:p-8">
@@ -41,8 +44,8 @@ export default function PlanSelector({ onSelect, onTrial, onFree, submitting }) 
       </div>
 
       {/* Plan cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        {PLANS.map((plan) => {
+      <div className={`grid gap-4 ${includeFree ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3"}`}>
+        {plans.map((plan) => {
           const selected = planId === plan.id;
           const total = priceForCycle(plan, cycle);
           const perMonth = effectiveMonthly(plan, cycle);
@@ -74,9 +77,11 @@ export default function PlanSelector({ onSelect, onTrial, onFree, submitting }) 
                 <span className="text-sm text-muted-foreground">/mo</span>
               </div>
               <p className="text-xs text-muted-foreground mb-3">
-                {cycle.id === "monthly"
-                  ? `Billed monthly`
-                  : `$${total} billed ${cycle.id}`}
+                {plan.monthlyPrice === 0
+                  ? "Free forever"
+                  : cycle.id === "monthly"
+                    ? `Billed monthly`
+                    : `$${total} billed ${cycle.id}`}
               </p>
               <p className="text-xs font-medium text-primary mb-3">{plan.unitLimit}</p>
               <ul className="space-y-1.5 mt-auto">
@@ -92,31 +97,44 @@ export default function PlanSelector({ onSelect, onTrial, onFree, submitting }) 
         })}
       </div>
 
-      <Button
-        onClick={() => onSelect(planId, cycleId)}
-        disabled={submitting}
-        className="w-full h-12 mt-6"
-      >
-        {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArrowRight className="w-4 h-4 mr-2" />}
-        Continue to payment
-      </Button>
+      {isFreePlan ? (
+        <Button
+          onClick={onFree}
+          disabled={submitting || !onFree}
+          className="w-full h-12 mt-6"
+        >
+          {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArrowRight className="w-4 h-4 mr-2" />}
+          Get started — it's free
+        </Button>
+      ) : (
+        <Button
+          onClick={() => onSelect(planId, cycleId)}
+          disabled={submitting}
+          className="w-full h-12 mt-6"
+        >
+          {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArrowRight className="w-4 h-4 mr-2" />}
+          Continue to payment
+        </Button>
+      )}
       <p className="text-center text-xs text-muted-foreground mt-3">
-        Secure checkout · Cancel anytime
+        {isFreePlan ? "No credit card required" : "Secure checkout · Cancel anytime"}
       </p>
 
       {/* Auto-renewal disclosure — required by App Store 3.1.2 & Play Store */}
-      <div className="mt-4 p-3 rounded-lg bg-muted/50 text-xs text-muted-foreground space-y-1">
-        <p>
-          <strong>Auto-renewing subscription.</strong> Your selected plan (${effectiveMonthly(PLANS.find(p => p.id === planId), cycle)}/mo
-          {cycle.id !== "monthly" && `, $${priceForCycle(PLANS.find(p => p.id === planId), cycle)} billed ${cycle.id}`})
-          renews automatically at the end of each {cycle.label.toLowerCase()} billing period until canceled.
-        </p>
-        <p>
-          Payment is charged securely through Base44 Payments to your payment method on file. You can
-          cancel anytime from your Account page — cancellation stops future renewals and takes effect
-          at the end of the current billing cycle.
-        </p>
-      </div>
+      {!isFreePlan && (
+        <div className="mt-4 p-3 rounded-lg bg-muted/50 text-xs text-muted-foreground space-y-1">
+          <p>
+            <strong>Auto-renewing subscription.</strong> Your selected plan (${effectiveMonthly(selectedPlan, cycle)}/mo
+            {cycle.id !== "monthly" && `, $${priceForCycle(selectedPlan, cycle)} billed ${cycle.id}`})
+            renews automatically at the end of each {cycle.label.toLowerCase()} billing period until canceled.
+          </p>
+          <p>
+            Payment is charged securely through Base44 Payments to your payment method on file. You can
+            cancel anytime from your Account page — cancellation stops future renewals and takes effect
+            at the end of the current billing cycle.
+          </p>
+        </div>
+      )}
 
       {onTrial && (
         <>
@@ -138,22 +156,6 @@ export default function PlanSelector({ onSelect, onTrial, onFree, submitting }) 
           <p className="text-center text-xs text-muted-foreground mt-2">
             No card required · Full access to every feature · Choose a plan later
           </p>
-
-          {onFree && (
-            <>
-              <button
-                type="button"
-                onClick={onFree}
-                disabled={submitting}
-                className="w-full text-center text-sm text-muted-foreground hover:text-foreground mt-4 disabled:opacity-50"
-              >
-                Skip for now — use the free version
-              </button>
-              <p className="text-center text-xs text-muted-foreground mt-1">
-                Core features only · Premium features stay locked until you upgrade
-              </p>
-            </>
-          )}
         </>
       )}
     </div>

@@ -22,7 +22,7 @@ const TRIAL_DAYS = 14;
 export function isInTrial(community) {
   if (!community || community.plan_id) return false;
   // A manager who chose the free version (skipped the trial) has an "ended"
-  // status — they go straight to the free Starter tier, no trial window.
+  // status — they go straight to the Free tier, no trial window.
   if (community.subscription_status === "ended") return false;
   const created = community.created_date ? new Date(community.created_date) : null;
   if (!created || isNaN(created.getTime())) return false;
@@ -41,15 +41,15 @@ export function trialDaysLeft(community) {
 // Returns the list of module ids a community has access to based on its plan.
 // - Paid plan: that plan's modules.
 // - No plan, still in trial: everything (null => no gating).
-// - No plan, trial expired: the Starter plan's modules (free tier).
+// - No plan, trial expired: the Free plan's modules (free tier).
 export function getAllowedModules(community) {
   if (community?.plan_id) {
     const plan = getPlan(community.plan_id);
     return plan ? plan.modules : null;
   }
   if (isInTrial(community)) return null; // full access during trial
-  const starter = getPlan("starter");
-  return starter ? starter.modules : null;
+  const free = getPlan("free");
+  return free ? free.modules : null;
 }
 
 // Whether a given module is available for the community.

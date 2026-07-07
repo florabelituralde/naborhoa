@@ -82,7 +82,7 @@ export default function HOADashboard() {
                 <>
                   <p className="font-semibold text-accent-foreground">Your free trial has ended</p>
                   <p className="text-sm text-muted-foreground">
-                    You're now on the free Starter features. Upgrade to unlock invoices, expenses, polls and more.
+                    You're now on the Free plan. Upgrade to unlock invoicing, expenses, polls and more.
                   </p>
                 </>
               )}
