@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
-import { Loader2, Calendar, MapPin, Clock } from "lucide-react";
+import { Loader2, MapPin, Clock } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
+import EventsCalendar from "@/components/events/EventsCalendar";
 
 const TYPE_STYLES = {
   meeting: "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300",
@@ -29,39 +30,14 @@ export default function HomeEvents() {
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
-  const now = new Date();
-  const upcoming = events.filter(e => new Date(e.start_time) >= now);
-  const past = events.filter(e => new Date(e.start_time) < now);
-
   return (
     <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       <PageHeader title="Events" subtitle={`Community calendar for ${community?.name}`} />
 
-      {events.length === 0 ? (
-        <div className="bg-card rounded-2xl warm-shadow p-12 text-center">
-          <Calendar className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground">No upcoming events</p>
-        </div>
-      ) : (
-        <>
-          {upcoming.length > 0 && (
-            <div className="mb-8">
-              <h2 className="font-semibold text-lg mb-4">Upcoming</h2>
-              <div className="space-y-3">
-                {upcoming.map(ev => <EventCard key={ev.id} event={ev} />)}
-              </div>
-            </div>
-          )}
-          {past.length > 0 && (
-            <div>
-              <h2 className="font-semibold text-lg mb-4 text-muted-foreground">Past</h2>
-              <div className="space-y-3">
-                {past.slice().reverse().map(ev => <EventCard key={ev.id} event={ev} past />)}
-              </div>
-            </div>
-          )}
-        </>
-      )}
+      <EventsCalendar
+        events={events}
+        renderEventCard={(ev) => <EventCard key={ev.id} event={ev} />}
+      />
     </div>
   );
 }
