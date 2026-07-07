@@ -46,10 +46,16 @@ export default function HOALayout() {
     }
   };
 
-  // Switch the active community, then hard-reload so every page picks up the change.
+  // Switch the active community in-place and navigate within the SPA. A full
+  // page reload here re-runs the auth bootstrap and can drop the session, so we
+  // update the user/community state directly and let each page refetch from the
+  // updated context (pages key their loads on `community`).
   const handleSwitchCommunity = async (communityId) => {
     await base44.auth.updateMe({ community_id: communityId });
-    window.location.href = "/hoa/dashboard";
+    setUser((prev) => (prev ? { ...prev, community_id: communityId } : prev));
+    const c = await base44.entities.Community.get(communityId).catch(() => null);
+    if (c) setCommunity(c);
+    navigate("/hoa/dashboard");
   };
 
   if (loading || !user) {
