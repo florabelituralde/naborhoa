@@ -20,26 +20,29 @@ export default function BoardPollSection({ community, user, pollResults, votePat
 
   const handleCreate = async () => {
     setCreating(true);
-    const cleanOptions = form.options.filter(o => o.trim());
-    const poll = await base44.entities.Poll.create({
-      title: form.title,
-      description: form.description,
-      options: cleanOptions,
-      deadline: form.deadline,
-      community_id: community.id,
-      author_id: user.id,
-      attachments: form.attachments,
-    });
-    await notifyCommunity(community.id, {
-      type: "poll_deadline",
-      title: `New poll: ${form.title}`,
-      body: `Cast your vote by ${form.deadline}`,
-      related_id: poll.id,
-    });
-    setForm({ title: "", description: "", options: [""], deadline: "", attachments: [] });
-    setShowCreate(false);
-    setCreating(false);
-    onChange();
+    try {
+      const cleanOptions = form.options.filter(o => o.trim());
+      const poll = await base44.entities.Poll.create({
+        title: form.title,
+        description: form.description,
+        options: cleanOptions,
+        deadline: form.deadline,
+        community_id: community.id,
+        author_id: user.id,
+        attachments: form.attachments,
+      });
+      await notifyCommunity(community.id, {
+        type: "poll_deadline",
+        title: `New poll: ${form.title}`,
+        body: `Cast your vote by ${form.deadline}`,
+        related_id: poll.id,
+      });
+      setForm({ title: "", description: "", options: [""], deadline: "", attachments: [] });
+      setShowCreate(false);
+      onChange();
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (

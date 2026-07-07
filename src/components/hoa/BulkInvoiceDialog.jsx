@@ -42,36 +42,39 @@ export default function BulkInvoiceDialog({ open, onOpenChange, community, homeo
 
   const handleSend = async () => {
     setSending(true);
-    const amount = parseFloat(form.amount);
+    try {
+      const amount = parseFloat(form.amount);
 
-    // Create all invoices in one bulk operation
-    const created = await base44.entities.Invoice.bulkCreate(
-      homeowners.map((h) => ({
-        community_id: community.id,
-        homeowner_id: h.id,
-        amount,
-        type: form.type,
-        due_date: form.due_date,
-        description: form.description,
-        status: "pending",
-      }))
-    );
+      // Create all invoices in one bulk operation
+      const created = await base44.entities.Invoice.bulkCreate(
+        homeowners.map((h) => ({
+          community_id: community.id,
+          homeowner_id: h.id,
+          amount,
+          type: form.type,
+          due_date: form.due_date,
+          description: form.description,
+          status: "pending",
+        }))
+      );
 
-    // Notify each homeowner about their new invoice
-    await base44.entities.Notification.bulkCreate(
-      created.map((inv) => ({
-        community_id: community.id,
-        user_id: inv.homeowner_id,
-        type: "invoice_created",
-        title: "New invoice",
-        body: `${form.type} — ${formatCurrency(amount)}`,
-        related_id: inv.id,
-      }))
-    );
+      // Notify each homeowner about their new invoice
+      await base44.entities.Notification.bulkCreate(
+        created.map((inv) => ({
+          community_id: community.id,
+          user_id: inv.homeowner_id,
+          type: "invoice_created",
+          title: "New invoice",
+          body: `${form.type} — ${formatCurrency(amount)}`,
+          related_id: inv.id,
+        }))
+      );
 
-    setSending(false);
-    onOpenChange(false);
-    onDone?.();
+      onOpenChange(false);
+      onDone?.();
+    } finally {
+      setSending(false);
+    }
   };
 
   const valid = form.amount && parseFloat(form.amount) >= 0.5 && form.due_date && homeowners.length > 0;

@@ -22,20 +22,23 @@ export default function BoardEventSection({ community, user, events, onChange })
 
   const handleCreate = async () => {
     setCreating(true);
-    await base44.entities.Event.create({
-      title: form.title,
-      description: form.description,
-      type: form.type,
-      location: form.location,
-      community_id: community.id,
-      created_by_id: user.id,
-      start_time: new Date(form.start_time).toISOString(),
-      end_time: new Date(form.end_time).toISOString(),
-    });
-    setForm({ title: "", description: "", type: "meeting", start_time: "", end_time: "", location: "" });
-    setShowCreate(false);
-    setCreating(false);
-    onChange();
+    try {
+      await base44.entities.Event.create({
+        title: form.title,
+        description: form.description,
+        type: form.type,
+        location: form.location,
+        community_id: community.id,
+        created_by_id: user.id,
+        start_time: new Date(form.start_time).toISOString(),
+        end_time: new Date(form.end_time).toISOString(),
+      });
+      setForm({ title: "", description: "", type: "meeting", start_time: "", end_time: "", location: "" });
+      setShowCreate(false);
+      onChange();
+    } finally {
+      setCreating(false);
+    }
   };
 
   const now = new Date();

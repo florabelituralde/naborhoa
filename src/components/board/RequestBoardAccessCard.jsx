@@ -19,9 +19,12 @@ export default function RequestBoardAccessCard({ user }) {
 
   const requestAccess = async () => {
     setSubmitting(true);
-    await base44.auth.updateMe({ board_member_status: "pending" });
-    setStatus("pending");
-    setSubmitting(false);
+    try {
+      await base44.auth.updateMe({ board_member_status: "pending" });
+      setStatus("pending");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (status === "approved") {

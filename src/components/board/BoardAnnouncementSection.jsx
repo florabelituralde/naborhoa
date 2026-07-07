@@ -18,17 +18,20 @@ export default function BoardAnnouncementSection({ community, user, announcement
 
   const handleCreate = async () => {
     setCreating(true);
-    const ann = await base44.entities.Announcement.create({ ...form, community_id: community.id, author_id: user.id });
-    await notifyCommunity(community.id, {
-      type: "announcement",
-      title: `New announcement: ${form.title}`,
-      body: form.body,
-      related_id: ann.id,
-    });
-    setForm({ title: "", body: "", pinned: false, attachments: [] });
-    setShowCreate(false);
-    setCreating(false);
-    onChange();
+    try {
+      const ann = await base44.entities.Announcement.create({ ...form, community_id: community.id, author_id: user.id });
+      await notifyCommunity(community.id, {
+        type: "announcement",
+        title: `New announcement: ${form.title}`,
+        body: form.body,
+        related_id: ann.id,
+      });
+      setForm({ title: "", body: "", pinned: false, attachments: [] });
+      setShowCreate(false);
+      onChange();
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (
