@@ -28,6 +28,7 @@ Deno.serve(async (req) => {
         status: p.status,
         deadline: p.deadline,
         options: p.options,
+        attachments: p.attachments,
         counts,
         total: votes.length,
       };

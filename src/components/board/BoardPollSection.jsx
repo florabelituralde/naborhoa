@@ -10,10 +10,12 @@ import { base44 } from "@/api/base44Client";
 import { Loader2, Plus, X, Vote } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import { notifyCommunity } from "@/lib/notify";
+import AttachmentUploader from "@/components/AttachmentUploader";
+import AnnouncementAttachments from "@/components/AnnouncementAttachments";
 
 export default function BoardPollSection({ community, user, pollResults, votePath = "/home/polls", onChange }) {
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", options: [""], deadline: "" });
+  const [form, setForm] = useState({ title: "", description: "", options: [""], deadline: "", attachments: [] });
   const [creating, setCreating] = useState(false);
 
   const handleCreate = async () => {
@@ -26,6 +28,7 @@ export default function BoardPollSection({ community, user, pollResults, votePat
       deadline: form.deadline,
       community_id: community.id,
       author_id: user.id,
+      attachments: form.attachments,
     });
     await notifyCommunity(community.id, {
       type: "poll_deadline",
@@ -33,7 +36,7 @@ export default function BoardPollSection({ community, user, pollResults, votePat
       body: `Cast your vote by ${form.deadline}`,
       related_id: poll.id,
     });
-    setForm({ title: "", description: "", options: [""], deadline: "" });
+    setForm({ title: "", description: "", options: [""], deadline: "", attachments: [] });
     setShowCreate(false);
     setCreating(false);
     onChange();
@@ -63,6 +66,7 @@ export default function BoardPollSection({ community, user, pollResults, votePat
                   <StatusBadge status={poll.status} />
                 </div>
                 <p className="text-xs text-muted-foreground mb-2">Deadline: {formatDate(poll.deadline)} · {total} votes</p>
+                <AnnouncementAttachments attachments={poll.attachments} />
                 <div className="space-y-1.5">
                   {(poll.options || []).map((opt, i) => {
                     const count = poll.counts[i] || 0;
@@ -127,6 +131,12 @@ export default function BoardPollSection({ community, user, pollResults, votePat
             <div>
               <Label>Deadline</Label>
               <Input type="date" value={form.deadline} onChange={e => setForm({ ...form, deadline: e.target.value })} className="mt-1.5" />
+            </div>
+            <div>
+              <Label>Attachments (photos or files)</Label>
+              <div className="mt-1.5">
+                <AttachmentUploader value={form.attachments} onChange={(atts) => setForm({ ...form, attachments: atts })} />
+              </div>
             </div>
             <Button
               onClick={handleCreate}

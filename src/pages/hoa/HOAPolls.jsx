@@ -11,24 +11,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Loader2, Plus, X, Vote, Lock } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import { notifyCommunity } from "@/lib/notify";
+import AttachmentUploader from "@/components/AttachmentUploader";
+import AnnouncementAttachments from "@/components/AnnouncementAttachments";
 
 export default function HOAPolls() {
   const { user, community } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [polls, setPolls] = useState([]);
-  const [votes, setVotes] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", options: [""], deadline: "" });
+  const [form, setForm] = useState({ title: "", description: "", options: [""], deadline: "", attachments: [] });
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
     try {
-      const [p, v] = await Promise.all([
-        base44.entities.Poll.filter({ community_id: community.id }, "-created_date"),
-        base44.entities.PollVote.filter({}),
-      ]);
-      setPolls(p);
-      setVotes(v);
+      const res = await base44.functions.invoke("get-community-results", {});
+      setPolls(res?.data?.polls || []);
     } finally {
       setLoading(false);
     }
@@ -38,9 +35,6 @@ export default function HOAPolls() {
     if (community) loadData();
     else setLoading(false);
   }, [community]);
-
-  const getVoteCount = (pollId, optionIndex) =>
-    votes.filter(v => v.poll_id === pollId && v.option_index === optionIndex).length;
 
   const handleCreate = async () => {
     setCreating(true);
@@ -52,6 +46,7 @@ export default function HOAPolls() {
       deadline: form.deadline,
       community_id: community.id,
       author_id: user.id,
+      attachments: form.attachments,
     });
     await notifyCommunity(community.id, {
       type: "poll_deadline",
@@ -59,7 +54,7 @@ export default function HOAPolls() {
       body: `Cast your vote by ${form.deadline}`,
       related_id: poll.id,
     });
-    setForm({ title: "", description: "", options: [""], deadline: "" });
+    setForm({ title: "", description: "", options: [""], deadline: "", attachments: [] });
     setShowCreate(false);
     setCreating(false);
     loadData();
@@ -88,7 +83,7 @@ export default function HOAPolls() {
       ) : (
         <div className="space-y-4">
           {polls.map(poll => {
-            const totalVotes = poll.options.reduce((sum, _, i) => sum + getVoteCount(poll.id, i), 0);
+            const totalVotes = poll.total;
             return (
               <div key={poll.id} className="bg-card rounded-2xl warm-shadow p-6">
                 <div className="flex items-start justify-between mb-2">
@@ -108,7 +103,7 @@ export default function HOAPolls() {
                 </div>
                 <div className="space-y-2 mt-4">
                   {poll.options.map((opt, i) => {
-                    const count = getVoteCount(poll.id, i);
+                    const count = poll.counts[i] || 0;
                     const pct = totalVotes > 0 ? (count / totalVotes) * 100 : 0;
                     return (
                       <div key={i}>
@@ -123,6 +118,7 @@ export default function HOAPolls() {
                     );
                   })}
                 </div>
+                <AnnouncementAttachments attachments={poll.attachments} />
               </div>
             );
           })}
@@ -130,7 +126,7 @@ export default function HOAPolls() {
       )}
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Create Poll</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
@@ -170,6 +166,12 @@ export default function HOAPolls() {
             <div>
               <Label>Deadline</Label>
               <Input type="date" value={form.deadline} onChange={e => setForm({ ...form, deadline: e.target.value })} className="mt-1.5" />
+            </div>
+            <div>
+              <Label>Attachments (photos or files)</Label>
+              <div className="mt-1.5">
+                <AttachmentUploader value={form.attachments} onChange={(atts) => setForm({ ...form, attachments: atts })} />
+              </div>
             </div>
             <Button
               onClick={handleCreate}
