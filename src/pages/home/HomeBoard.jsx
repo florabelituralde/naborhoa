@@ -30,7 +30,7 @@ export default function HomeBoard() {
     const i = positions.findIndex(p => p.name === r);
     return i === -1 ? 9999 : i;
   };
-  const sorted = [...members].sort((a, b) => roleIndex(a.role) - roleIndex(b.role));
+  const sorted = [...members].filter(m => !m.outgoing).sort((a, b) => roleIndex(a.role) - roleIndex(b.role));
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl mx-auto">
