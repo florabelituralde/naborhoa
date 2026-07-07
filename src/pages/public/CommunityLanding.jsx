@@ -3,8 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Megaphone, Calendar, MapPin, Home, MessageCircle, CreditCard, Users, Loader2, ArrowRight, Shield, Images } from "lucide-react";
+import { Megaphone, Calendar, MapPin, Home, MessageCircle, CreditCard, Users, Loader2, ArrowRight, Shield, Images, Lock } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
+import { hasModule } from "@/lib/planAccess";
 import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
 import { calculateTotal } from "@/lib/paymentFee";
 
@@ -81,6 +82,7 @@ export default function CommunityLanding() {
   );
 
   const { community, announcements, events, boardMembers } = data;
+  const aiEnabled = hasModule(community, "ai_assistant");
   const now = new Date();
   const upcoming = (events || []).filter(e => new Date(e.start_time) >= now);
 
@@ -119,13 +121,21 @@ export default function CommunityLanding() {
               <p className="text-sm text-muted-foreground">Sign up and become a member</p>
             </div>
           </Link>
-          <Link to={`/c/${joinCode}/chat`}>
-            <div className="bg-card rounded-2xl warm-shadow p-5 hover:warm-shadow-md transition-all cursor-pointer h-full">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-3"><MessageCircle className="w-5 h-5 text-primary" /></div>
+          {aiEnabled ? (
+            <Link to={`/c/${joinCode}/chat`}>
+              <div className="bg-card rounded-2xl warm-shadow p-5 hover:warm-shadow-md transition-all cursor-pointer h-full">
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-3"><MessageCircle className="w-5 h-5 text-primary" /></div>
+                <h3 className="font-semibold mb-1">Ask AI Assistant</h3>
+                <p className="text-sm text-muted-foreground">Get answers about HOA policies</p>
+              </div>
+            </Link>
+          ) : (
+            <div className="bg-card rounded-2xl warm-shadow p-5 h-full opacity-80">
+              <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center mb-3"><Lock className="w-5 h-5 text-muted-foreground" /></div>
               <h3 className="font-semibold mb-1">Ask AI Assistant</h3>
-              <p className="text-sm text-muted-foreground">Get answers about HOA policies</p>
+              <p className="text-sm text-muted-foreground">Available on the Connected plan</p>
             </div>
-          </Link>
+          )}
           <a href="#pay-dues">
             <div className="bg-card rounded-2xl warm-shadow p-5 hover:warm-shadow-md transition-all cursor-pointer h-full">
               <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-3"><CreditCard className="w-5 h-5 text-primary" /></div>

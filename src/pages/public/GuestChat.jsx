@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Home, Loader2, Send, Sparkles, MessageCircle, ArrowLeft } from "lucide-react";
+import { Home, Loader2, Send, Sparkles, MessageCircle, ArrowLeft, Lock } from "lucide-react";
 import GuestContactHOAPanel from "@/components/GuestContactHOAPanel";
 import { isUnanswered } from "@/lib/hoaAssistant";
+import { hasModule } from "@/lib/planAccess";
 
 const SUGGESTED_QUESTIONS = [
   "What are the community pool hours?",
@@ -21,7 +22,21 @@ export default function GuestChat() {
   const [contactEmail, setContactEmail] = useState(null);
   const [lastQuestion, setLastQuestion] = useState("");
   const [communityName, setCommunityName] = useState("");
+  const [community, setCommunity] = useState(null);
+  const [checking, setChecking] = useState(true);
   const scrollRef = useRef(null);
+
+  useEffect(() => {
+    base44.functions.invoke("get-public-community", { join_code: joinCode })
+      .then(res => {
+        setCommunity(res.data?.community || null);
+        setCommunityName(res.data?.community?.name || "");
+      })
+      .catch(() => {})
+      .finally(() => setChecking(false));
+  }, [joinCode]);
+
+  const aiEnabled = community ? hasModule(community, "ai_assistant") : false;
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,11 +55,15 @@ export default function GuestChat() {
         question,
         history: messages,
       });
-      const answer = res.data?.answer || "I'm having trouble right now. Please try again.";
-      setCommunityName(res.data?.communityName || "");
-      setContactEmail(isUnanswered(answer) ? (res.data?.contact?.hoaEmail || null) : null);
-      if (isUnanswered(answer)) setLastQuestion(question);
-      setMessages(prev => [...prev, { role: "assistant", content: answer }]);
+      if (res.data?.unavailable) {
+        setMessages(prev => [...prev, { role: "assistant", content: "The AI assistant isn't available for this community." }]);
+      } else {
+        const answer = res.data?.answer || "I'm having trouble right now. Please try again.";
+        setCommunityName(res.data?.communityName || "");
+        setContactEmail(isUnanswered(answer) ? (res.data?.contact?.hoaEmail || null) : null);
+        if (isUnanswered(answer)) setLastQuestion(question);
+        setMessages(prev => [...prev, { role: "assistant", content: answer }]);
+      }
     } catch (err) {
       setMessages(prev => [...prev, { role: "assistant", content: "I'm having trouble right now. Please try again." }]);
     }
@@ -64,7 +83,20 @@ export default function GuestChat() {
         <div className="w-9" />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      {checking ? (
+        <div className="flex-1 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+      ) : !aiEnabled ? (
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+            <Lock className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">AI Assistant unavailable</h2>
+          <p className="text-muted-foreground mb-6 max-w-md">The AI assistant is a premium feature for this community. Please contact your HOA board for help with rules and policies.</p>
+          <Link to={`/c/${joinCode}`}><Button variant="outline">Back to community</Button></Link>
+        </div>
+      ) : (
+        <>
+        <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-3xl mx-auto">
           {messages.length === 0 && (
             <div className="text-center py-12">
@@ -124,6 +156,8 @@ export default function GuestChat() {
           <Button onClick={() => sendMessage(input)} disabled={!input.trim() || thinking} className="h-11 px-4"><Send className="w-4 h-4" /></Button>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

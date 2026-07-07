@@ -16,6 +16,23 @@ Deno.serve(async (req) => {
     }
     const community = communities[0];
 
+    // The AI assistant is a paid feature (Connected/Portfolio plans) or
+    // during the 14-day free trial. Communities on Free/Starter/Growth (or
+    // whose trial has expired) do not get the public AI assistant.
+    const AI_PLANS = ["pro", "pro_multi"];
+    const TRIAL_DAYS = 14;
+    function aiAvailable(c) {
+      if (c.plan_id) return AI_PLANS.includes(c.plan_id);
+      if (c.subscription_status === "ended") return false;
+      const created = c.created_date ? new Date(c.created_date) : null;
+      if (!created || isNaN(created.getTime())) return false;
+      const trialEnd = new Date(created.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+      return Date.now() < trialEnd.getTime();
+    }
+    if (!aiAvailable(community)) {
+      return Response.json({ unavailable: true });
+    }
+
     const docs = await base44.asServiceRole.entities.Document.filter({ community_id: community.id, is_public: true });
     const fileUrls = docs.map(d => d.file_url).filter(Boolean);
     const hasDocs = fileUrls.length > 0;

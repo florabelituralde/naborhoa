@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Send, MessageCircle, Sparkles, X, Mail } from "lucide-react";
 import ContactHOAPanel from "@/components/ContactHOAPanel";
 import { isUnanswered } from "@/lib/hoaAssistant";
+import { hasModule } from "@/lib/planAccess";
 
 const SUGGESTED_QUESTIONS = [
   "What are the pool hours?",
@@ -27,8 +28,10 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
   const [managerName, setManagerName] = useState(null);
   const scrollRef = useRef(null);
 
+  const aiEnabled = community ? hasModule(community, "ai_assistant") : false;
+
   useEffect(() => {
-    if (!community || !user) return;
+    if (!community || !user || !aiEnabled) return;
     Promise.all([
       base44.entities.ChatMessage.filter({ community_id: community.id, user_id: user.id }, "created_date"),
       base44.entities.Document.filter({ community_id: community.id, is_public: true }),
@@ -57,7 +60,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
 
   // Allow other parts of the app (e.g. dashboard widget) to open the assistant
   useEffect(() => {
-    const handleOpen = () => setOpen(true);
+    const handleOpen = () => { if (aiEnabled) setOpen(true); };
     window.addEventListener("open-ai-chat", handleOpen);
     return () => window.removeEventListener("open-ai-chat", handleOpen);
   }, []);
@@ -124,7 +127,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
     setThinking(false);
   };
 
-  if (!community || !user) return null;
+  if (!community || !user || !aiEnabled) return null;
 
   return (
     <>
