@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
-import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,12 +14,12 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Check, Users, DollarSign, Trash2 } from "lucide-react";
+import { Loader2, Plus, Check, Users, DollarSign } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import BulkInvoiceDialog from "@/components/hoa/BulkInvoiceDialog";
 import ShareLinksPanel from "@/components/hoa/ShareLinksPanel";
-import CopyLinkButton from "@/components/CopyLinkButton";
+import InvoiceListWithFilters from "@/components/hoa/InvoiceListWithFilters";
 
 const CYCLE_MULT = { monthly: 1, quarterly: 3, annual: 12 };
 
@@ -209,53 +208,13 @@ export default function HOAInvoices() {
         ) : null}
       </div>
 
-      {invoices.length === 0 ? (
-        <div className="bg-card rounded-2xl warm-shadow p-12 text-center">
-          <p className="text-muted-foreground">No invoices yet. Create one to get started.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {invoices.map(inv => (
-            <div key={inv.id} className="bg-card rounded-2xl warm-shadow p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-semibold capitalize">{inv.type}</h3>
-                    <StatusBadge status={inv.status} />
-                  </div>
-                  <p className="text-sm text-muted-foreground">{inv.description}</p>
-                  <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-                    <span>Due: {formatDate(inv.due_date)}</span>
-                    {inv.paid_date && <span>Paid: {formatDate(inv.paid_date)}</span>}
-                  </div>
-                </div>
-                <div className="text-right ml-4 flex flex-col items-end gap-2">
-                  <p className="text-xl font-bold">{formatCurrency(inv.amount)}</p>
-                  <div className="flex items-center gap-2">
-                    {inv.status === "pending" && (
-                      <CopyLinkButton url={`${window.location.origin}/pay/invoice/${inv.id}`} label="Share pay link" />
-                    )}
-                    {inv.status === "paid" && (
-                      <Button size="sm" onClick={() => confirmPayment(inv)} disabled={confirmingId === inv.id}>
-                        {confirmingId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                        {confirmingId === inv.id ? "Confirming" : "Confirm"}
-                      </Button>
-                    )}
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => setInvoiceToDelete(inv)}
-                      aria-label="Delete invoice"
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <InvoiceListWithFilters
+        invoices={invoices}
+        homeowners={homeowners}
+        onConfirm={confirmPayment}
+        onDelete={setInvoiceToDelete}
+        confirmingId={confirmingId}
+      />
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="max-w-md">
