@@ -19,11 +19,39 @@ export default function HomeElections() {
 
   const loadData = async () => {
     try {
-      const [res, myAllVotes] = await Promise.all([
-        base44.functions.invoke("get-community-results", {}),
+      // Load the election list client-side so it follows the builder's
+      // Test/Production toggle. The backend get-community-results call is
+      // kept only for closed-election tallies (cross-voter counts need the
+      // service role); in production the ids match and tallies populate, in
+      // test mode the backend hits prod so test elections simply show no
+      // tally bars — active voting still works either way.
+      const communityId = community?.id || user?.community_id;
+      const [elections, myAllVotes, res] = await Promise.all([
+        base44.entities.Election.filter({ community_id: communityId }, "-created_date"),
         base44.entities.ElectionVote.filter({}),
+        base44.functions.invoke("get-community-results", {}).catch(() => null),
       ]);
-      setElectionResults(res?.data?.elections || []);
+      const tallyMap = {};
+      for (const el of res?.data?.elections || []) {
+        tallyMap[el.id] = { counts: el.counts, total: el.total };
+      }
+      const results = elections.map(el => {
+        const t = tallyMap[el.id];
+        return {
+          id: el.id,
+          title: el.title,
+          description: el.description,
+          status: el.status,
+          start_date: el.start_date,
+          end_date: el.end_date,
+          promoted: el.promoted,
+          promoted_date: el.promoted_date,
+          candidates: el.candidates,
+          counts: t?.counts || (el.candidates || []).map(() => 0),
+          total: t?.total || 0,
+        };
+      });
+      setElectionResults(results);
       const myV = {};
       for (const v of myAllVotes) {
         myV[`${v.election_id}:${v.position}`] = v.candidate_index;
