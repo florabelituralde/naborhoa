@@ -7,6 +7,7 @@ import { ClipboardList, Receipt, Loader2, Plus, History, RefreshCw, User as User
 import { formatCurrency, formatDate } from "@/lib/format";
 import RequestBoardAccessCard from "@/components/board/RequestBoardAccessCard";
 import MoveOutDialog from "@/components/MoveOutDialog";
+import LeaveCommunityDialog from "@/components/LeaveCommunityDialog";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import LegalLinks from "@/components/LegalLinks";
 
@@ -146,9 +147,10 @@ export default function HomeAccount() {
         )}
       </div>
 
-      {/* Moving out */}
-      <div className="mt-8">
+      {/* Moving out / leaving */}
+      <div className="mt-8 space-y-3">
         <MoveOutDialog />
+        <LeaveCommunityDialog />
       </div>
 
       {/* Account deletion — required by App Store guideline 5.1.1(v) */}
