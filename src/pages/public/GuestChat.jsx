@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Home, Loader2, Send, Sparkles, MessageCircle, ArrowLeft } from "lucide-react";
+import GuestContactHOAPanel from "@/components/GuestContactHOAPanel";
+import { isUnanswered } from "@/lib/hoaAssistant";
 
 const SUGGESTED_QUESTIONS = [
   "What are the community pool hours?",
@@ -16,6 +18,9 @@ export default function GuestChat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [contactEmail, setContactEmail] = useState(null);
+  const [lastQuestion, setLastQuestion] = useState("");
+  const [communityName, setCommunityName] = useState("");
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -36,6 +41,9 @@ export default function GuestChat() {
         history: messages,
       });
       const answer = res.data?.answer || "I'm having trouble right now. Please try again.";
+      setCommunityName(res.data?.communityName || "");
+      setContactEmail(isUnanswered(answer) ? (res.data?.contact?.hoaEmail || null) : null);
+      if (isUnanswered(answer)) setLastQuestion(question);
       setMessages(prev => [...prev, { role: "assistant", content: answer }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: "assistant", content: "I'm having trouble right now. Please try again." }]);
@@ -85,6 +93,12 @@ export default function GuestChat() {
               </div>
             </div>
           ))}
+
+          {contactEmail && messages.length > 0 && messages[messages.length - 1].role === "assistant" && (
+            <div className="mb-4 ml-11">
+              <GuestContactHOAPanel community={{ name: communityName }} recipientEmail={contactEmail} prefillQuestion={lastQuestion} />
+            </div>
+          )}
 
           {thinking && (
             <div className="flex gap-3 mb-4">

@@ -3,8 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send, MessageCircle, Sparkles, X, Mail } from "lucide-react";
 import ContactHOAPanel from "@/components/ContactHOAPanel";
-
-const NO_ANSWER_MARKER = "i don't have that information in the community's official documents";
+import { isUnanswered } from "@/lib/hoaAssistant";
 
 const SUGGESTED_QUESTIONS = [
   "What are the pool hours?",
@@ -101,8 +100,8 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
       const guardrails = `You are the HOA assistant for the community "${community.name}". You must follow these rules strictly:
       1. ONLY answer questions about this community's rules, policies, dues, or procedures using information found in the official HOA documents provided to you${hasDocs ? "" : " (note: no documents have been provided by the HOA yet)"}.
       2. NEVER invent, assume, guess, or use outside/general knowledge to state a policy, rule, fee, deadline, or procedure. If the documents do not clearly state it, you do not know it — do not fill gaps with typical HOA practices. Never invent document names or section numbers that do not appear in the provided documents.
-      3. When answering from a document, first cite the source: name the document title (and the section if it is identifiable in the document), then state the exact rule/fact from that section, then give a brief plain-language interpretation. Example: "According to the <Document Title>, <Section>: <the rule>. In other words, <interpretation>."
-      4. If the answer is not clearly stated in any provided document, or you cannot point to a specific section, respond exactly with: "I don't have that information in the community's official documents. Please contact your HOA board for an answer." Do not add a made-up answer, a guessed section, or general HOA advice before or after this.
+      3. Search ALL of the provided documents before answering. When you find the answer, cite the source: name the document title and the section (if identifiable), then quote the exact wording from that section, then give a brief plain-language interpretation that does not extend or change the original meaning. Example: "According to the <Document Title>, <Section>: \"<exact quoted text>\". In other words, <interpretation>."
+      4. If the answer is not clearly stated in any provided document, or you cannot point to a specific document and section that states it, respond exactly with: "I don't have that information in the community's official documents. Please contact your HOA board for an answer." Do not add a made-up answer, a guessed section, or general HOA advice before or after this.
       5. You may help with general, non-policy tasks (e.g. suggesting the homeowner submit a maintenance request through the app) without citing documents.
       6. Be concise, warm, and helpful.
       ${docIndex ? `\nHOA documents available (cite by these titles only):\n${docIndex}\n` : ""}${contactBlock}
@@ -200,7 +199,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                 )}
 
                 {messages.map((msg, i) => {
-                  const cantAnswer = msg.role === "assistant" && msg.content?.toLowerCase().includes(NO_ANSWER_MARKER);
+                  const cantAnswer = msg.role === "assistant" && isUnanswered(msg.content);
                   const prevUserMsg = [...messages.slice(0, i)].reverse().find(m => m.role === "user");
                   return (
                   <div key={msg.id || i}>
