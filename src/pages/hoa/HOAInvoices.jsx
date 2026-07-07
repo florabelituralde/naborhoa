@@ -16,6 +16,7 @@ import {
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2, Plus, Check, Users, DollarSign, Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency, formatDate } from "@/lib/format";
 import BulkInvoiceDialog from "@/components/hoa/BulkInvoiceDialog";
 import ShareLinksPanel from "@/components/hoa/ShareLinksPanel";
@@ -38,6 +39,8 @@ export default function HOAInvoices() {
   const [duesSaved, setDuesSaved] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [confirmingId, setConfirmingId] = useState(null);
+  const { toast } = useToast();
 
   const loadData = async () => {
     try {
@@ -133,16 +136,23 @@ export default function HOAInvoices() {
   };
 
   const confirmPayment = async (inv) => {
-    await base44.entities.Invoice.update(inv.id, { status: "confirmed" });
-    await base44.entities.Notification.create({
-      community_id: community.id,
-      user_id: inv.homeowner_id,
-      type: "payment_confirmed",
-      title: "Payment confirmed",
-      body: `Your payment of ${formatCurrency(inv.amount)} has been confirmed.`,
-      related_id: inv.id,
-    });
-    loadData();
+    setConfirmingId(inv.id);
+    try {
+      await base44.entities.Invoice.update(inv.id, { status: "confirmed" });
+      await base44.entities.Notification.create({
+        community_id: community.id,
+        user_id: inv.homeowner_id,
+        type: "payment_confirmed",
+        title: "Payment confirmed",
+        body: `Your payment of ${formatCurrency(inv.amount)} has been confirmed.`,
+        related_id: inv.id,
+      });
+      loadData();
+    } catch {
+      toast({ title: "Couldn't confirm payment", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setConfirmingId(null);
+    }
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -226,8 +236,9 @@ export default function HOAInvoices() {
                       <CopyLinkButton url={`${window.location.origin}/pay/invoice/${inv.id}`} label="Share pay link" />
                     )}
                     {inv.status === "paid" && (
-                      <Button size="sm" onClick={() => confirmPayment(inv)}>
-                        <Check className="w-4 h-4 mr-1" /> Confirm
+                      <Button size="sm" onClick={() => confirmPayment(inv)} disabled={confirmingId === inv.id}>
+                        {confirmingId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
+                        {confirmingId === inv.id ? "Confirming" : "Confirm"}
                       </Button>
                     )}
                     <Button
