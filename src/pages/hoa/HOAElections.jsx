@@ -12,16 +12,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Plus, Trash2, Trophy, Search } from "lucide-react";
 import { formatDate } from "@/lib/format";
 import { notifyCommunity } from "@/lib/notify";
-import { POSITIONS } from "@/lib/electionPositions";
+import { orderedPositionKeys, positionLabel } from "@/lib/electionPositions";
+import { useCommunityPositions } from "@/hooks/useCommunityPositions";
 
 export default function HOAElections() {
   const { user, community } = useOutletContext();
+  const { positions } = useCommunityPositions(community);
   const [loading, setLoading] = useState(true);
   const [electionResults, setElectionResults] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
   const [homeowners, setHomeowners] = useState([]);
   const [search, setSearch] = useState({});
-  const [form, setForm] = useState({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: "president", name: "", bio: "", statement: "" }] });
+  const [form, setForm] = useState({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: "President", name: "", bio: "", statement: "" }] });
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
@@ -42,7 +44,7 @@ export default function HOAElections() {
   };
   useEffect(() => { if (showCreate && community) loadHomeowners(); }, [showCreate]);
 
-  const addCandidate = () => setForm({ ...form, candidates: [...form.candidates, { position: "member_at_large", name: "", bio: "", statement: "" }] });
+  const addCandidate = () => setForm({ ...form, candidates: [...form.candidates, { position: positions[0]?.name || "President", name: "", bio: "", statement: "" }] });
   const removeCandidate = (i) => setForm({ ...form, candidates: form.candidates.filter((_, idx) => idx !== i) });
   const updateCandidate = (i, field, val) => setForm({
     ...form,
@@ -52,6 +54,12 @@ export default function HOAElections() {
     updateCandidate(i, "name", h.full_name || "");
     updateCandidate(i, "bio", h.email || "");
     setSearch(s => ({ ...s, [i]: "" }));
+  };
+
+  const openCreate = () => {
+    const first = positions[0]?.name || "President";
+    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: first, name: "", bio: "", statement: "" }] });
+    setShowCreate(true);
   };
 
   const handleCreate = async () => {
@@ -71,7 +79,7 @@ export default function HOAElections() {
       body: `Voting is open until ${form.end_date}`,
       related_id: election.id,
     });
-    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: "president", name: "", bio: "", statement: "" }] });
+    setForm({ title: "", description: "", start_date: "", end_date: "", candidates: [{ position: positions[0]?.name || "President", name: "", bio: "", statement: "" }] });
     setShowCreate(false);
     setCreating(false);
     loadData();
@@ -89,7 +97,7 @@ export default function HOAElections() {
       <PageHeader
         title="Elections"
         subtitle="Manage board elections and view results"
-        action={<Button onClick={() => setShowCreate(true)}><Plus className="w-4 h-4 mr-2" /> New Election</Button>}
+        action={<Button onClick={openCreate}><Plus className="w-4 h-4 mr-2" /> New Election</Button>}
       />
 
       {electionResults.length === 0 ? (
@@ -125,12 +133,12 @@ export default function HOAElections() {
                   )}
                 </div>
                 <div className="space-y-4">
-                  {POSITIONS.map(p => {
-                    const cands = byPosition[p.value];
+                  {orderedPositionKeys(byPosition, positions).map(key => {
+                    const cands = byPosition[key];
                     if (!cands || cands.length === 0) return null;
                     return (
-                      <div key={p.value}>
-                        <p className="text-sm font-semibold mb-2">{p.label}</p>
+                      <div key={key}>
+                        <p className="text-sm font-semibold mb-2">{positionLabel(key)}</p>
                         <div className="space-y-2">
                           {cands.map((c, idx) => (
                             <div key={idx} className="p-3 rounded-xl bg-muted/50">
@@ -196,7 +204,7 @@ export default function HOAElections() {
                       <Select value={c.position} onValueChange={v => updateCandidate(i, "position", v)}>
                         <SelectTrigger className="h-9 w-44"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {POSITIONS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                          {positions.map(p => <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       {form.candidates.length > 1 && (

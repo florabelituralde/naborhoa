@@ -6,7 +6,7 @@ import BottomNav from "@/components/mobile/BottomNav";
 import PageTransition from "@/components/mobile/PageTransition";
 import AIChatBubble from "@/components/AIChatBubble";
 import { useLocation } from "react-router-dom";
-import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, UserCheck, Calendar, Contact, Trophy, HelpCircle, Loader2, CreditCard, Sparkles } from "lucide-react";
+import { LayoutDashboard, UserCircle, ClipboardList, ListChecks, Receipt, Wallet, Megaphone, Vote, FileText, Users, UserCheck, Calendar, Contact, Trophy, HelpCircle, Loader2, CreditCard, Sparkles, ListOrdered } from "lucide-react";
 import { markNavLocks } from "@/lib/planAccess";
 
 export default function HOALayout() {
@@ -71,6 +71,7 @@ export default function HOALayout() {
 
     { path: "/hoa/community", label: "Community", icon: Users, group: "People" },
     ...(isAdmin ? [{ path: "/hoa/board", label: "Board", icon: Contact, group: "People" }] : []),
+    ...(isAdmin ? [{ path: "/hoa/positions", label: "Positions", icon: ListOrdered, group: "People" }] : []),
 
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt, group: "Finances" },
     { path: "/hoa/expenses", label: "Expenses", icon: Wallet, group: "Finances" },

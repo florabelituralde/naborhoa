@@ -4,19 +4,12 @@ import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
 import { Loader2, Contact, Mail } from "lucide-react";
 import { formatDate } from "@/lib/format";
-
-const ROLE_LABELS = {
-  president: "President",
-  vice_president: "Vice President",
-  treasurer: "Treasurer",
-  secretary: "Secretary",
-  member_at_large: "Member at Large",
-};
-
-const ROLE_ORDER = ["president", "vice_president", "treasurer", "secretary", "member_at_large"];
+import { positionLabel } from "@/lib/electionPositions";
+import { useCommunityPositions } from "@/hooks/useCommunityPositions";
 
 export default function HomeBoard() {
   const { community } = useOutletContext();
+  const { positions } = useCommunityPositions(community);
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
 
@@ -33,7 +26,11 @@ export default function HomeBoard() {
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
-  const sorted = [...members].sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role));
+  const roleIndex = (r) => {
+    const i = positions.findIndex(p => p.name === r);
+    return i === -1 ? 9999 : i;
+  };
+  const sorted = [...members].sort((a, b) => roleIndex(a.role) - roleIndex(b.role));
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl mx-auto">
@@ -54,7 +51,7 @@ export default function HomeBoard() {
                 </div>
                 <div>
                   <h3 className="font-semibold">{m.name}</h3>
-                  <p className="text-xs text-primary font-medium">{ROLE_LABELS[m.role]}</p>
+                  <p className="text-xs text-primary font-medium">{positionLabel(m.role)}</p>
                 </div>
               </div>
               {m.bio && <p className="text-sm text-muted-foreground mt-3">{m.bio}</p>}

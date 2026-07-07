@@ -10,24 +10,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Plus, Trash2, Contact, Mail, Pencil } from "lucide-react";
 import { formatDate } from "@/lib/format";
-
-const ROLE_LABELS = {
-  president: "President",
-  vice_president: "Vice President",
-  treasurer: "Treasurer",
-  secretary: "Secretary",
-  member_at_large: "Member at Large",
-};
-
-const ROLE_ORDER = ["president", "vice_president", "treasurer", "secretary", "member_at_large"];
+import { positionLabel } from "@/lib/electionPositions";
+import { useCommunityPositions } from "@/hooks/useCommunityPositions";
 
 export default function HOABoard() {
   const { user, community } = useOutletContext();
+  const { positions } = useCommunityPositions(community);
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ name: "", role: "member_at_large", bio: "", email: "", term_start: "", term_end: "" });
+  const [form, setForm] = useState({ name: "", role: positions[0]?.name || "Member at Large", bio: "", email: "", term_start: "", term_end: "" });
   const [creating, setCreating] = useState(false);
 
   const loadData = async () => {
@@ -46,7 +39,7 @@ export default function HOABoard() {
 
   const openAdd = () => {
     setEditingId(null);
-    setForm({ name: "", role: "member_at_large", bio: "", email: "", term_start: "", term_end: "" });
+    setForm({ name: "", role: positions[0]?.name || "Member at Large", bio: "", email: "", term_start: "", term_end: "" });
     setShowAdd(true);
   };
 
@@ -54,7 +47,7 @@ export default function HOABoard() {
     setEditingId(m.id);
     setForm({
       name: m.name || "",
-      role: m.role || "member_at_large",
+      role: m.role || (positions[0]?.name || "Member at Large"),
       bio: m.bio || "",
       email: m.email || "",
       term_start: m.term_start || "",
@@ -70,7 +63,7 @@ export default function HOABoard() {
     } else {
       await base44.entities.BoardMember.create({ ...form, community_id: community.id });
     }
-    setForm({ name: "", role: "member_at_large", bio: "", email: "", term_start: "", term_end: "" });
+    setForm({ name: "", role: positions[0]?.name || "Member at Large", bio: "", email: "", term_start: "", term_end: "" });
     setEditingId(null);
     setShowAdd(false);
     setCreating(false);
@@ -84,7 +77,11 @@ export default function HOABoard() {
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
-  const sorted = [...members].sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role));
+  const roleIndex = (r) => {
+    const i = positions.findIndex(p => p.name === r);
+    return i === -1 ? 9999 : i;
+  };
+  const sorted = [...members].sort((a, b) => roleIndex(a.role) - roleIndex(b.role));
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl mx-auto">
@@ -110,7 +107,7 @@ export default function HOABoard() {
                   </div>
                   <div>
                     <h3 className="font-semibold">{m.name}</h3>
-                    <p className="text-xs text-primary font-medium">{ROLE_LABELS[m.role]}</p>
+                    <p className="text-xs text-primary font-medium">{positionLabel(m.role)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -147,11 +144,7 @@ export default function HOABoard() {
               <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
                 <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="president">President</SelectItem>
-                  <SelectItem value="vice_president">Vice President</SelectItem>
-                  <SelectItem value="treasurer">Treasurer</SelectItem>
-                  <SelectItem value="secretary">Secretary</SelectItem>
-                  <SelectItem value="member_at_large">Member at Large</SelectItem>
+                  {positions.map(p => <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

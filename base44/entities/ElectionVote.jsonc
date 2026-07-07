@@ -12,14 +12,7 @@
       "type": "number"
     },
     "position": {
-      "type": "string",
-      "enum": [
-        "president",
-        "vice_president",
-        "treasurer",
-        "secretary",
-        "member_at_large"
-      ]
+      "type": "string"
     }
   },
   "required": [

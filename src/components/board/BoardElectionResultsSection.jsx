@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import StatusBadge from "@/components/StatusBadge";
 import { Trophy } from "lucide-react";
 import { formatDate } from "@/lib/format";
-import { POSITIONS } from "@/lib/electionPositions";
+import { positionLabel } from "@/lib/electionPositions";
 
 export default function BoardElectionResultsSection({ electionResults, viewPath = "/home/elections" }) {
   return (
@@ -36,12 +36,12 @@ export default function BoardElectionResultsSection({ electionResults, viewPath 
                   {el.start_date ? formatDate(el.start_date) : "Now"} — {formatDate(el.end_date)} · {total} votes
                 </p>
                 <div className="space-y-3">
-                  {POSITIONS.map(p => {
-                    const cands = byPosition[p.value];
+                  {Object.keys(byPosition).map(key => {
+                    const cands = byPosition[key];
                     if (!cands || cands.length === 0) return null;
                     return (
-                      <div key={p.value}>
-                        <p className="text-xs font-medium text-muted-foreground mb-1">{p.label}</p>
+                      <div key={key}>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">{positionLabel(key)}</p>
                         <div className="space-y-1.5">
                           {cands.map((c, idx) => {
                             const pct = total > 0 ? (c.count / total) * 100 : 0;

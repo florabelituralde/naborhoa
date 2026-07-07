@@ -6,10 +6,12 @@ import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Loader2, Trophy, Check, Bell } from "lucide-react";
 import { formatDate } from "@/lib/format";
-import { POSITIONS, positionLabel } from "@/lib/electionPositions";
+import { positionLabel, orderedPositionKeys } from "@/lib/electionPositions";
+import { useCommunityPositions } from "@/hooks/useCommunityPositions";
 
 export default function HomeElections() {
   const { user, community } = useOutletContext();
+  const { positions } = useCommunityPositions(community);
   const [loading, setLoading] = useState(true);
   const [electionResults, setElectionResults] = useState([]);
   const [myVotes, setMyVotes] = useState({});
@@ -110,15 +112,15 @@ export default function HomeElections() {
                   {el.start_date ? formatDate(el.start_date) : "Now"} — {formatDate(el.end_date)}
                 </p>
                 <div className="space-y-4">
-                  {POSITIONS.map(p => {
-                    const cands = byPosition[p.value];
+                  {orderedPositionKeys(byPosition, positions).map(key => {
+                    const cands = byPosition[key];
                     if (!cands || cands.length === 0) return null;
-                    const myPick = myVotes[`${el.id}:${p.value}`];
+                    const myPick = myVotes[`${el.id}:${key}`];
                     const positionVoted = myPick !== undefined;
                     return (
-                      <div key={p.value}>
+                      <div key={key}>
                         <div className="flex items-center gap-2 mb-2">
-                          <p className="text-sm font-semibold">{p.label}</p>
+                          <p className="text-sm font-semibold">{positionLabel(key)}</p>
                           {positionVoted && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary flex items-center gap-1"><Check className="w-3 h-3" /> Voted</span>}
                         </div>
                         <div className="space-y-2">
@@ -137,8 +139,8 @@ export default function HomeElections() {
                                     </div>
                                   </div>
                                   {el.status === "active" && !positionVoted && (
-                                    <Button size="sm" variant={isMyVote ? "default" : "outline"} onClick={() => handleVote(el, p.value, c._index)} disabled={voting === `${el.id}:${p.value}:${c._index}`}>
-                                      {voting === `${el.id}:${p.value}:${c._index}` ? <Loader2 className="w-4 h-4 animate-spin" /> : "Vote"}
+                                    <Button size="sm" variant={isMyVote ? "default" : "outline"} onClick={() => handleVote(el, key, c._index)} disabled={voting === `${el.id}:${key}:${c._index}`}>
+                                      {voting === `${el.id}:${key}:${c._index}` ? <Loader2 className="w-4 h-4 animate-spin" /> : "Vote"}
                                     </Button>
                                   )}
                                 </div>

@@ -38,6 +38,7 @@ import HOABoardHub from '@/pages/hoa/HOABoardHub';
 import HOAHelp from '@/pages/hoa/HOAHelp';
 import HOAPaymentSettings from '@/pages/hoa/HOAPaymentSettings';
 import HOAElections from '@/pages/hoa/HOAElections';
+import HOAPositions from '@/pages/hoa/HOAPositions';
 import HomeDashboard from '@/pages/home/HomeDashboard';
 import HomeAccount from '@/pages/home/HomeAccount';
 import HomeNotifications from '@/pages/home/HomeNotifications';
@@ -130,6 +131,7 @@ const AuthenticatedApp = () => {
           <Route path="/hoa/community" element={<HOACommunity />} />
           <Route path="/hoa/board-hub" element={<HOABoardHub />} />
           <Route path="/hoa/board" element={<HOABoard />} />
+          <Route path="/hoa/positions" element={<HOAPositions />} />
           <Route path="/hoa/help" element={<HOAHelp />} />
         </Route>
 
