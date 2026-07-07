@@ -71,11 +71,12 @@ export default function HOAElections() {
   useEffect(() => { if (community) loadData(); else setLoading(false); }, [community]);
 
   const loadHomeowners = async () => {
-    if (!community) return;
-    const hs = await base44.entities.User.filter({ community_id: community.id, role: "homeowner" });
+    const communityId = community?.id || user?.community_id;
+    if (!communityId) return;
+    const hs = await base44.entities.User.filter({ community_id: communityId, role: "homeowner" });
     setHomeowners(hs);
   };
-  useEffect(() => { if (showCreate && community) loadHomeowners(); }, [showCreate]);
+  useEffect(() => { if (showCreate) loadHomeowners(); }, [showCreate, community?.id, user?.community_id]);
 
   const addCandidate = () => setForm({ ...form, candidates: [...form.candidates, { position: positions[0]?.name || "President", homeowner_id: "", name: "", bio: "", statement: "" }] });
   const removeCandidate = (i) => setForm({ ...form, candidates: form.candidates.filter((_, idx) => idx !== i) });
