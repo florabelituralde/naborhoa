@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import NaborLogo from "@/components/NaborLogo";
 import { CreditCard, Loader2, MapPin, ArrowLeft, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
+import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
+import { calculateTotal } from "@/lib/paymentFee";
 
 export default function GuestPayPortal() {
   const [address, setAddress] = useState("");
@@ -116,9 +118,12 @@ export default function GuestPayPortal() {
                   <p className="text-2xl font-bold text-primary">${dues.toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">Monthly Dues</p>
                 </div>
+                <div className="mt-3">
+                  <PaymentFeeDisclosure baseAmount={dues} />
+                </div>
                 <Button onClick={pay} disabled={paying} className="w-full h-12 mt-3">
                   {paying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
-                  Pay ${dues.toFixed(2)} Now
+                  Pay ${calculateTotal(dues).toFixed(2)} Now
                 </Button>
               </div>
             )}

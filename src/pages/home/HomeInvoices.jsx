@@ -11,6 +11,7 @@ import { Loader2, Upload, Check, RefreshCw, X, Download, CreditCard } from "luci
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { exportPaymentStatement } from "@/lib/exportStatement";
+import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
 
 // Auto-pay frequency options. Amount is derived from the community's monthly dues.
 const FREQ_OPTIONS = [
@@ -194,14 +195,17 @@ export default function HomeInvoices() {
                 <div className="text-right ml-4">
                   <p className="text-xl font-bold">{formatCurrency(inv.amount)}</p>
                   {inv.status === "pending" && (
-                    <div className="flex gap-2 mt-2 justify-end">
-                      <Button size="sm" onClick={() => handlePayNow(inv)} disabled={payingNowId === inv.id}>
-                        {payingNowId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CreditCard className="w-4 h-4 mr-1" />}
-                        Pay Now
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => setPayingInvoice(inv)}>
-                        <Check className="w-4 h-4 mr-1" /> Mark Paid
-                      </Button>
+                    <div className="mt-2">
+                      <div className="flex gap-2 justify-end">
+                        <Button size="sm" onClick={() => handlePayNow(inv)} disabled={payingNowId === inv.id}>
+                          {payingNowId === inv.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CreditCard className="w-4 h-4 mr-1" />}
+                          Pay Now
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setPayingInvoice(inv)}>
+                          <Check className="w-4 h-4 mr-1" /> Mark Paid
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 text-right">A 1.5% processing fee applies at checkout</p>
                     </div>
                   )}
                   {inv.status === "paid" && <p className="text-xs text-muted-foreground mt-2">Awaiting confirmation</p>}
@@ -265,6 +269,7 @@ export default function HomeInvoices() {
                 </button>
               ))}
             </div>
+            <PaymentFeeDisclosure baseAmount={(community?.monthly_dues || 45) * (FREQ_OPTIONS.find(f => f.value === autopayFreq)?.multiplier || 1)} />
             <Button onClick={handleSetupAutopay} disabled={settingUpAutopay} className="w-full">
               {settingUpAutopay && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Start Auto-Pay

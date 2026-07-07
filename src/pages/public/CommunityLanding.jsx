@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Megaphone, Calendar, MapPin, Home, MessageCircle, CreditCard, Users, Loader2, ArrowRight, Shield, Images } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
+import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
+import { calculateTotal } from "@/lib/paymentFee";
 
 const ROLE_LABELS = {
   president: "President",
@@ -142,16 +144,19 @@ export default function CommunityLanding() {
               <p className="text-sm text-muted-foreground">No account needed — pay securely online</p>
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-primary/5 mb-4">
+          <div className="p-4 rounded-xl bg-primary/5 mb-3">
             <p className="text-3xl font-bold text-primary">${(community.monthly_dues || 45).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground">Monthly Dues</p>
+          </div>
+          <div className="mb-4">
+            <PaymentFeeDisclosure baseAmount={community.monthly_dues || 45} />
           </div>
           {payError && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{payError}</div>}
           <div className="flex flex-col sm:flex-row gap-3">
             <Input value={address} onChange={e => setAddress(e.target.value)} placeholder="Enter your property address" className="flex-1 h-11" />
             <Button onClick={handlePay} disabled={!address.trim() || paying} className="h-11 sm:px-8">
               {paying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
-              Pay ${(community.monthly_dues || 45).toFixed(2)} Now
+              Pay ${calculateTotal(community.monthly_dues || 45).toFixed(2)} Now
             </Button>
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">

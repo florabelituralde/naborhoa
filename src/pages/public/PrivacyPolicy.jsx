@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Home, ArrowLeft, Shield } from "lucide-react";
 
-const UPDATED = "July 6, 2026";
+const UPDATED = "July 7, 2026";
 
 export default function PrivacyPolicy() {
   return (
@@ -42,7 +42,7 @@ export default function PrivacyPolicy() {
             <p className="mb-2"><strong>Account information:</strong> Your name, email address, and password (stored securely and hashed). When you sign in with Google or Apple, we receive the name and email associated with that account.</p>
             <p className="mb-2"><strong>Profile & community data:</strong> Your role (homeowner or HOA manager), community membership, property address, and join codes you use.</p>
             <p className="mb-2"><strong>Content you create:</strong> Maintenance and repair requests, messages to the AI assistant, announcements, poll votes, election votes, event RSVPs, and documents you upload.</p>
-            <p className="mb-2"><strong>Payment information:</strong> Dues and subscription payments are processed securely by our payment providers. Platform subscriptions are handled by Base44 Payments. When your HOA connects its own account, resident dues and bill payments are processed by Stripe and paid out directly to your HOA's bank account. We never store your full card or bank account number on our servers; our providers retain the payment credentials, and we keep only transaction records (amount, date, status, and the last four digits) for your history.</p>
+            <p className="mb-2"><strong>Payment information:</strong> Dues and subscription payments are processed securely by our payment providers. Platform subscriptions are handled by Base44 Payments. When your HOA connects its own account, resident dues and bill payments are processed by Stripe and paid out directly to your HOA's bank account. A 1.5% payment processing fee is added to each resident payment and retained by Ituralde Digital Solutions LLC as a platform service fee; this fee is disclosed to the resident before payment is completed. We never store your full card or bank account number on our servers; our providers retain the payment credentials, and we keep only transaction records (amount, date, status, and the last four digits) for your history.</p>
             <p className="mb-2"><strong>Biometric &amp; device security data:</strong> If you enable biometric sign-in (Face ID, Touch ID, or fingerprint), the biometric data itself never leaves your device and is never sent to us — we store only a public credential identifier used to verify future logins. To protect your account, we may also store a hashed device-verification code and a record of trusted devices.</p>
             <p className="mb-2"><strong>Usage data:</strong> Device type, app version, and interaction logs used to improve the Service and troubleshoot issues.</p>
           </section>

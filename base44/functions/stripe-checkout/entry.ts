@@ -1,8 +1,11 @@
 import Stripe from 'npm:stripe@14.25.0';
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
-// Platform fee taken from each resident payment (in basis points). 300 = 3%.
-const PLATFORM_FEE_BPS = 300;
+// Platform processing fee added ON TOP of each resident payment (in basis
+// points). 150 = 1.5%. The fee is charged to the homeowner as a separate line
+// item and retained by the platform; the HOA receives the original dues amount
+// (minus Stripe's own processing fees).
+const PLATFORM_FEE_BPS = 150;
 
 // Only trust the request Origin when it points at one of our own domains.
 // Otherwise fall back to a safe canonical URL so redirect targets can't be
@@ -70,8 +73,8 @@ Deno.serve(async (req) => {
     const stripe = new Stripe(secretKey);
     const origin = safeOrigin(req);
 
-    const unitAmount = Math.round(chargeAmount * 100);
-    const fee = Math.round((unitAmount * PLATFORM_FEE_BPS) / 10000);
+    const baseAmount = Math.round(chargeAmount * 100);
+    const fee = Math.round((baseAmount * PLATFORM_FEE_BPS) / 10000);
 
     // Build the list of allowed payment method types from the community's
     // accepted methods. Defaults to card-only.
@@ -88,7 +91,15 @@ Deno.serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: { name: chargeDescription || "HOA Payment" },
-            unit_amount: unitAmount,
+            unit_amount: baseAmount,
+          },
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency: "usd",
+            product_data: { name: `Processing Fee (${PLATFORM_FEE_BPS / 100}%)` },
+            unit_amount: fee,
           },
           quantity: 1,
         },

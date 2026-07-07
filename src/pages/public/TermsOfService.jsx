@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Home, ArrowLeft, FileText } from "lucide-react";
 
-const UPDATED = "July 6, 2026";
+const UPDATED = "July 7, 2026";
 
 export default function TermsOfService() {
   return (
@@ -72,11 +72,14 @@ export default function TermsOfService() {
             </ul>
             <p className="mt-2">
               Homeowner HOA dues and bill payments are separate one-time or recurring transactions.
-              They are processed securely through Base44 Payments, or, where your HOA has connected its
-              own payment account, through Stripe with funds paid out directly to your HOA. A small
-              platform service fee may be applied to payments processed through a connected account.
-              Ituralde Digital Solutions LLC is not the merchant of record for resident dues and is not
-              responsible for the goods, services, or obligations of your HOA.
+              When your HOA has connected its own Stripe account, payments are processed through Stripe
+              with funds paid out directly to your HOA's bank account. A <strong>1.5% payment processing
+              fee</strong> is added to each resident payment (one-time dues, invoices, and recurring
+              auto-pay) and is retained by Ituralde Digital Solutions LLC as a platform service fee for
+              use of the Nabor HOA platform. This fee is disclosed to the resident on the payment screen
+              and on the Stripe checkout page before the payment is completed. Ituralde Digital Solutions
+              LLC is not the merchant of record for resident dues and is not responsible for the goods,
+              services, or obligations of your HOA.
             </p>
           </section>
 

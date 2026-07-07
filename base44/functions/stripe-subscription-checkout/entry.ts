@@ -5,7 +5,11 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 // Stripe account (Stripe Connect) with a platform application fee. This replaces
 // the old Wix auto-pay checkout — Wix is now used only for the app's own plan
 // subscriptions (create-plan-checkout).
-const PLATFORM_FEE_PERCENT = 3;
+// Platform processing fee (1.5%) added ON TOP of the recurring dues amount.
+// The homeowner pays dues + 1.5%; the platform retains the 1.5% via
+// application_fee_percent, and the HOA receives the original dues (minus
+// Stripe's own processing fees).
+const PLATFORM_FEE_PERCENT = 1.5;
 
 function safeOrigin(req: Request): string {
   // Trust the request Origin so redirect URLs match the domain the user is
@@ -72,7 +76,14 @@ Deno.serve(async (req) => {
 
     const stripe = new Stripe(secretKey);
     const origin = safeOrigin(req);
-    const unitAmount = Math.round(amount * 100);
+    const baseAmount = Math.round(amount * 100);
+    const feeAmount = Math.round((baseAmount * PLATFORM_FEE_PERCENT) / 100);
+    const unitAmount = baseAmount + feeAmount;
+    // Compute the exact percentage of the total charge that equals the fee,
+    // so Stripe deducts precisely feeAmount each cycle.
+    const applicationFeePercent = unitAmount > 0
+      ? Number(((feeAmount / unitAmount) * 100).toFixed(6))
+      : 0;
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -88,7 +99,7 @@ Deno.serve(async (req) => {
         },
       ],
       subscription_data: {
-        application_fee_percent: PLATFORM_FEE_PERCENT,
+        application_fee_percent: applicationFeePercent,
         transfer_data: { destination: community.stripe_account_id },
         metadata: {
           community_id: communityId,

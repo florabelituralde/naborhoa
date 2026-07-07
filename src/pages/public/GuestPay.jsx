@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Home, Loader2, CreditCard, ArrowLeft, Shield } from "lucide-react";
+import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
+import { calculateTotal } from "@/lib/paymentFee";
 
 export default function GuestPay() {
   const { joinCode } = useParams();
@@ -80,9 +82,13 @@ export default function GuestPay() {
               <p className="text-sm text-muted-foreground">Pay your monthly HOA dues</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-primary/5 mb-6 text-center">
+            <div className="p-4 rounded-xl bg-primary/5 mb-4 text-center">
               <p className="text-3xl font-bold text-primary">${(community.monthly_dues || 45).toFixed(2)}</p>
               <p className="text-sm text-muted-foreground">Monthly Dues</p>
+            </div>
+
+            <div className="mb-6">
+              <PaymentFeeDisclosure baseAmount={community.monthly_dues || 45} />
             </div>
 
             {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
@@ -94,7 +100,7 @@ export default function GuestPay() {
               </div>
               <Button onClick={handlePay} disabled={!address || paying} className="w-full h-12">
                 {paying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
-                Pay ${(community.monthly_dues || 45).toFixed(2)} Now
+                Pay ${calculateTotal(community.monthly_dues || 45).toFixed(2)} Now
               </Button>
             </div>
 

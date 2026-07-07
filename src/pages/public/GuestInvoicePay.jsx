@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import NaborLogo from "@/components/NaborLogo";
 import { CreditCard, Loader2, ArrowLeft, Shield, AlertCircle, FileText, CheckCircle2 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/format";
+import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
+import { calculateTotal } from "@/lib/paymentFee";
 
 const TYPE_LABELS = {
   dues: "HOA Dues",
@@ -103,8 +105,11 @@ export default function GuestInvoicePay() {
                 </div>
                 {invoice.description && <p className="text-sm text-muted-foreground mb-3">{invoice.description}</p>}
                 {invoice.due_date && <p className="text-xs text-muted-foreground mb-3">Due: {formatDate(invoice.due_date)}</p>}
-                <div className="p-4 rounded-xl bg-primary/5 mb-4 text-center">
+                <div className="p-4 rounded-xl bg-primary/5 mb-3 text-center">
                   <p className="text-3xl font-bold text-primary">{formatCurrency(invoice.amount)}</p>
+                </div>
+                <div className="mb-4">
+                  <PaymentFeeDisclosure baseAmount={invoice.amount} />
                 </div>
 
                 {settled ? (
@@ -115,7 +120,7 @@ export default function GuestInvoicePay() {
                 ) : (
                   <Button onClick={pay} disabled={paying} className="w-full h-12">
                     {paying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
-                    Pay {formatCurrency(invoice.amount)} Now
+                    Pay {formatCurrency(calculateTotal(invoice.amount))} Now
                   </Button>
                 )}
               </>
