@@ -12,9 +12,18 @@ export default function UserAvatar({ user, className, textClass }) {
       />
     );
   }
+  const initials = (user?.full_name || "")
+    .trim()
+    .split(/\s+/)
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "U";
+
   return (
     <div className={cn("rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold shrink-0", className, textClass)}>
-      {user?.full_name?.[0]?.toUpperCase() || "U"}
+      {initials}
     </div>
   );
 }
