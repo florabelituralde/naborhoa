@@ -8,6 +8,7 @@ import { ClipboardList, DollarSign, Users, Loader2, Sparkles, UserPlus } from "l
 import { formatCurrency } from "@/lib/format";
 import FinancialOverviewChart from "@/components/hoa/FinancialOverviewChart";
 import JoinRequestsSection from "@/components/JoinRequestsSection";
+import BoardRequestsApprovalSection from "@/components/board/BoardRequestsApprovalSection";
 import { isInTrial, trialDaysLeft } from "@/lib/planAccess";
 
 export default function HOADashboard() {
@@ -19,16 +20,18 @@ export default function HOADashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [pendingJoins, setPendingJoins] = useState(0);
+  const [pendingBoardMembers, setPendingBoardMembers] = useState([]);
 
   const loadData = useCallback(async () => {
     if (!community) return;
-    const [reqs, invs, mems, anns, exps, pending] = await Promise.all([
+    const [reqs, invs, mems, anns, exps, pending, boardMembers] = await Promise.all([
       base44.entities.Request.filter({ community_id: community.id }, "-created_date", 50),
       base44.entities.Invoice.filter({ community_id: community.id }, "-created_date", 500),
       base44.functions.invoke("get-community-homeowners", {}).then(r => r.data?.members || []).catch(() => []),
       base44.entities.Announcement.filter({ community_id: community.id }, "-created_date", 5),
       base44.entities.Expense.filter({ community_id: community.id }, "-created_date", 500),
       base44.functions.invoke("get-join-requests", {}).then(r => (r.data?.requests || []).filter(x => x.status === "pending").length).catch(() => 0),
+      base44.functions.invoke("get-board-access-requests", {}).then(r => r.data?.pendingMembers || []).catch(() => []),
     ]);
     setRequests(reqs);
     setInvoices(invs);
@@ -36,6 +39,7 @@ export default function HOADashboard() {
     setAnnouncements(anns);
     setExpenses(exps);
     setPendingJoins(pending);
+    setPendingBoardMembers(boardMembers);
   }, [community]);
 
   useEffect(() => {
@@ -95,13 +99,16 @@ export default function HOADashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard icon={ClipboardList} value={openRequests} label="Open Requests" colorClass="bg-primary/10 text-primary" to="/hoa/requests" />
-        <StatCard icon={UserPlus} value={pendingJoins} label="Pending Requests" colorClass="bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" onClick={() => document.getElementById("membership-requests")?.scrollIntoView({ behavior: "smooth" })} />
+        <StatCard icon={UserPlus} value={pendingJoins + pendingBoardMembers.length} label="Pending Requests" colorClass="bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" onClick={() => document.getElementById("membership-requests")?.scrollIntoView({ behavior: "smooth" })} />
         <StatCard icon={DollarSign} value={formatCurrency(pendingTotal)} label="Outstanding" colorClass="bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300" to="/hoa/invoices" />
         <StatCard icon={Users} value={members.length} label="Homeowners" colorClass="bg-green-50 text-green-600 dark:bg-green-500/15 dark:text-green-300" to="/hoa/community" />
       </div>
 
-      <div id="membership-requests" className="mb-6 scroll-mt-6">
+      <div id="membership-requests" className="mb-6 scroll-mt-6 space-y-6">
         <JoinRequestsSection />
+        {pendingBoardMembers.length > 0 && (
+          <BoardRequestsApprovalSection community={community} pendingMembers={pendingBoardMembers} onChange={loadData} />
+        )}
       </div>
 
       <div className="mb-6">
