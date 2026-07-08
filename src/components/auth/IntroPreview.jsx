@@ -120,26 +120,28 @@ export default function IntroPreview({ onDismiss }) {
       {/* Feature slides */}
       <div className="bg-card border-t border-border px-6 pt-6 pb-4">
         <div className="max-w-md mx-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={slide}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.25 }}
-              className="flex items-center gap-4 min-h-[6.5rem]"
-            >
-              <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                {React.createElement(SLIDES[slide].icon, {
-                  className: "w-10 h-10 text-primary",
-                })}
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-foreground mb-1">{SLIDES[slide].title}</h3>
-                <p className="text-sm text-muted-foreground leading-snug">{SLIDES[slide].text}</p>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+          <div className="relative h-36 overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={slide}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.25 }}
+                className="absolute inset-0 flex items-center gap-4"
+              >
+                <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                  {React.createElement(SLIDES[slide].icon, {
+                    className: "w-10 h-10 text-primary",
+                  })}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-foreground mb-1">{SLIDES[slide].title}</h3>
+                  <p className="text-sm text-muted-foreground leading-snug">{SLIDES[slide].text}</p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
           {/* Dots */}
           <div className="flex justify-center gap-2 mt-4">
