@@ -126,7 +126,7 @@ export default function HomeElections() {
             (el.candidates || []).forEach((c, i) => {
               // Normalize to the display label so legacy enum values and
               // display names group together instead of duplicating sections.
-              const key = positionLabel(c.position || "member_at_large");
+              const key = positionLabel(c.position || "board_member");
               if (!byPosition[key]) byPosition[key] = [];
               byPosition[key].push({ ...c, _index: i, count: el.counts[i] || 0 });
             });
