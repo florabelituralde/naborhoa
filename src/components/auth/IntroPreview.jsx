@@ -109,10 +109,10 @@ export default function IntroPreview({ onDismiss }) {
         <div className="relative h-full flex flex-col items-center justify-center text-center px-6">
           <NaborLogo iconClassName="w-16 h-16" textClassName="font-bold text-3xl text-white drop-shadow-lg" />
           <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.6)] max-w-lg">
-            Bringing your neighborhood together
+            Your neighborhood, finally in sync
           </h1>
           <p className="mt-2 text-white/95 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] max-w-md">
-            The all-in-one home for your community — connected, organized, and effortless.
+            Dues, requests, votes, and updates — all in one place. Join your HOA in under a minute.
           </p>
         </div>
       </div>
