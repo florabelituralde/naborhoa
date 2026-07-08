@@ -92,6 +92,39 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
         ? docs.map((d, i) => `${i + 1}. ${d.title}${d.category ? ` (${d.category})` : ""}`).join("\n")
         : "";
 
+      // Fetch text/HTML document content and embed it directly in the prompt.
+      // The LLM's file-attachment parser doesn't reliably read .html/.txt files,
+      // so this guarantees the assistant can answer from FAQs and reference guides.
+      const isTextDoc = (d) => {
+        const ft = (d.file_type || "").toLowerCase();
+        const url = (d.file_url || "").toLowerCase();
+        return ft === "text/html" || ft === "text/plain" || url.endsWith(".html") || url.endsWith(".txt");
+      };
+      let docContentBlock = "";
+      const textDocs = docs.filter(isTextDoc);
+      if (textDocs.length) {
+        const fetched = await Promise.all(textDocs.map(async (d) => {
+          try {
+            const r = await fetch(d.file_url);
+            if (!r.ok) return null;
+            let text = await r.text();
+            if ((d.file_type || "").toLowerCase() === "text/html" || d.file_url.toLowerCase().endsWith(".html")) {
+              text = text
+                .replace(/<script[\s\S]*?<\/script>/gi, " ")
+                .replace(/<style[\s\S]*?<\/style>/gi, " ")
+                .replace(/<[^>]+>/g, " ")
+                .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+                .replace(/&nbsp;/g, " ").replace(/&#39;/g, "'").replace(/&quot;/g, '"')
+                .replace(/\s+/g, " ").trim();
+            }
+            if (!text) return null;
+            return `--- ${d.title} ---\n${text}`;
+          } catch (e) { return null; }
+        }));
+        const valid = fetched.filter(Boolean);
+        if (valid.length) docContentBlock = `\nDocument contents (read these and use them to answer):\n${valid.join("\n\n")}\n`;
+      }
+
       const contactLines = [];
       if (managerEmail) contactLines.push(`- HOA Admin: ${managerName ? managerName + " — " : ""}${managerEmail}`);
       boardMembers.filter(b => b.email).forEach(b => {
@@ -130,7 +163,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
       Community facts (you may share these without citing documents):
       ${communityFacts}
       ${appGuidance}
-      ${docIndex ? `\nHOA documents available (cite by these titles only):\n${docIndex}\n` : ""}${contactBlock}
+      ${docIndex ? `\nHOA documents available (cite by these titles only):\n${docIndex}\n` : ""}${docContentBlock}${contactBlock}
       Homeowner question: ${question}`;
 
       const response = await base44.integrations.Core.InvokeLLM({
