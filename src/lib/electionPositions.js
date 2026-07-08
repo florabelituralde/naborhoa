@@ -14,7 +14,6 @@ export const POSITIONS = [
   { value: "vice_president", label: "Vice President" },
   { value: "treasurer", label: "Treasurer" },
   { value: "secretary", label: "Secretary" },
-  { value: "member_at_large", label: "Member at Large" },
 ];
 
 export const POSITION_VALUES = POSITIONS.map(p => p.value);
