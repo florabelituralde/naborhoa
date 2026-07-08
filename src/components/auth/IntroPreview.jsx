@@ -118,7 +118,7 @@ export default function IntroPreview({ onDismiss }) {
       </div>
 
       {/* Feature slides */}
-      <div className="bg-card border-t border-border px-6 pt-6 pb-4">
+      <div className="bg-card border-t border-border px-6 pt-3 pb-4">
         <div className="max-w-md mx-auto">
           <div className="relative h-36 overflow-hidden">
             <AnimatePresence mode="wait">
