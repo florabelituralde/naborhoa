@@ -22,7 +22,7 @@ export default function BoardElectionResultsSection({ electionResults, viewPath 
             const total = el.total;
             const byPosition = {};
             (el.candidates || []).forEach((c, i) => {
-              const key = c.position || "member_at_large";
+              const key = c.position || "board_member";
               if (!byPosition[key]) byPosition[key] = [];
               byPosition[key].push({ ...c, count: el.counts[i] || 0 });
             });
