@@ -49,9 +49,10 @@ Deno.serve(async (req) => {
       // Skip business/POI results — we only want real addresses.
       if (POI_CATEGORIES.includes(item.category)) continue;
       const a = item.address || {};
-      // Require a real street/road — filters out states, counties, townships,
-      // and cities that have no street-level detail.
-      if (!a.road) continue;
+      // Require a real street/road AND a house number — this ensures we only
+      // return specific, full street addresses (e.g. "123 Main St, City, ST
+      // 00000"), not bare roads, cities, states, or townships.
+      if (!a.road || !a.house_number) continue;
       const formatted = buildCleanAddress(a);
       if (!formatted) continue;
       // Dedupe by the clean formatted address.
