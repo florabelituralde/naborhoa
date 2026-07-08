@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Loader2, Copy, Check, Users, Home, UserCog, Send, Upload, Images, X } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import JoinRequestsSection from "@/components/JoinRequestsSection";
+import BulkAddressImportDialog from "@/components/hoa/BulkAddressImportDialog";
 
 export default function HOACommunity() {
   const { user, community, refreshCommunity } = useOutletContext();
@@ -19,6 +20,7 @@ export default function HOACommunity() {
   const [properties, setProperties] = useState([]);
   const [copied, setCopied] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("homeowner");
   const [inviting, setInviting] = useState(false);
@@ -246,6 +248,11 @@ export default function HOACommunity() {
             <div className="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center"><Home className="w-5 h-5 text-amber-600 dark:text-amber-300" /></div>
             <div><p className="text-2xl font-bold">{properties.length}</p><p className="text-sm text-muted-foreground">Properties</p></div>
           </div>
+          {user.role === "hoa_admin" && (
+            <Button size="sm" variant="outline" className="w-full mt-3" onClick={() => setShowBulkImport(true)}>
+              <Home className="w-4 h-4 mr-1.5" /> Import Addresses
+            </Button>
+          )}
         </div>
         <div className="bg-card rounded-2xl warm-shadow p-6">
           <div className="flex items-center gap-3">
@@ -343,6 +350,14 @@ export default function HOACommunity() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <BulkAddressImportDialog
+        open={showBulkImport}
+        onOpenChange={setShowBulkImport}
+        community={community}
+        existingProperties={properties}
+        onDone={loadData}
+      />
     </div>
   );
 }
