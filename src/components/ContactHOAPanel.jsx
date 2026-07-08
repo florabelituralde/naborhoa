@@ -51,7 +51,7 @@ ${message}`;
         <p className="text-sm font-medium">Contact the HOA</p>
       </div>
       <p className="text-xs text-muted-foreground mb-2">
-        Your message goes to {recipientEmail}{ccEmails.length ? ` (CC: ${ccEmails.join(", ")})` : ""}. The board will reply by email.
+        Your message will be sent to your community's HOA admin and board members. They'll review it and provide a response by email.
       </p>
       <textarea
         value={message}
