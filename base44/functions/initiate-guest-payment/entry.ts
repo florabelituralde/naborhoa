@@ -133,6 +133,6 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error("initiate-guest-payment error:", error);
-    return Response.json({ error: "DEBUG: " + (error.message || String(error)) }, { status: 500 });
+    return Response.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 });

@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
       },
       success_url: `${origin}/pay/thank-you?c=${join_code || ""}`,
       cancel_url: invoice_id
-        ? `${origin}/pay/invoice/${invoice_id}`
+        ? `${origin}/pay`
         : `${origin}/c/${join_code || ""}`,
       metadata: {
         community_id,
