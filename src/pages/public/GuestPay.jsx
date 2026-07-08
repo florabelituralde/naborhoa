@@ -55,6 +55,7 @@ export default function GuestPay() {
       <div className="text-center max-w-md">
         <Home className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="text-2xl font-bold mb-2">Community Not Found</h1>
+        <p className="text-sm text-muted-foreground mb-4">We couldn't find a community with that code. Your HOA may not be on Nabor yet — check with your HOA or property management company.</p>
         <Link to="/login"><Button>Go to Nabor HOA</Button></Link>
       </div>
     </div>

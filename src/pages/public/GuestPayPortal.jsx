@@ -8,6 +8,7 @@ import { CreditCard, Loader2, ArrowLeft, Shield, AlertCircle, CheckCircle2 } fro
 import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
 import { calculateTotal } from "@/lib/paymentFee";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import WaitlistForm from "@/components/WaitlistForm";
 
 export default function GuestPayPortal() {
   const [address, setAddress] = useState("");
@@ -25,7 +26,7 @@ export default function GuestPayPortal() {
     base44.functions
       .invoke("find-community-by-address", { address })
       .then((res) => setCommunity(res.data.community))
-      .catch((err) => setError(err.response?.data?.error || "We couldn't find that address."))
+      .catch((err) => setError(err.response?.data?.error || "We couldn't find your community by that address. Your HOA may not be on Nabor yet — you can join the waitlist below to be notified when it joins."))
       .finally(() => setSearching(false));
   };
 
@@ -101,6 +102,12 @@ export default function GuestPayPortal() {
               <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
                 <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                 <span>{error}</span>
+              </div>
+            )}
+
+            {error && !community && (
+              <div className="mt-4 p-4 rounded-xl border border-border bg-muted/30">
+                <WaitlistForm initialAddress={address} title="Join the waitlist" />
               </div>
             )}
 

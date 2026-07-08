@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Home, Loader2, Check, Search, MapPin, KeyRound, AlertTriangle } from "lucide-react";
 import JoinByCode from "@/components/JoinByCode";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import WaitlistForm from "@/components/WaitlistForm";
 
 export default function Join() {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ export default function Join() {
         : all;
       setResults(filtered);
       setSearched(true);
-      if (filtered.length === 0) setError("No communities found. Try a different search.");
+      if (filtered.length === 0) setError("No communities found. Your HOA may not be on Nabor yet — you can join the waitlist below to be notified when it joins.");
     } catch (err) {
       setError(err.message || "Search failed");
     }
@@ -166,6 +167,14 @@ export default function Join() {
                       </div>
                     </button>
                   ))}
+                </div>
+              )}
+              {searched && results.length === 0 && (
+                <div className="mt-6 p-4 rounded-xl border border-border bg-muted/30">
+                  <WaitlistForm
+                    initialEmail={user?.email || ""}
+                    title="Join the waitlist"
+                  />
                 </div>
               )}
               </>

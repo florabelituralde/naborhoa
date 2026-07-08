@@ -1,0 +1,78 @@
+{
+  "name": "Waitlist",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "address": {
+      "type": "string"
+    },
+    "community_name": {
+      "type": "string",
+      "description": "The HOA or community name the homeowner is looking for, if known"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "notified",
+        "closed"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "email",
+    "address"
+  ],
+  "rls": {
+    "create": null,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "hoa_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "hoa_staff"
+          }
+        }
+      ]
+    }
+  }
+}
