@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Home, Loader2, CreditCard, ArrowLeft, Shield } from "lucide-react";
 import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
 import { calculateTotal } from "@/lib/paymentFee";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 export default function GuestPay() {
   const { joinCode } = useParams();
@@ -96,7 +96,13 @@ export default function GuestPay() {
             <div className="space-y-4">
               <div>
                 <Label>Property Address</Label>
-                <Input value={address} onChange={e => setAddress(e.target.value)} placeholder="456 Oak Lane" className="mt-1.5 h-11" autoFocus />
+                <div className="mt-1.5">
+                  <AddressAutocomplete
+                    value={address}
+                    onChange={({ address: addr }) => setAddress(addr)}
+                    placeholder="Search your property address"
+                  />
+                </div>
               </div>
               <Button onClick={handlePay} disabled={!address || paying} className="w-full h-12">
                 {paying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
