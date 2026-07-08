@@ -102,13 +102,34 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
         ? `\nHOA contact details (share these when a homeowner asks how to reach the HOA or a board member; do not invent contact info not listed here):\n${contactLines.join("\n")}\n`
         : "";
 
+      const communityFacts = [
+        `- Community name: ${community.name}`,
+        community.city && community.state ? `- Location: ${community.city}, ${community.state}` : null,
+        community.monthly_dues ? `- Monthly HOA dues: $${community.monthly_dues}` : null,
+      ].filter(Boolean).join("\n");
+
+      const appGuidance = `How the homeowner can do things in this app (use this to answer "how do I..." questions — you may share this without citing documents):
+      - Submit a maintenance or service request: open "Requests" and tap "New Request", choose the request type, describe the issue, and add photos if needed.
+      - Pay HOA dues or invoices: open "Invoices" to see what's due and pay securely online.
+      - View community announcements and news: open "Announcements".
+      - Vote in community polls: open "Polls".
+      - See upcoming events and meetings: open "Events".
+      - Read or download official community documents: open "Documents".
+      - Vote in board elections: open "Elections".
+      - Update account info or contact details: open "Account".
+      - Contact the HOA directly: when you can't find an answer here, a "Contact the HOA" form appears below — it sends your message to the HOA admin and board members.`;
+
       const guardrails = `You are the HOA assistant for the community "${community.name}". You must follow these rules strictly:
-      1. ONLY answer questions about this community's rules, policies, dues, or procedures using information found in the official HOA documents provided to you${hasDocs ? "" : " (note: no documents have been provided by the HOA yet)"}.
+      1. ONLY answer questions about this community's rules, policies, dues, or procedures using information found in the official HOA documents provided to you${hasDocs ? "" : " (note: no documents have been provided by the HOA yet, but you can still help with general questions about using the app and community facts below)"}.
       2. NEVER invent, assume, guess, or use outside/general knowledge to state a policy, rule, fee, deadline, or procedure. If the documents do not clearly state it, you do not know it — do not fill gaps with typical HOA practices. Never invent document names or section numbers that do not appear in the provided documents.
       3. Search ALL of the provided documents before answering. When you find the answer, cite the source: name the document title and the section (if identifiable), then quote the exact wording from that section, then give a brief plain-language interpretation that does not extend or change the original meaning. Example: "According to the <Document Title>, <Section>: \"<exact quoted text>\". In other words, <interpretation>."
       4. If the answer is not directly stated in any provided document, do NOT simply refuse. Instead: (a) identify what the resident is really asking, (b) search the documents for any related information that helps address their question, (c) provide as much relevant information as you can from the documents and give the best answer you can based on that, clearly noting which parts you can confirm from the documents and which you cannot, and (d) end your reply with exactly: "If you'd like more clarity, I can send this inquiry to the HOA admin for further clarification." Never invent specific rules, fees, deadlines, or procedures not found in the documents, but always share whatever related information the documents do contain.
-      5. You may help with general, non-policy tasks (e.g. suggesting the homeowner submit a maintenance request through the app) without citing documents.
-      6. Be concise, warm, and helpful.
+      5. You may help with general, non-policy tasks (e.g. guiding the homeowner to submit a request, pay dues, or find a document in the app) without citing documents. Use the app guidance below for these.
+      6. If a question is vague or short (e.g. "pool", "noise", "basketball", "dues"), infer the most likely intent and respond with the relevant information from the documents or community facts, then ask a brief clarifying question if needed.
+      7. Be concise, warm, and helpful. Prefer short, scannable answers.
+      Community facts (you may share these without citing documents):
+      ${communityFacts}
+      ${appGuidance}
       ${docIndex ? `\nHOA documents available (cite by these titles only):\n${docIndex}\n` : ""}${contactBlock}
       Homeowner question: ${question}`;
 
