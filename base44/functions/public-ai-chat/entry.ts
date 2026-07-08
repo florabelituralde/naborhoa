@@ -48,6 +48,43 @@ Deno.serve(async (req) => {
       ? docs.map((d, i) => `${i + 1}. ${d.title}${d.category ? ` (${d.category})` : ""}`).join("\n")
       : "";
 
+    // Fetch the text content of HTML/text documents and embed it directly in
+    // the prompt. The LLM's file-attachment parser does not reliably read
+    // .html/.txt files, so this guarantees the assistant can answer from
+    // FAQs and reference guides. PDFs are still passed as file_urls.
+    const isTextDoc = (d: any) => {
+      const ft = (d.file_type || "").toLowerCase();
+      const url = (d.file_url || "").toLowerCase();
+      return ft === "text/html" || ft === "text/plain" || url.endsWith(".html") || url.endsWith(".txt");
+    };
+    let docContentBlock = "";
+    const textDocs = docs.filter(isTextDoc);
+    if (textDocs.length) {
+      const fetched = await Promise.all(textDocs.map(async (d: any) => {
+        try {
+          const r = await fetch(d.file_url);
+          if (!r.ok) return null;
+          let text = await r.text();
+          if ((d.file_type || "").toLowerCase() === "text/html" || d.file_url.toLowerCase().endsWith(".html")) {
+            text = text
+              .replace(/<script[\s\S]*?<\/script>/gi, " ")
+              .replace(/<style[\s\S]*?<\/style>/gi, " ")
+              .replace(/<[^>]+>/g, " ")
+              .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+              .replace(/&nbsp;/g, " ").replace(/&#39;/g, "'").replace(/&quot;/g, '"')
+              .replace(/\s+/g, " ").trim();
+          }
+          if (!text) return null;
+          return `--- ${d.title} ---\n${text}`;
+        } catch (e: any) {
+          console.error("public-ai-chat: failed to fetch doc content:", d.title, e?.message || e);
+          return null;
+        }
+      }));
+      const valid = fetched.filter(Boolean);
+      if (valid.length) docContentBlock = `\nDocument contents (read these and use them to answer):\n${valid.join("\n\n")}\n`;
+    }
+
     const board = await base44.asServiceRole.entities.BoardMember.filter({ community_id: community.id });
     let managerEmail: string | null = null;
     if (community.created_by_id) {
@@ -83,21 +120,35 @@ Deno.serve(async (req) => {
     - Contact the HOA: use the "Contact HOA" option on this page to send a message to the HOA admin and board.
     - Pay a dues invoice: use the "Pay Dues" option if your community has online payments enabled.`;
 
-    const prompt = `You are the HOA assistant for the community "${community.name}". You must follow these rules strictly:
-    1. ONLY answer questions about this community's rules, policies, dues, or procedures using information found in the official HOA documents provided to you${hasDocs ? "" : " (note: no documents have been provided by the HOA yet, but you can still help with general questions about the community and this page)"}.
-    2. NEVER invent, assume, guess, or use outside/general knowledge to state a policy, rule, fee, deadline, or procedure. If the documents do not clearly state it, you do not know it. Never invent document names or section numbers that do not appear in the provided documents.
-    3. Search ALL of the provided documents before answering. When you find the answer, cite the source: name the document title and the section (if identifiable), then quote the exact wording from that section, then give a brief plain-language interpretation that does not extend or change the original meaning. Example: "According to the <Document Title>, <Section>: \"<exact quoted text>\". In other words, <interpretation>."
-    4. If the answer is not directly stated in any provided document, do NOT simply refuse. Instead: (a) identify what the resident is really asking, (b) search the documents for any related information that helps address their question, (c) provide as much relevant information as you can from the documents and give the best answer you can based on that, clearly noting which parts you can confirm from the documents and which you cannot, and (d) end your reply with exactly: "If you'd like more clarity, I can send this inquiry to the HOA admin for further clarification." Never invent specific rules, fees, deadlines, or procedures not found in the documents, but always share whatever related information the documents do contain.
-    5. You may help with general, non-policy tasks (e.g. guide the visitor to join, contact the HOA, or pay dues) without citing documents. Use the page guidance below for these.
-    6. If a question is vague or short (e.g. "pool", "noise", "basketball", "dues"), infer the most likely intent and respond with the relevant information from the documents or community facts, then ask a brief clarifying question if needed.
-    7. Be concise, warm, and helpful. Prefer short, scannable answers.
-    Community facts (you may share these without citing documents):
-    ${communityFacts}
-    ${appGuidance}
-    ${docIndex ? `\nHOA documents available (cite by these titles only):\n${docIndex}\n` : ""}${contactBlock}
-    ${historyText ? "Conversation so far:\n" + historyText + "\n\n" : ""}Resident question: ${question}`;
+    const prompt = `You are the friendly HOA assistant for "${community.name}". Your job is to help residents by looking through the community's documents and answering their questions.
+
+     ANSWERING FROM DOCUMENTS:
+     - You have been given the community's documents as attached files. READ THEM. They include FAQs, quick reference guides, rules, bylaws, CC&Rs, minutes, and forms — all of them are valid sources.
+     - When a document answers the question, share the answer directly and name the document it came from. Example: "According to the Community FAQ & Quick Reference Guide, pool hours are 6:00 AM to 10:00 PM daily."
+     - If multiple documents address the question, share what each says.
+     - Only say you don't have the information if you have genuinely checked all the documents and none of them cover it.
+    ${hasDocs ? "" : "\n     (No documents have been provided by the HOA yet, so answer general questions using the community facts and page guidance below.)"}
+
+     DO NOT:
+     - Do not invent specific rules, fees, deadlines, or procedures that are not in the documents.
+     - Do not invent document names or section numbers.
+
+     WHEN THE DOCUMENTS DON'T FULLY ANSWER:
+     - Share whatever related information the documents do contain, note clearly what you can and can't confirm, and end with exactly: "If you'd like more clarity, I can send this inquiry to the HOA admin for further clarification."
+
+     GENERAL HELP (no document needed):
+     - For "how do I..." questions about using this page, use the guidance below.
+     - For vague/short questions (e.g. "pool", "noise", "basketball", "dues"), infer the likely intent and answer with the relevant info, then ask a quick clarifier if needed.
+
+     Community facts (share freely):
+     ${communityFacts}
+     ${appGuidance}
+     ${docIndex ? `\nDocuments available:\n${docIndex}\n` : ""}${docContentBlock}${contactBlock}
+     ${historyText ? "Conversation so far:\n" + historyText + "\n\n" : ""}Resident question: ${question}`;
 
     const NO_ANSWER_TEXT = "I wasn't able to find a direct answer in the community's official documents. If you'd like more clarity, I can send this inquiry to the HOA admin for further clarification.";
+
+    console.error("public-ai-chat: textDocs:", textDocs.length, "docContentBlock length:", docContentBlock.length, "fileUrls:", fileUrls.length);
 
     // A single broken/unreadable uploaded document can fail the entire LLM
     // call. Try with all files first; if that fails, retry with only the
