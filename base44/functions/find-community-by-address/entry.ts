@@ -51,23 +51,46 @@ Deno.serve(async (req) => {
     // issued for that address. This ensures guests can only pay for properties
     // the HOA has actually billed.
     if (requireInvoice) {
+      // Require a complete street address — at least a house number and street
+      // name (2+ canonical tokens). This prevents short fragments like "123"
+      // from matching an invoice at "123 Oak Dr".
+      const targetTokens = target.split(" ").filter(Boolean);
+      if (targetTokens.length < 2) {
+        return Response.json(
+          { error: "Please enter your full street address to find your invoice." },
+          { status: 400 }
+        );
+      }
+
       const invoices = await base44.asServiceRole.entities.Invoice.list("-updated_date", 500);
-      const invoice = invoices.find((inv) => {
+      const matching = invoices.filter((inv) => {
         const stored = canonicalize(inv.property_address || "");
         if (!stored) return false;
-        return stored === target || target.startsWith(stored + " ") || stored.startsWith(target + " ");
+        // Exact match, OR the stored invoice address is a prefix of the full
+        // user address (invoice may store just the street, user enters the full
+        // address with city/state/zip). We deliberately do NOT match the
+        // reverse — a partial user input must not match a full stored address.
+        return stored === target || target.startsWith(stored + " ");
       });
-      if (!invoice) {
+
+      if (matching.length === 0) {
         return Response.json(
           { error: "No invoice found for this address. If you believe this is an error, please contact your HOA directly." },
           { status: 404 }
         );
       }
-      const community = await base44.asServiceRole.entities.Community.get(invoice.community_id);
+
+      const community = await base44.asServiceRole.entities.Community.get(matching[0].community_id);
       if (!community) {
         return Response.json({ error: "Community not found." }, { status: 404 });
       }
-      return Response.json({ community, invoice });
+
+      let organization = null;
+      if (community.organization_id) {
+        organization = await base44.asServiceRole.entities.Organization.get(community.organization_id).catch(() => null);
+      }
+
+      return Response.json({ community, organization, invoices: matching });
     }
 
     // Existing behavior: match via Property records.

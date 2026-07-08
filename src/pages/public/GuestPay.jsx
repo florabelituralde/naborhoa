@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Home, Loader2, CreditCard, ArrowLeft, Shield } from "lucide-react";
 import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
 import { calculateTotal } from "@/lib/paymentFee";
@@ -14,6 +15,8 @@ export default function GuestPay() {
   const [community, setCommunity] = useState(null);
   const [error, setError] = useState("");
   const [address, setAddress] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [paying, setPaying] = useState(false);
 
   useEffect(() => {
@@ -35,6 +38,9 @@ export default function GuestPay() {
         join_code: joinCode,
         amount: community.monthly_dues || 45,
         description: `HOA Dues - ${community.name}`,
+        customer_name: name,
+        customer_email: email,
+        address,
       });
       if (res.data?.redirectUrl) {
         window.location.href = res.data.redirectUrl;
@@ -96,6 +102,14 @@ export default function GuestPay() {
 
             <div className="space-y-4">
               <div>
+                <Label htmlFor="guest-name">Full Name</Label>
+                <Input id="guest-name" value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className="mt-1.5 h-11" autoComplete="name" />
+              </div>
+              <div>
+                <Label htmlFor="guest-email">Email Address</Label>
+                <Input id="guest-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="mt-1.5 h-11" autoComplete="email" />
+              </div>
+              <div>
                 <Label>Property Address</Label>
                 <div className="mt-1.5">
                   <AddressAutocomplete
@@ -105,7 +119,7 @@ export default function GuestPay() {
                   />
                 </div>
               </div>
-              <Button onClick={handlePay} disabled={!address || paying} className="w-full h-12">
+              <Button onClick={handlePay} disabled={!address || !name.trim() || !email.trim() || paying} className="w-full h-12">
                 {paying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
                 Pay ${calculateTotal(community.monthly_dues || 45).toFixed(2)} Now
               </Button>

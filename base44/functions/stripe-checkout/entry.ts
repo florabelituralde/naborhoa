@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => null);
     if (!body) return Response.json({ error: "Invalid request body" }, { status: 400 });
-    const { community_id, description, invoice_id, join_code } = body;
+    const { community_id, description, invoice_id, join_code, customer_email, customer_name, address } = body;
 
     if (!community_id) {
       return Response.json({ error: "Missing community_id" }, { status: 400 });
@@ -90,6 +90,7 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: paymentMethodTypes,
+      customer_email: customer_email || undefined,
       line_items: [
         {
           price_data: {
@@ -115,6 +116,9 @@ Deno.serve(async (req) => {
           community_id,
           invoice_id: invoice_id || "",
           join_code: join_code || "",
+          customer_name: customer_name || "",
+          customer_email: customer_email || "",
+          address: address || "",
         },
       },
       success_url: `${origin}/pay/thank-you?c=${join_code || ""}`,
@@ -125,6 +129,9 @@ Deno.serve(async (req) => {
         community_id,
         invoice_id: invoice_id || "",
         join_code: join_code || "",
+        customer_name: customer_name || "",
+        customer_email: customer_email || "",
+        address: address || "",
       },
     });
 
