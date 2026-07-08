@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronUp, Users, ClipboardList, CreditCard } from "lucide-react";
+import { ChevronUp, Users, ClipboardList, CreditCard, Vote, Calendar, FileText, Bell } from "lucide-react";
 import NaborLogo from "@/components/NaborLogo";
 
 const VIDEO_URL =
@@ -18,15 +18,43 @@ const SLIDES = [
     image:
       "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/d67c7bd51_generated_image.png",
     icon: ClipboardList,
-    title: "Submit & track requests in seconds",
-    text: "Report maintenance issues and watch them move from submitted to resolved.",
+    title: "Submit & track any request",
+    text: "Maintenance, repairs, and plan reviews with custom request types and real-time status updates.",
   },
   {
     image:
       "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/1e2c72b66_generated_image.png",
     icon: CreditCard,
     title: "Pay dues without the paperwork",
-    text: "View invoices and pay HOA dues online — no checks, no hassle.",
+    text: "Pay HOA dues, assessments, and fees online with card or ACH — view invoices and history anytime.",
+  },
+  {
+    image:
+      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/82cc177f5_generated_image.png",
+    icon: Vote,
+    title: "Vote in elections & polls",
+    text: "Meet the candidates, read their statements, and cast your ballot in board elections and community polls.",
+  },
+  {
+    image:
+      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/d67c7bd51_generated_image.png",
+    icon: Calendar,
+    title: "Never miss an event",
+    text: "Track meetings, social gatherings, and important deadlines on a shared community calendar.",
+  },
+  {
+    image:
+      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/1e2c72b66_generated_image.png",
+    icon: FileText,
+    title: "Documents & financial transparency",
+    text: "Access bylaws, rules, and meeting minutes, plus transparent budgets and expense tracking.",
+  },
+  {
+    image:
+      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/82cc177f5_generated_image.png",
+    icon: Bell,
+    title: "Stay in the loop",
+    text: "Smart notifications for request updates, invoices, announcements, and voting reminders — so nothing slips by.",
   },
 ];
 
