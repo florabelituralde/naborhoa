@@ -1,0 +1,62 @@
+{
+  "name": "GuestVerification",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "otp_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the 6-digit OTP code"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "attempts": {
+      "type": "number",
+      "default": 0
+    },
+    "community_id": {
+      "type": "string"
+    },
+    "invoice_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "email",
+    "address",
+    "otp_hash",
+    "expires_at"
+  ],
+  "rls": {
+    "create": null,
+    "read": {
+      "user_condition": {
+        "role": "__no_access__"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "__no_access__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "__no_access__"
+      }
+    }
+  }
+}

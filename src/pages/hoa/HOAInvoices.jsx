@@ -28,6 +28,7 @@ export default function HOAInvoices() {
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState([]);
   const [homeowners, setHomeowners] = useState([]);
+  const [properties, setProperties] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
   const [showBulk, setShowBulk] = useState(false);
   const [form, setForm] = useState({ homeowner_ids: [], amount: "", type: "dues", due_date: "", description: "" });
@@ -49,6 +50,7 @@ export default function HOAInvoices() {
       ]);
       setInvoices(invs);
       setHomeowners(homesRes?.data?.homeowners || []);
+      setProperties(homesRes?.data?.properties || []);
       const cycle = community.billing_cycle || "monthly";
       setDuesCycle(cycle);
       const mult = CYCLE_MULT[cycle] || 1;
@@ -94,15 +96,21 @@ export default function HOAInvoices() {
       // One invoice (and a notification) per selected homeowner.
       const selected = homeowners.filter((h) => form.homeowner_ids.includes(h.id));
       const created = await base44.entities.Invoice.bulkCreate(
-        selected.map((h) => ({
-          community_id: community.id,
-          homeowner_id: h.id,
-          amount,
-          type: form.type,
-          due_date: form.due_date,
-          description: form.description,
-          status: "pending",
-        }))
+        selected.map((h) => {
+          const prop = properties.find((p) => p.id === h.property_id);
+          return {
+            community_id: community.id,
+            homeowner_id: h.id,
+            property_id: h.property_id,
+            property_address: prop?.address || "",
+            email: h.email || "",
+            amount,
+            type: form.type,
+            due_date: form.due_date,
+            description: form.description,
+            status: "pending",
+          };
+        })
       );
       await base44.entities.Notification.bulkCreate(
         created.map((inv) => ({
@@ -276,6 +284,7 @@ export default function HOAInvoices() {
         onOpenChange={setShowBulk}
         community={community}
         homeowners={homeowners}
+        properties={properties}
         onDone={loadData}
       />
 

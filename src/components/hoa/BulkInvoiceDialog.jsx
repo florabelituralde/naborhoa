@@ -16,7 +16,7 @@ const PERIODS = [
 ];
 
 // Generates one invoice per homeowner in a single action, plus a notification each.
-export default function BulkInvoiceDialog({ open, onOpenChange, community, homeowners, onDone }) {
+export default function BulkInvoiceDialog({ open, onOpenChange, community, homeowners, properties = [], onDone }) {
   const monthly = community?.monthly_dues || 0;
   const initialPeriod = PERIODS.find((p) => p.value === (community?.billing_cycle || "monthly")) || PERIODS[0];
   const [frequency, setFrequency] = useState(initialPeriod.value);
@@ -47,15 +47,21 @@ export default function BulkInvoiceDialog({ open, onOpenChange, community, homeo
 
       // Create all invoices in one bulk operation
       const created = await base44.entities.Invoice.bulkCreate(
-        homeowners.map((h) => ({
-          community_id: community.id,
-          homeowner_id: h.id,
-          amount,
-          type: form.type,
-          due_date: form.due_date,
-          description: form.description,
-          status: "pending",
-        }))
+        homeowners.map((h) => {
+          const prop = properties.find((p) => p.id === h.property_id);
+          return {
+            community_id: community.id,
+            homeowner_id: h.id,
+            property_id: h.property_id,
+            property_address: prop?.address || "",
+            email: h.email || "",
+            amount,
+            type: form.type,
+            due_date: form.due_date,
+            description: form.description,
+            status: "pending",
+          };
+        })
       );
 
       // Notify each homeowner about their new invoice

@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import NaborLogo from "@/components/NaborLogo";
-import { CreditCard, Loader2, ArrowLeft, Shield, AlertCircle, CheckCircle2, FileText, MapPin, Building2 } from "lucide-react";
-import { formatCurrency, formatDate } from "@/lib/format";
-import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
-import { calculateTotal } from "@/lib/paymentFee";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import WaitlistForm from "@/components/WaitlistForm";
+import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
+import { calculateTotal } from "@/lib/paymentFee";
+import { formatCurrency, formatDate } from "@/lib/format";
+import { CreditCard, Loader2, ArrowLeft, Shield, AlertCircle, CheckCircle2, FileText, MapPin, Building2, Mail, ArrowRight } from "lucide-react";
 
 const TYPE_LABELS = {
   dues: "HOA Dues",
@@ -19,31 +21,48 @@ const TYPE_LABELS = {
 };
 
 export default function GuestPayPortal() {
+  const [step, setStep] = useState("search"); // search → otp → invoices
   const [address, setAddress] = useState("");
-  const [searching, setSearching] = useState(false);
+  const [email, setEmail] = useState("");
+  const [verificationId, setVerificationId] = useState(null);
+  const [otp, setOtp] = useState("");
   const [community, setCommunity] = useState(null);
   const [organization, setOrganization] = useState(null);
   const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [payingId, setPayingId] = useState(null);
 
-  const find = (e) => {
+  const initiate = (e) => {
     e?.preventDefault();
-    if (!address.trim() || searching) return;
-    setSearching(true);
+    if (!address.trim() || !email.trim() || loading) return;
+    setLoading(true);
     setError("");
-    setCommunity(null);
-    setOrganization(null);
-    setInvoices([]);
     base44.functions
-      .invoke("find-community-by-address", { address, require_invoice: true })
+      .invoke("initiate-guest-payment", { address, email })
+      .then((res) => {
+        setVerificationId(res.data.verification_id);
+        setStep("otp");
+      })
+      .catch((err) => setError(err.response?.data?.error || "No invoice found for this address and email."))
+      .finally(() => setLoading(false));
+  };
+
+  const verifyOtp = (e) => {
+    e?.preventDefault();
+    if (otp.length < 6 || loading || !verificationId) return;
+    setLoading(true);
+    setError("");
+    base44.functions
+      .invoke("verify-guest-otp", { verification_id: verificationId, otp })
       .then((res) => {
         setCommunity(res.data.community);
         setOrganization(res.data.organization);
         setInvoices(res.data.invoices || []);
+        setStep("invoices");
       })
-      .catch((err) => setError(err.response?.data?.error || "No invoice found for this address. Your HOA may not have issued a dues invoice for this property yet — you can join the waitlist below to be notified when it joins."))
-      .finally(() => setSearching(false));
+      .catch((err) => setError(err.response?.data?.error || "Verification failed."))
+      .finally(() => setLoading(false));
   };
 
   const payInvoice = (invoice) => {
@@ -57,6 +76,9 @@ export default function GuestPayPortal() {
         invoice_id: invoice.id,
         amount: invoice.amount,
         description: invoice.description || `${TYPE_LABELS[invoice.type] || "HOA Payment"} - ${community.name}`,
+        customer_email: email,
+        customer_name: address,
+        address,
       })
       .then((res) => {
         if (res.data?.redirectUrl) {
@@ -70,6 +92,18 @@ export default function GuestPayPortal() {
         setError(err.response?.data?.error || "Payment failed");
         setPayingId(null);
       });
+  };
+
+  const startOver = () => {
+    setStep("search");
+    setAddress("");
+    setEmail("");
+    setOtp("");
+    setVerificationId(null);
+    setCommunity(null);
+    setOrganization(null);
+    setInvoices([]);
+    setError("");
   };
 
   const unpaidInvoices = invoices.filter((inv) => inv.status !== "paid" && inv.status !== "confirmed");
@@ -95,47 +129,117 @@ export default function GuestPayPortal() {
             </div>
             <h2 className="text-2xl font-bold">Guest Payment Portal</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              No account needed — enter your property address to find and pay your HOA invoice.
+              No account needed — verify your email to find and pay your HOA invoice.
             </p>
           </div>
 
           <div className="bg-card rounded-2xl warm-shadow-md p-6">
-            <form onSubmit={find} className="space-y-2">
-              <Label>Property Address</Label>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <AddressAutocomplete
-                    value={address}
-                    onChange={({ address: addr }) => setAddress(addr)}
-                    placeholder="Search your full property address"
-                  />
+            {/* Step 1: Address + Email */}
+            {step === "search" && (
+              <>
+                <form onSubmit={initiate} className="space-y-3">
+                  <div>
+                    <Label>Property Address</Label>
+                    <AddressAutocomplete
+                      value={address}
+                      onChange={({ address: addr }) => setAddress(addr)}
+                      placeholder="Search your full property address"
+                    />
+                  </div>
+                  <div>
+                    <Label>Email Address</Label>
+                    <div className="relative mt-1.5">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@email.com"
+                        className="h-11 pl-9"
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" disabled={!address.trim() || !email.trim() || loading} className="w-full h-11">
+                    {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArrowRight className="w-4 h-4 mr-2" />}
+                    Find & Verify
+                  </Button>
+                </form>
+
+                {error && (
+                  <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                {error && !community && (
+                  <div className="mt-4 p-4 rounded-xl border border-border bg-muted/30">
+                    <WaitlistForm initialAddress={address} title="Join the waitlist" />
+                  </div>
+                )}
+
+                <div className="mt-4 p-3 rounded-xl bg-primary/5 flex items-start gap-2">
+                  <Shield className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground">
+                    For your security, we verify your email with a one-time code before showing your invoices.
+                  </p>
                 </div>
-                <Button type="submit" disabled={!address.trim() || searching} className="h-11 px-6">
-                  {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : "Find"}
-                </Button>
-              </div>
-            </form>
-
-            {error && (
-              <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                <span>{error}</span>
-              </div>
+              </>
             )}
 
-            {error && !community && (
-              <div className="mt-4 p-4 rounded-xl border border-border bg-muted/30">
-                <WaitlistForm initialAddress={address} title="Join the waitlist" />
-              </div>
+            {/* Step 2: OTP verification */}
+            {step === "otp" && (
+              <>
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Mail className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-lg">Check your email</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>
+                  </p>
+                </div>
+
+                <form onSubmit={verifyOtp} className="space-y-4">
+                  <div className="flex justify-center">
+                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <Button type="submit" disabled={otp.length < 6 || loading} className="w-full h-11">
+                    {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                    Verify Code
+                  </Button>
+                </form>
+
+                {error && (
+                  <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <button onClick={startOver} className="w-full text-center text-sm text-muted-foreground hover:text-foreground mt-4">
+                  ← Use a different address or email
+                </button>
+              </>
             )}
 
-            {community && (
-              <div className="mt-5">
-                {/* Community + HOA admin info */}
+            {/* Step 3: Invoice list */}
+            {step === "invoices" && community && (
+              <div>
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 mb-4">
                   <div className="flex items-center gap-2 mb-2 text-primary">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span className="text-sm font-medium">Community found</span>
+                    <span className="text-sm font-medium">Email verified</span>
                   </div>
                   <h3 className="font-bold text-lg">{community.name}</h3>
                   {(community.city || community.state) && (
@@ -152,7 +256,6 @@ export default function GuestPayPortal() {
                   )}
                 </div>
 
-                {/* Invoice list */}
                 {unpaidInvoices.length === 0 && paidInvoices.length > 0 ? (
                   <div className="flex items-center gap-2 p-4 rounded-lg bg-primary/10 text-primary text-sm font-medium">
                     <CheckCircle2 className="w-5 h-5" />
@@ -203,6 +306,17 @@ export default function GuestPayPortal() {
                     )}
                   </div>
                 )}
+
+                {error && (
+                  <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <button onClick={startOver} className="w-full text-center text-sm text-muted-foreground hover:text-foreground mt-4">
+                  ← Search a different address
+                </button>
               </div>
             )}
 
