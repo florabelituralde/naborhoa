@@ -9,8 +9,8 @@ Deno.serve(async (req) => {
     const query = (body.query || '').trim();
     if (!query || query.length < 3) return Response.json({ suggestions: [] });
 
-    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&addressdetails=1&limit=6`;
-    const r = await fetch(url, { headers: { 'User-Agent': 'Nabor-HOA-App/1.0' } });
+    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&addressdetails=1&limit=6&accept-language=en&countrycodes=us`;
+    const r = await fetch(url, { headers: { 'User-Agent': 'Nabor-HOA-App/1.0', 'Accept-Language': 'en' } });
     if (!r.ok) return Response.json({ error: 'Address lookup failed' }, { status: 502 });
     const data = await r.json();
 
