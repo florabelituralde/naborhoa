@@ -1,11 +1,37 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+// Canonicalize a street address for fuzzy matching.
+// Maps common full/abbreviated street suffixes to a single canonical form so
+// "Drive" matches "Dr", "Street" matches "St", etc.
+const SUFFIX_MAP = {
+  street: 'st', st: 'st',
+  avenue: 'ave', ave: 'ave', av: 'ave',
+  road: 'rd', rd: 'rd',
+  drive: 'dr', dr: 'dr',
+  lane: 'ln', ln: 'ln',
+  boulevard: 'blvd', blvd: 'blvd', blv: 'blvd',
+  court: 'ct', ct: 'ct',
+  place: 'pl', pl: 'pl',
+  circle: 'cir', cir: 'cir',
+  trail: 'trl', trl: 'trl',
+  terrace: 'ter', ter: 'ter',
+  parkway: 'pkwy', pkwy: 'pkwy',
+  highway: 'hwy', hwy: 'hwy',
+  square: 'sq', sq: 'sq',
+  park: 'park', pk: 'park',
+};
+
 const normalize = (s) =>
   (s || "")
     .toLowerCase()
-    .replace(/[.,#]/g, "")
+    .replace(/[.,#]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+
+const canonicalize = (s) => {
+  const tokens = normalize(s).split(" ").filter(Boolean).map((t) => SUFFIX_MAP[t] || t);
+  return tokens.join(" ");
+};
 
 Deno.serve(async (req) => {
   try {
@@ -18,9 +44,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Enter your property address." }, { status: 400 });
     }
 
-    const target = normalize(raw);
+    const target = canonicalize(raw);
     const properties = await base44.asServiceRole.entities.Property.list("-updated_date", 500);
-    const match = properties.find((p) => normalize(p.address) === target);
+
+    // 1) Exact canonical match (handles abbreviation differences: Dr vs Drive).
+    let match = properties.find((p) => canonicalize(p.address) === target);
+
+    // 2) Stored address is a prefix of the query — user appended city/state/zip
+    //    (e.g. autocomplete returns "410 Cedar Ridge Dr, Savannah, GA 31411").
+    if (!match) {
+      match = properties.find((p) => {
+        const stored = canonicalize(p.address);
+        return stored.length >= 5 && (target === stored || target.startsWith(stored + " "));
+      });
+    }
 
     if (!match) {
       return Response.json(

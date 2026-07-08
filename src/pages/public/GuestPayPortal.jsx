@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import NaborLogo from "@/components/NaborLogo";
-import { CreditCard, Loader2, MapPin, ArrowLeft, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
+import { CreditCard, Loader2, ArrowLeft, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
 import PaymentFeeDisclosure from "@/components/PaymentFeeDisclosure";
 import { calculateTotal } from "@/lib/paymentFee";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 export default function GuestPayPortal() {
   const [address, setAddress] = useState("");
@@ -84,14 +84,11 @@ export default function GuestPayPortal() {
             <form onSubmit={find} className="space-y-2">
               <Label>Property Address</Label>
               <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
+                <div className="flex-1">
+                  <AddressAutocomplete
                     value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="456 Oak Lane"
-                    className="pl-10 h-11"
-                    autoFocus
+                    onChange={({ address: addr }) => setAddress(addr)}
+                    placeholder="Search your property address"
                   />
                 </div>
                 <Button type="submit" disabled={!address.trim() || searching} className="h-11 px-6">
