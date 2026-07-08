@@ -5,12 +5,16 @@
 
 // The canonical phrase the prompt instructs the assistant to use when it
 // cannot cite a document/section. Kept in sync with the prompt rules.
-export const NO_ANSWER_MARKER = "i don't have that information in the community's official documents";
+export const NO_ANSWER_MARKER = "i can send this inquiry to the hoa admin for further clarification";
 
-// Phrases the assistant tends to use when it cannot answer from the docs.
-// Detecting these (not just the exact marker) makes the fallback trigger
-// reliably even if the model paraphrases the refusal.
+// Phrases the assistant uses when it cannot fully answer from the docs and
+// offers to escalate to the HOA admin. Detecting these (not just the exact
+// marker) makes the contact-the-HOA fallback trigger reliably even if the
+// model paraphrases the offer.
 const REFUSAL_PHRASES = [
+  "i can send this inquiry to the hoa admin",
+  "send this inquiry to the hoa admin",
+  "hoa admin for further clarification",
   "i don't have that information",
   "please contact your hoa",
   "contact your hoa board",

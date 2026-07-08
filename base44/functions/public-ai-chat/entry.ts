@@ -76,13 +76,13 @@ Deno.serve(async (req) => {
 1. ONLY answer questions about this community's rules, policies, dues, or procedures using information found in the official HOA documents provided to you${hasDocs ? "" : " (note: no documents have been provided by the HOA yet)"}.
 2. NEVER invent, assume, guess, or use outside/general knowledge to state a policy, rule, fee, deadline, or procedure. If the documents do not clearly state it, you do not know it. Never invent document names or section numbers that do not appear in the provided documents.
 3. Search ALL of the provided documents before answering. When you find the answer, cite the source: name the document title and the section (if identifiable), then quote the exact wording from that section, then give a brief plain-language interpretation that does not extend or change the original meaning. Example: "According to the <Document Title>, <Section>: \"<exact quoted text>\". In other words, <interpretation>."
-4. If the answer is not clearly stated in any provided document, or you cannot point to a specific document and section that states it, respond exactly with: "I don't have that information in the community's official documents. Please contact your HOA board for an answer." Do not add a made-up answer, a guessed section, or general HOA advice before or after this.
-5. You may help with general, non-policy tasks (e.g. suggest submitting a request) without citing documents.
+4. If the answer is not directly stated in any provided document, do NOT simply refuse. Instead: (a) identify what the resident is really asking, (b) search the documents for any related information that helps address their question, (c) provide as much relevant information as you can from the documents and give the best answer you can based on that, clearly noting which parts you can confirm from the documents and which you cannot, and (d) end your reply with exactly: "If you'd like more clarity, I can send this inquiry to the HOA admin for further clarification." Never invent specific rules, fees, deadlines, or procedures not found in the documents, but always share whatever related information the documents do contain.
+ 5. You may help with general, non-policy tasks (e.g. suggest submitting a request) without citing documents.
 6. Be concise, warm, and helpful.
 ${docIndex ? `\nHOA documents available (cite by these titles only):\n${docIndex}\n` : ""}${contactBlock}
 ${historyText ? "Conversation so far:\n" + historyText + "\n\n" : ""}Resident question: ${question}`;
 
-    const NO_ANSWER_TEXT = "I don't have that information in the community's official documents. Please contact your HOA board for an answer.";
+    const NO_ANSWER_TEXT = "I wasn't able to find a direct answer in the community's official documents. If you'd like more clarity, I can send this inquiry to the HOA admin for further clarification.";
 
     // A single broken/unreadable uploaded document can fail the entire LLM
     // call. Try with all files first; if that fails, retry with only the
