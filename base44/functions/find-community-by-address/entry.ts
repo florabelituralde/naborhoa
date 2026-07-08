@@ -45,6 +45,32 @@ Deno.serve(async (req) => {
     }
 
     const target = canonicalize(raw);
+    const requireInvoice = body.require_invoice === true;
+
+    // Guest portal: only map the address to a community if an invoice has been
+    // issued for that address. This ensures guests can only pay for properties
+    // the HOA has actually billed.
+    if (requireInvoice) {
+      const invoices = await base44.asServiceRole.entities.Invoice.list("-updated_date", 500);
+      const invoice = invoices.find((inv) => {
+        const stored = canonicalize(inv.property_address || "");
+        if (!stored) return false;
+        return stored === target || target.startsWith(stored + " ") || stored.startsWith(target + " ");
+      });
+      if (!invoice) {
+        return Response.json(
+          { error: "No invoice found for this address. If you believe this is an error, please contact your HOA directly." },
+          { status: 404 }
+        );
+      }
+      const community = await base44.asServiceRole.entities.Community.get(invoice.community_id);
+      if (!community) {
+        return Response.json({ error: "Community not found." }, { status: 404 });
+      }
+      return Response.json({ community, invoice });
+    }
+
+    // Existing behavior: match via Property records.
     const properties = await base44.asServiceRole.entities.Property.list("-updated_date", 500);
 
     // 1) Exact canonical match (handles abbreviation differences: Dr vs Drive).

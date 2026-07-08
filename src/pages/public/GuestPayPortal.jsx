@@ -24,9 +24,9 @@ export default function GuestPayPortal() {
     setError("");
     setCommunity(null);
     base44.functions
-      .invoke("find-community-by-address", { address })
+      .invoke("find-community-by-address", { address, require_invoice: true })
       .then((res) => setCommunity(res.data.community))
-      .catch((err) => setError(err.response?.data?.error || "We couldn't find your community by that address. Your HOA may not be on Nabor yet — you can join the waitlist below to be notified when it joins."))
+      .catch((err) => setError(err.response?.data?.error || "No invoice found for this address. Your HOA may not have issued a dues invoice for this property yet — you can join the waitlist below to be notified when it joins."))
       .finally(() => setSearching(false));
   };
 

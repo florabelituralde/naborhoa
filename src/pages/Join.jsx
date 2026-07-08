@@ -9,12 +9,13 @@ import { Home, Loader2, Check, Search, MapPin, KeyRound, AlertTriangle } from "l
 import JoinByCode from "@/components/JoinByCode";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import WaitlistForm from "@/components/WaitlistForm";
+import CommunitySearchAutocomplete from "@/components/CommunitySearchAutocomplete";
 
 export default function Join() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState("");
+  const [allCommunities, setAllCommunities] = useState([]);
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -52,26 +53,27 @@ export default function Join() {
     return () => { active = false; };
   }, [authUser, navigate]);
 
-  const searchCommunities = async () => {
+  useEffect(() => {
+    base44.entities.Community.list().then(setAllCommunities).catch(() => {});
+  }, []);
+
+  const handleSearch = ({ type, value }) => {
     setError("");
     setSearching(true);
-    try {
-      const all = await base44.entities.Community.list();
-      const q = query.toLowerCase().trim();
-      const filtered = q
-        ? all.filter(c =>
-            (c.name || "").toLowerCase().includes(q) ||
-            (c.city || "").toLowerCase().includes(q) ||
-            (c.state || "").toLowerCase().includes(q) ||
-            (c.zip || "").toLowerCase().includes(q)
-          )
-        : all;
-      setResults(filtered);
-      setSearched(true);
-      if (filtered.length === 0) setError("No communities found. Your HOA may not be on Nabor yet — you can join the waitlist below to be notified when it joins.");
-    } catch (err) {
-      setError(err.message || "Search failed");
-    }
+    const q = (value || "").toLowerCase().trim();
+    const filtered = q
+      ? allCommunities.filter(c => {
+          if (type === "name") return (c.name || "").toLowerCase().includes(q);
+          if (type === "zip") return (c.zip || "").toLowerCase().includes(q);
+          return (c.name || "").toLowerCase().includes(q) ||
+                 (c.city || "").toLowerCase().includes(q) ||
+                 (c.state || "").toLowerCase().includes(q) ||
+                 (c.zip || "").toLowerCase().includes(q);
+        })
+      : allCommunities;
+    setResults(filtered);
+    setSearched(true);
+    if (filtered.length === 0) setError("No communities found. Your HOA may not be on Nabor yet — you can join the waitlist below to be notified when it joins.");
     setSearching(false);
   };
 
@@ -138,15 +140,15 @@ export default function Join() {
               ) : (
               <>
               {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="search">Search</Label>
-                  <Input id="search" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && searchCommunities()} placeholder="e.g. Oakwood Hills, Austin, or 78701" className="mt-1.5 h-12" autoFocus />
+              <div>
+                <Label>Search by neighborhood or ZIP</Label>
+                <div className="mt-1.5">
+                  <CommunitySearchAutocomplete
+                    communities={allCommunities}
+                    onSearch={handleSearch}
+                    searching={searching}
+                  />
                 </div>
-                <Button onClick={searchCommunities} disabled={searching} className="w-full h-12">
-                  {searching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
-                  Search Communities
-                </Button>
               </div>
               {searched && results.length > 0 && (
                 <div className="mt-6 space-y-2">
