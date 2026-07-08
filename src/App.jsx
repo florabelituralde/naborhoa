@@ -7,6 +7,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
+import { useIdleTimeout } from './hooks/useIdleTimeout';
 // Add page imports here
 import ProtectedRoute from '@/components/ProtectedRoute';
 import RoleRouter from '@/components/RoleRouter';
@@ -67,7 +68,11 @@ import TermsOfService from '@/pages/public/TermsOfService';
 import { Navigate } from 'react-router-dom';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, isAuthenticated, logout } = useAuth();
+
+  useIdleTimeout(() => {
+    if (isAuthenticated) logout();
+  });
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
