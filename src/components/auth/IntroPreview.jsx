@@ -127,19 +127,16 @@ export default function IntroPreview({ onDismiss }) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.25 }}
-              className="flex items-center gap-4"
+              className="flex items-center gap-4 min-h-[6.5rem]"
             >
-              <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 border border-border">
-                <img src={SLIDES[slide].image} alt="" className="w-full h-full object-cover" />
+              <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                {React.createElement(SLIDES[slide].icon, {
+                  className: "w-10 h-10 text-primary",
+                })}
               </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  {React.createElement(SLIDES[slide].icon, {
-                    className: "w-4 h-4 text-primary",
-                  })}
-                  <h3 className="font-semibold text-foreground">{SLIDES[slide].title}</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">{SLIDES[slide].text}</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-foreground mb-1">{SLIDES[slide].title}</h3>
+                <p className="text-sm text-muted-foreground leading-snug">{SLIDES[slide].text}</p>
               </div>
             </motion.div>
           </AnimatePresence>
