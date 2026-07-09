@@ -221,7 +221,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
         />
         {/* Panel: floating card on desktop, fullscreen on mobile */}
         <motion.div
-          className="fixed inset-0 z-[61] w-full h-full bg-card flex flex-col overflow-hidden md:inset-auto md:right-5 md:bottom-5 md:w-[400px] md:max-w-[calc(100vw-2.5rem)] md:h-[600px] md:max-h-[calc(100vh-2.5rem)] md:rounded-2xl md:warm-shadow-lg md:border md:border-border"
+          className="fixed top-0 left-0 right-0 bottom-[calc(3.125rem+env(safe-area-inset-bottom))] z-[61] bg-card flex flex-col overflow-hidden md:top-auto md:left-auto md:right-5 md:bottom-5 md:w-[400px] md:max-w-[calc(100vw-2.5rem)] md:h-[600px] md:max-h-[calc(100vh-2.5rem)] md:rounded-2xl md:warm-shadow-lg md:border md:border-border"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
@@ -323,7 +323,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-border shrink-0 safe-bottom safe-x">
+          <div className="p-3 border-t border-border shrink-0 safe-x">
             <div className="flex gap-2 max-w-2xl mx-auto">
               <input
                 type="text"
