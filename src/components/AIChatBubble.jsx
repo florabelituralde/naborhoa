@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send, MessageCircle, Sparkles, X, Mail } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import ContactHOAPanel from "@/components/ContactHOAPanel";
 import { isUnanswered } from "@/lib/hoaAssistant";
 import { hasModule } from "@/lib/planAccess";
@@ -74,6 +76,12 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+
+  const location = useLocation();
+  // Close the panel smoothly when the user navigates to another screen.
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   const sendMessage = async (question) => {
     if (!question.trim() || thinking) return;
@@ -199,15 +207,26 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
       )}
 
       {/* Chat panel */}
+      <AnimatePresence>
       {open && (
         <>
         {/* Desktop backdrop — click anywhere to close */}
-        <div
+        <motion.div
           className="hidden md:block fixed inset-0 z-[60] bg-black/40"
           onClick={() => setOpen(false)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
         />
         {/* Panel: floating card on desktop, fullscreen on mobile */}
-        <div className="fixed inset-0 z-[61] w-full h-full bg-card flex flex-col overflow-hidden md:inset-auto md:right-5 md:bottom-5 md:w-[400px] md:max-w-[calc(100vw-2.5rem)] md:h-[600px] md:max-h-[calc(100vh-2.5rem)] md:rounded-2xl md:warm-shadow-lg md:border md:border-border">
+        <motion.div
+          className="fixed inset-0 z-[61] w-full h-full bg-card flex flex-col overflow-hidden md:inset-auto md:right-5 md:bottom-5 md:w-[400px] md:max-w-[calc(100vw-2.5rem)] md:h-[600px] md:max-h-[calc(100vh-2.5rem)] md:rounded-2xl md:warm-shadow-lg md:border md:border-border"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 24 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
           {/* Header */}
           <div className="relative z-10 flex items-center justify-between gap-2 px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0 safe-top safe-x">
             <div className="flex items-center gap-2 min-w-0">
@@ -326,9 +345,10 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
             )}
           </div>
           </>
-        </div>
+        </motion.div>
         </>
       )}
+      </AnimatePresence>
     </>
   );
 }
