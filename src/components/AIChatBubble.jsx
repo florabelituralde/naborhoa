@@ -85,6 +85,12 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
     return () => window.removeEventListener("open-ai-chat", handleOpen);
   }, [aiEnabled]);
 
+  // Broadcast open/close so nav items (bottom tab bar, sidebar) can highlight
+  // the AI Chat button while the panel is open.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("ai-chat-open-change", { detail: { open } }));
+  }, [open]);
+
   // Close on Escape (keyboard fallback)
   useEffect(() => {
     if (!open) return;

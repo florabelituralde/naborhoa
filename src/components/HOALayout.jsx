@@ -73,7 +73,7 @@ export default function HOALayout() {
     { path: "/hoa/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "requests" },
     { path: "/hoa/announcements", label: "Announcements", icon: Megaphone },
-    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
+    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", actionId: "ai_chat", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
 
     { path: "/hoa/community", label: "Community", icon: Users, group: "People" },
     ...(isAdmin ? [{ path: "/hoa/board", label: "Board", icon: Contact, group: "People" }] : []),
@@ -100,7 +100,7 @@ export default function HOALayout() {
     { path: "/hoa/dashboard", label: "Home", icon: LayoutDashboard },
     { path: "/hoa/requests", label: "Requests", icon: ClipboardList, module: "requests" },
     { path: "/hoa/invoices", label: "Invoices", icon: Receipt },
-    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
+    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", actionId: "ai_chat", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
     ...(isAdmin
       ? [{ path: "/hoa/account", label: "Account", icon: UserCircle }]
       : [{ path: "/hoa/help", label: "Help", icon: HelpCircle }]),

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -13,6 +13,14 @@ export default function BottomNav({ items, upgradePath }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Tracks whether the AI Chat panel is open so its tab can highlight while active.
+  const [aiChatOpen, setAiChatOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e) => setAiChatOpen(!!e.detail?.open);
+    window.addEventListener("ai-chat-open-change", handler);
+    return () => window.removeEventListener("ai-chat-open-change", handler);
+  }, []);
 
   // Remembers the last-visited path within each tab root.
   const stacksRef = useRef({});
@@ -71,7 +79,7 @@ export default function BottomNav({ items, upgradePath }) {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-card/95 backdrop-blur border-t border-border safe-bottom no-select">
       <div className="flex items-stretch justify-around">
         {items.map((item) => {
-          const active = !item.action && !item.locked && isActive(item.path);
+          const active = !item.locked && (item.action ? (item.actionId === "ai_chat" && aiChatOpen) : (isActive(item.path) && !aiChatOpen));
           const Icon = item.icon;
           return (
             <button

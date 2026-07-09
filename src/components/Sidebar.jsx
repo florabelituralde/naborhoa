@@ -44,7 +44,7 @@ function NavLinkItem({ item, active, onNavigate, upgradePath }) {
     return (
       <button
         onClick={() => { item.action(); onNavigate?.(); }}
-        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent"
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${active ? "bg-primary text-primary-foreground warm-shadow" : "text-sidebar-foreground hover:bg-sidebar-accent"}`}
       >
         <item.icon className="w-5 h-5" />
         {item.label}
@@ -95,6 +95,14 @@ function SidebarContent({ navItems, user, community, communities, onSwitchCommun
   const location = useLocation();
   const upgradePath = user?.role === "homeowner" ? null : "/hoa/account";
 
+  // Tracks whether the AI Chat panel is open so its sidebar item can highlight.
+  const [aiChatOpen, setAiChatOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e) => setAiChatOpen(!!e.detail?.open);
+    window.addEventListener("ai-chat-open-change", handler);
+    return () => window.removeEventListener("ai-chat-open-change", handler);
+  }, []);
+
   const topLevel = navItems.filter((i) => !i.group);
   const groupOrder = [];
   const grouped = {};
@@ -136,7 +144,13 @@ function SidebarContent({ navItems, user, community, communities, onSwitchCommun
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {topLevel.map((item) => (
-          <NavLinkItem key={item.path || item.label} item={item} active={location.pathname === item.path} onNavigate={onNavigate} upgradePath={upgradePath} />
+          <NavLinkItem
+            key={item.path || item.label}
+            item={item}
+            active={item.action ? (item.actionId === "ai_chat" && aiChatOpen) : (location.pathname === item.path)}
+            onNavigate={onNavigate}
+            upgradePath={upgradePath}
+          />
         ))}
         {groupOrder.map((title) => (
           <NavGroup key={title} title={title} items={grouped[title]} pathname={location.pathname} onNavigate={onNavigate} upgradePath={upgradePath} />

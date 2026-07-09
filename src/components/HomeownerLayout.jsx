@@ -65,7 +65,7 @@ export default function HomeownerLayout() {
       ? [{ path: "/home/board-hub", label: "Board Hub", icon: LayoutGrid }]
       : []),
     { path: "/home/announcements", label: "Announcements", icon: Megaphone },
-    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
+    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", actionId: "ai_chat", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
     { path: "/home/account", label: "My Account", icon: UserCircle },
 
     { path: "/home/invoices", label: "My Bills", icon: Receipt, group: "Finances" },
@@ -87,7 +87,7 @@ export default function HomeownerLayout() {
     { path: "/home/dashboard", label: "Home", icon: Home },
     { path: "/home/requests", label: "Requests", icon: ClipboardList, module: "requests" },
     { path: "/home/invoices", label: "Bills", icon: Receipt },
-    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
+    { label: "AI Chat", icon: Sparkles, module: "ai_assistant", actionId: "ai_chat", action: () => window.dispatchEvent(new CustomEvent("open-ai-chat")) },
     { path: "/home/account", label: "Account", icon: UserCircle },
   ], community);
 
