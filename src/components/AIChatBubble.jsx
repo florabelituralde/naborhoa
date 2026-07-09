@@ -316,7 +316,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                     <h4 className="font-semibold text-base mb-1">Hi, I'm your HOA Assistant</h4>
                     <p className="text-sm text-muted-foreground mb-5 px-2">Ask me anything about your community's rules, dues, and policies.</p>
                     <div className="grid grid-cols-1 gap-2 text-left">
-                      {SUGGESTED_QUESTIONS.map(q => (
+                      {QUICK_PROMPTS.map(q => (
                         <button
                           key={q}
                           onClick={() => sendMessage(q)}

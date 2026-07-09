@@ -149,44 +149,6 @@ export default function MoveOutDialog({ user }) {
               />
             </div>
             <div>
-              <Label htmlFor="mo-buyer">New owner / buyer name (optional)</Label>
-              <Input id="mo-buyer" value={form.buyer_name} onChange={(e) => set("buyer_name", e.target.value)} placeholder="Jane Smith" className="mt-1.5" />
-            </div>
-          </div>
-
-          <div className="space-y-3 pt-1 border-t border-border">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pt-2">Closing details for the HOA</p>
-            <div>
-              <Label htmlFor="mo-email">Forwarding email (optional)</Label>
-              <Input id="mo-email" type="email" value={form.forwarding_email} onChange={(e) => set("forwarding_email", e.target.value)} placeholder="you@example.com" className="mt-1.5" />
-            </div>
-            <div>
-              <Label htmlFor="mo-addr">Forwarding mailing address (optional)</Label>
-              <Input id="mo-addr" value={form.forwarding_address} onChange={(e) => set("forwarding_address", e.target.value)} placeholder="123 New St, City, ST 00000" className="mt-1.5" />
-            </div>
-            <div>
-              <Label htmlFor="mo-phone">Contact phone for closing questions (optional)</Label>
-              <Input id="mo-phone" value={form.forwarding_phone} onChange={(e) => set("forwarding_phone", e.target.value)} placeholder="(555) 555-5555" className="mt-1.5" />
-            </div>
-            <div>
-              <Label>Keys / access fobs</Label>
-              <DrawerSelect
-                value={form.keys_status}
-                onValueChange={(v) => set("keys_status", v)}
-                title="Keys & access fobs"
-                className="mt-1.5"
-                options={[
-                  { value: "returned", label: "Returned to HOA" },
-                  { value: "pending", label: "Will return before closing" },
-                  { value: "not_applicable", label: "Not applicable" },
-                ]}
-              />
-            </div>
-            <div>
-              <Label htmlFor="mo-utility">Utility account transfer info (optional)</Label>
-              <Input id="mo-utility" value={form.utility_info} onChange={(e) => set("utility_info", e.target.value)} placeholder="Provider / account # / transfer status" className="mt-1.5" />
-            </div>
-            <div>
               <Label htmlFor="mo-notes">Notes for the HOA (optional)</Label>
               <Textarea id="mo-notes" value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Anything else the HOA should know" className="mt-1.5" rows={3} />
             </div>
