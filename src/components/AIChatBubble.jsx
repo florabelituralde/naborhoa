@@ -1,17 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Send, MessageCircle, Sparkles, X, Mail } from "lucide-react";
+import { Loader2, Send, MessageCircle, Sparkles, X, Mail, History } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import ContactHOAPanel from "@/components/ContactHOAPanel";
 import { isUnanswered } from "@/lib/hoaAssistant";
 import { hasModule } from "@/lib/planAccess";
 
-const SUGGESTED_QUESTIONS = [
+const QUICK_PROMPTS = [
   "What are the pool hours?",
   "When are HOA dues due?",
   "What are the noise rules?",
   "How do I report an issue?",
+  "How do I pay my dues?",
+  "What are the parking rules?",
+  "When is the next board meeting?",
+  "How do I submit a maintenance request?",
 ];
 
 // Floating AI assistant. Answers strictly from the community's HOA-provided documents.
@@ -27,6 +31,9 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
   const [boardMembers, setBoardMembers] = useState([]);
   const [managerEmail, setManagerEmail] = useState(null);
   const [managerName, setManagerName] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [hasHistory, setHasHistory] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const scrollRef = useRef(null);
 
   const aiEnabled = community ? hasModule(community, "ai_assistant") : false;
@@ -34,12 +41,10 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
   useEffect(() => {
     if (!community || !user || !aiEnabled) return;
     Promise.all([
-      base44.entities.ChatMessage.filter({ community_id: community.id, user_id: user.id }, "created_date"),
       base44.entities.Document.filter({ community_id: community.id, is_public: true }),
       base44.entities.BoardMember.filter({ community_id: community.id }),
       community.created_by_id ? base44.entities.User.filter({ id: community.created_by_id }).catch(() => []) : Promise.resolve([]),
-    ]).then(([msgs, communityDocs, board, managers]) => {
-      setMessages(msgs);
+    ]).then(([communityDocs, board, managers]) => {
       setDocs(communityDocs);
       // Primary recipient: the HOA contact managing this neighborhood page (community creator)
       const managerUser = managers?.[0] || null;
@@ -55,9 +60,21 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
     }).catch(() => {}).finally(() => setLoading(false));
   }, [community, user]);
 
+  // Each time the panel opens, load any prior conversations as "history" and
+  // start a fresh current session — so the chat always opens clean unless the
+  // homeowner chooses to browse previous conversations.
+  useEffect(() => {
+    if (!open || !community || !user || !aiEnabled) return;
+    setMessages([]);
+    setShowHistory(false);
+    base44.entities.ChatMessage.filter({ community_id: community.id, user_id: user.id }, "created_date")
+      .then(msgs => { setHistory(msgs); setHasHistory(msgs.length > 0); })
+      .catch(() => { setHistory([]); setHasHistory(false); });
+  }, [open, community, user, aiEnabled]);
+
   useEffect(() => {
     if (open) scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, thinking, open]);
+  }, [messages, thinking, open, showHistory, history]);
 
   // Allow other parts of the app (e.g. dashboard widget) to open the assistant.
   // Re-register when aiEnabled changes so the handler isn't stuck on the stale
@@ -84,6 +101,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
 
   const sendMessage = async (question) => {
     if (!question.trim() || thinking) return;
+    setShowHistory(false);
     const userMsg = { role: "user", content: question, community_id: community.id, user_id: user.id };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
@@ -190,6 +208,32 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
     setThinking(false);
   };
 
+  const renderMessage = (msg, i, list, readOnly = false) => {
+    const cantAnswer = msg.role === "assistant" && isUnanswered(msg.content);
+    const prevUserMsg = [...list.slice(0, i)].reverse().find(m => m.role === "user");
+    return (
+      <div key={msg.id || i}>
+        <div className={`flex gap-2.5 mb-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${msg.role === "user" ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground" : "bg-primary/10"}`}>
+            {msg.role === "user" ? (
+              <span className="text-xs font-semibold">{user?.full_name?.[0]?.toUpperCase()}</span>
+            ) : (
+              <Sparkles className="w-4 h-4 text-primary" />
+            )}
+          </div>
+          <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted rounded-bl-md"}`}>
+            <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+          </div>
+        </div>
+        {cantAnswer && hoaEmail && !readOnly && (
+          <div className="ml-10 mb-4 max-w-[85%]">
+            <ContactHOAPanel user={user} community={community} recipientEmail={hoaEmail} ccEmails={ccEmails} prefillQuestion={prevUserMsg?.content} />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (!community || !user || !aiEnabled) return null;
 
   return (
@@ -246,7 +290,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/30 touch-manipulation transition-colors"
+              className="shrink-0 w-11 h-11 flex items-center justify-center rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/30 touch-manipulation transition-colors"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
@@ -262,6 +306,22 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                 <Loader2 className="w-7 h-7 animate-spin text-primary" />
                 <p className="text-sm text-muted-foreground">Loading your conversation…</p>
               </div>
+            ) : showHistory ? (
+              <>
+                <div className="sticky top-0 z-10 flex items-center justify-between gap-2 -mx-1 px-1 py-2 mb-4 bg-card">
+                  <span className="text-sm font-medium flex items-center gap-2">
+                    <History className="w-4 h-4 text-muted-foreground" /> Previous conversations
+                  </span>
+                  <button onClick={() => setShowHistory(false)} className="text-sm text-primary font-medium hover:underline shrink-0">
+                    New chat
+                  </button>
+                </div>
+                {history.length === 0 ? (
+                  <p className="text-center text-sm text-muted-foreground py-12">No previous conversations yet.</p>
+                ) : (
+                  history.map((msg, i) => renderMessage(msg, i, history, true))
+                )}
+              </>
             ) : (
               <>
                 {messages.length === 0 && (
@@ -272,7 +332,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                     <h4 className="font-semibold text-base mb-1">Hi, I'm your HOA Assistant</h4>
                     <p className="text-sm text-muted-foreground mb-5 px-2">Ask me anything about your community's rules, dues, and policies.</p>
                     <div className="grid grid-cols-1 gap-2 text-left">
-                      {SUGGESTED_QUESTIONS.map(q => (
+                      {QUICK_PROMPTS.slice(0, 4).map(q => (
                         <button
                           key={q}
                           onClick={() => sendMessage(q)}
@@ -285,34 +345,18 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                         </button>
                       ))}
                     </div>
+                    {hasHistory && (
+                      <button
+                        onClick={() => setShowHistory(true)}
+                        className="mt-5 inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:underline"
+                      >
+                        <History className="w-4 h-4" /> View previous conversations
+                      </button>
+                    )}
                   </div>
                 )}
 
-                {messages.map((msg, i) => {
-                  const cantAnswer = msg.role === "assistant" && isUnanswered(msg.content);
-                  const prevUserMsg = [...messages.slice(0, i)].reverse().find(m => m.role === "user");
-                  return (
-                  <div key={msg.id || i}>
-                    <div className={`flex gap-2.5 mb-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${msg.role === "user" ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground" : "bg-primary/10"}`}>
-                        {msg.role === "user" ? (
-                          <span className="text-xs font-semibold">{user?.full_name?.[0]?.toUpperCase()}</span>
-                        ) : (
-                          <Sparkles className="w-4 h-4 text-primary" />
-                        )}
-                      </div>
-                      <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted rounded-bl-md"}`}>
-                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-                      </div>
-                    </div>
-                    {cantAnswer && hoaEmail && (
-                      <div className="ml-10 mb-4 max-w-[85%]">
-                        <ContactHOAPanel user={user} community={community} recipientEmail={hoaEmail} ccEmails={ccEmails} prefillQuestion={prevUserMsg?.content} />
-                      </div>
-                    )}
-                  </div>
-                  );
-                })}
+                {messages.map((msg, i) => renderMessage(msg, i, messages))}
 
                 {thinking && (
                   <div className="flex gap-2.5 mb-4">
@@ -328,11 +372,29 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                     </div>
                   </div>
                 )}
-                <div ref={scrollRef} />
               </>
             )}
+            <div ref={scrollRef} />
             </div>
           </div>
+
+          {/* Quick prompt chips during an active conversation */}
+          {messages.length > 0 && !showHistory && !loading && (
+            <div className="px-3 pt-3 shrink-0 bg-card">
+              <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-2xl mx-auto">
+                {QUICK_PROMPTS.map(q => (
+                  <button
+                    key={q}
+                    onClick={() => sendMessage(q)}
+                    disabled={thinking}
+                    className="shrink-0 px-3 py-1.5 rounded-full border border-border text-xs text-foreground hover:border-primary/50 hover:bg-primary/5 active:scale-95 transition-all whitespace-nowrap disabled:opacity-40 disabled:active:scale-100"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Input */}
           <div className="p-3 border-t border-border shrink-0 safe-x bg-card">
