@@ -85,12 +85,6 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
     return () => window.removeEventListener("open-ai-chat", handleOpen);
   }, [aiEnabled]);
 
-  // Broadcast open/close so nav items (bottom tab bar, sidebar) can highlight
-  // the AI Chat button while the panel is open.
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent("ai-chat-open-change", { detail: { open } }));
-  }, [open]);
-
   // Close on Escape (keyboard fallback)
   useEffect(() => {
     if (!open) return;
@@ -312,22 +306,6 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                 <Loader2 className="w-7 h-7 animate-spin text-primary" />
                 <p className="text-sm text-muted-foreground">Loading your conversation…</p>
               </div>
-            ) : showHistory ? (
-              <>
-                <div className="sticky top-0 z-10 flex items-center justify-between gap-2 -mx-1 px-1 py-2 mb-4 bg-card">
-                  <span className="text-sm font-medium flex items-center gap-2">
-                    <History className="w-4 h-4 text-muted-foreground" /> Previous conversations
-                  </span>
-                  <button onClick={() => setShowHistory(false)} className="text-sm text-primary font-medium hover:underline shrink-0">
-                    New chat
-                  </button>
-                </div>
-                {history.length === 0 ? (
-                  <p className="text-center text-sm text-muted-foreground py-12">No previous conversations yet.</p>
-                ) : (
-                  history.map((msg, i) => renderMessage(msg, i, history, true))
-                )}
-              </>
             ) : (
               <>
                 {messages.length === 0 && (
@@ -338,7 +316,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                     <h4 className="font-semibold text-base mb-1">Hi, I'm your HOA Assistant</h4>
                     <p className="text-sm text-muted-foreground mb-5 px-2">Ask me anything about your community's rules, dues, and policies.</p>
                     <div className="grid grid-cols-1 gap-2 text-left">
-                      {QUICK_PROMPTS.slice(0, 4).map(q => (
+                      {SUGGESTED_QUESTIONS.map(q => (
                         <button
                           key={q}
                           onClick={() => sendMessage(q)}
@@ -351,18 +329,34 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                         </button>
                       ))}
                     </div>
-                    {hasHistory && (
-                      <button
-                        onClick={() => setShowHistory(true)}
-                        className="mt-5 inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:underline"
-                      >
-                        <History className="w-4 h-4" /> View previous conversations
-                      </button>
-                    )}
                   </div>
                 )}
 
-                {messages.map((msg, i) => renderMessage(msg, i, messages))}
+                {messages.map((msg, i) => {
+                  const cantAnswer = msg.role === "assistant" && isUnanswered(msg.content);
+                  const prevUserMsg = [...messages.slice(0, i)].reverse().find(m => m.role === "user");
+                  return (
+                  <div key={msg.id || i}>
+                    <div className={`flex gap-2.5 mb-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${msg.role === "user" ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground" : "bg-primary/10"}`}>
+                        {msg.role === "user" ? (
+                          <span className="text-xs font-semibold">{user?.full_name?.[0]?.toUpperCase()}</span>
+                        ) : (
+                          <Sparkles className="w-4 h-4 text-primary" />
+                        )}
+                      </div>
+                      <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted rounded-bl-md"}`}>
+                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                      </div>
+                    </div>
+                    {cantAnswer && hoaEmail && (
+                      <div className="ml-10 mb-4 max-w-[85%]">
+                        <ContactHOAPanel user={user} community={community} recipientEmail={hoaEmail} ccEmails={ccEmails} prefillQuestion={prevUserMsg?.content} />
+                      </div>
+                    )}
+                  </div>
+                  );
+                })}
 
                 {thinking && (
                   <div className="flex gap-2.5 mb-4">
@@ -378,29 +372,11 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                     </div>
                   </div>
                 )}
+                <div ref={scrollRef} />
               </>
             )}
-            <div ref={scrollRef} />
             </div>
           </div>
-
-          {/* Quick prompt chips during an active conversation */}
-          {messages.length > 0 && !showHistory && !loading && (
-            <div className="px-3 pt-3 shrink-0 bg-card">
-              <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-2xl mx-auto">
-                {QUICK_PROMPTS.map(q => (
-                  <button
-                    key={q}
-                    onClick={() => sendMessage(q)}
-                    disabled={thinking}
-                    className="shrink-0 px-3 py-1.5 rounded-full border border-border text-xs text-foreground hover:border-primary/50 hover:bg-primary/5 active:scale-95 transition-all whitespace-nowrap disabled:opacity-40 disabled:active:scale-100"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Input */}
           <div className="p-3 border-t border-border shrink-0 safe-x bg-card">

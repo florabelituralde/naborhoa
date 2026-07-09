@@ -29,6 +29,7 @@
       "enum": [
         "selling",
         "relocating",
+        "renting",
         "other"
       ],
       "default": "selling"
@@ -38,6 +39,27 @@
     },
     "forwarding_email": {
       "type": "string"
+    },
+    "forwarding_address": {
+      "type": "string",
+      "description": "Homeowner's new mailing address for final correspondence"
+    },
+    "forwarding_phone": {
+      "type": "string",
+      "description": "Contact phone for closing-related questions"
+    },
+    "utility_info": {
+      "type": "string",
+      "description": "Utility provider / account number / transfer status"
+    },
+    "keys_status": {
+      "type": "string",
+      "enum": [
+        "returned",
+        "pending",
+        "not_applicable"
+      ],
+      "default": "pending"
     },
     "notes": {
       "type": "string"

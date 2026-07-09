@@ -148,7 +148,7 @@ export default function HomeAccount() {
 
       {/* Moving out / leaving */}
       <div className="mt-8 space-y-3">
-        <MoveOutDialog />
+        <MoveOutDialog user={user} />
         <LeaveCommunityDialog />
       </div>
 

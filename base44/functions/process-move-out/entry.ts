@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => null);
     if (!body) return Response.json({ error: 'Invalid request body' }, { status: 400 });
-    const { move_out_date, reason, buyer_name, forwarding_email, notes } = body;
+    const { move_out_date, reason, buyer_name, forwarding_email, forwarding_address, forwarding_phone, utility_info, keys_status, notes } = body;
     if (!move_out_date) {
       return Response.json({ error: 'Move-out date is required' }, { status: 400 });
     }
@@ -50,6 +50,10 @@ Deno.serve(async (req) => {
       reason: reason || 'selling',
       buyer_name: buyer_name || '',
       forwarding_email: forwarding_email || '',
+      forwarding_address: forwarding_address || '',
+      forwarding_phone: forwarding_phone || '',
+      utility_info: utility_info || '',
+      keys_status: keys_status || 'pending',
       notes: notes || '',
     });
 
