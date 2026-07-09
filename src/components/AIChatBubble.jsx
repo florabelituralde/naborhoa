@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
 import { Loader2, Send, MessageCircle, Sparkles, X, Mail } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
@@ -199,7 +198,7 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
       {!open && !hideButton && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed right-5 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-5 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground warm-shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+          className="fixed right-5 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-5 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground warm-shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
           aria-label="Open HOA assistant"
         >
           <MessageCircle className="w-6 h-6" />
@@ -228,20 +227,26 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
           transition={{ duration: 0.25, ease: "easeOut" }}
         >
           {/* Header */}
-          <div className="relative z-10 flex items-center justify-between gap-2 px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0 safe-top safe-x">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4" />
+          <div className="relative z-10 flex items-center justify-between gap-2 px-4 py-3.5 border-b border-border bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shrink-0 safe-top safe-x">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-400 ring-2 ring-primary" />
               </div>
               <div className="min-w-0">
                 <h3 className="font-semibold text-sm leading-tight">HOA Assistant</h3>
-                <p className="text-[11px] text-primary-foreground/80 leading-tight truncate">{community.name}</p>
+                <p className="text-[11px] text-primary-foreground/80 leading-tight truncate flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block shrink-0" />
+                  {community.name}
+                </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-white/15 hover:bg-white/25 active:bg-white/30 touch-manipulation"
+              className="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/30 touch-manipulation transition-colors"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
@@ -253,22 +258,29 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
           <div className="flex-1 overflow-y-auto px-4 py-4">
             <div className="max-w-2xl mx-auto w-full">
             {loading ? (
-              <div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+              <div className="flex flex-col items-center justify-center h-full gap-3">
+                <Loader2 className="w-7 h-7 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Loading your conversation…</p>
+              </div>
             ) : (
               <>
                 {messages.length === 0 && (
-                  <div className="text-center py-6">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                      <MessageCircle className="w-6 h-6 text-primary" />
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto mb-4 warm-shadow">
+                      <Sparkles className="w-7 h-7 text-primary-foreground" />
                     </div>
-                    <p className="text-sm text-muted-foreground mb-4 px-2">Ask about your community's official rules and policies</p>
-                    <div className="grid grid-cols-1 gap-2">
+                    <h4 className="font-semibold text-base mb-1">Hi, I'm your HOA Assistant</h4>
+                    <p className="text-sm text-muted-foreground mb-5 px-2">Ask me anything about your community's rules, dues, and policies.</p>
+                    <div className="grid grid-cols-1 gap-2 text-left">
                       {SUGGESTED_QUESTIONS.map(q => (
                         <button
                           key={q}
                           onClick={() => sendMessage(q)}
-                          className="text-left p-2.5 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-all text-sm"
+                          className="group flex items-center gap-2.5 p-3 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 active:scale-[0.98] transition-all text-sm"
                         >
+                          <span className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <MessageCircle className="w-3 h-3 text-primary" />
+                          </span>
                           {q}
                         </button>
                       ))}
@@ -281,20 +293,20 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                   const prevUserMsg = [...messages.slice(0, i)].reverse().find(m => m.role === "user");
                   return (
                   <div key={msg.id || i}>
-                    <div className={`flex gap-2 mb-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${msg.role === "user" ? "bg-primary" : "bg-primary/10"}`}>
+                    <div className={`flex gap-2.5 mb-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${msg.role === "user" ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground" : "bg-primary/10"}`}>
                         {msg.role === "user" ? (
-                          <span className="text-primary-foreground text-xs font-semibold">{user?.full_name?.[0]?.toUpperCase()}</span>
+                          <span className="text-xs font-semibold">{user?.full_name?.[0]?.toUpperCase()}</span>
                         ) : (
-                          <Sparkles className="w-3.5 h-3.5 text-primary" />
+                          <Sparkles className="w-4 h-4 text-primary" />
                         )}
                       </div>
-                      <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted rounded-bl-md"}`}>
+                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                       </div>
                     </div>
                     {cantAnswer && hoaEmail && (
-                      <div className="ml-9 mb-3 max-w-[85%]">
+                      <div className="ml-10 mb-4 max-w-[85%]">
                         <ContactHOAPanel user={user} community={community} recipientEmail={hoaEmail} ccEmails={ccEmails} prefillQuestion={prevUserMsg?.content} />
                       </div>
                     )}
@@ -303,15 +315,15 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
                 })}
 
                 {thinking && (
-                  <div className="flex gap-2 mb-3">
-                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  <div className="flex gap-2.5 mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Sparkles className="w-4 h-4 text-primary" />
                     </div>
-                    <div className="bg-muted rounded-2xl px-3 py-2">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3.5">
+                      <div className="flex gap-1.5 items-center">
+                        <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: "300ms" }} />
                       </div>
                     </div>
                   </div>
@@ -323,24 +335,29 @@ export default function AIChatBubble({ user, community, hideButton = false }) {
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-border shrink-0 safe-x">
-            <div className="flex gap-2 max-w-2xl mx-auto">
+          <div className="p-3 border-t border-border shrink-0 safe-x bg-card">
+            <div className="flex gap-2 max-w-2xl mx-auto items-end">
               <input
                 type="text"
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
                 placeholder="Ask about rules, dues, policies..."
-                className="flex-1 h-10 px-3 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="flex-1 h-11 px-4 rounded-2xl border border-input bg-muted/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-background transition-colors"
               />
-              <Button onClick={() => sendMessage(input)} disabled={!input.trim() || thinking} className="h-10 px-3">
+              <button
+                onClick={() => sendMessage(input)}
+                disabled={!input.trim() || thinking}
+                className="shrink-0 w-11 h-11 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all disabled:opacity-40 disabled:active:scale-100"
+                aria-label="Send message"
+              >
                 <Send className="w-4 h-4" />
-              </Button>
+              </button>
             </div>
             {hoaEmail && (
-              <p className="max-w-2xl mx-auto mt-2 text-[11px] text-muted-foreground flex items-center justify-center gap-1">
+              <p className="max-w-2xl mx-auto mt-2.5 text-[11px] text-muted-foreground flex items-center justify-center gap-1">
                 <Mail className="w-3 h-3" /> Need a person? Contact the HOA at{" "}
-                <a href={`mailto:${hoaEmail}`} className="text-primary hover:underline">{hoaEmail}</a>
+                <a href={`mailto:${hoaEmail}`} className="text-primary hover:underline font-medium">{hoaEmail}</a>
               </p>
             )}
           </div>
