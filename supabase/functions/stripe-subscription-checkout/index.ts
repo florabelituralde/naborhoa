@@ -25,7 +25,7 @@ function safeOrigin(req: Request): string {
       return `${u.protocol}//${u.host}`;
     }
   } catch (_) { /* invalid or missing Origin */ }
-  return Deno.env.get("APP_BASE_URL") || "https://app.base44.app";
+  return Deno.env.get("APP_BASE_URL") || "https://naborhoa.com";
 }
 
 Deno.serve(withCors(async (req) => {

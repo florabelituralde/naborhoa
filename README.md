@@ -156,9 +156,43 @@ Notes:
 ## Deploying the frontend
 
 The frontend is a static Vite build (`npm run build` → `dist/`). Host `dist/` anywhere
-(Vercel, Netlify, Cloudflare Pages, GitHub Pages, or Supabase's own hosting). Set the two
-`VITE_SUPABASE_*` variables in your host's environment and add the deployed URL to Supabase
-Auth's redirect URLs and `APP_BASE_URL`.
+(Vercel, Netlify, Cloudflare Pages, GitHub Pages, or Supabase's own hosting) and set the two
+`VITE_SUPABASE_*` variables in your host's environment.
+
+### SPA routing (required)
+
+The app is a single-page app using clean URLs (`react-router` history mode), and it relies on
+deep links being shared directly — community links (`/c/:joinCode`), payment links
+(`/pay/invoice/:id`), and password-reset links (`/reset-password?token=...`). The host **must
+serve `index.html` for any unmatched path**, otherwise opening or refreshing those URLs returns
+a 404. Base44 did this automatically; self-hosting needs it configured:
+
+- **Vercel** — `vercel.json` (committed) rewrites all routes to `/index.html`.
+- **Netlify / Cloudflare Pages** — `public/_redirects` (committed, ships to `dist/_redirects`)
+  does the same.
+- **Nginx** — `location / { try_files $uri /index.html; }`
+- **Apache** — a `.htaccess` `FallbackResource /index.html` (or the standard rewrite to
+  `index.html`).
+- **Caddy** — `try_files {path} /index.html`.
+- **GitHub Pages** — no server rewrites; copy `dist/index.html` to `dist/404.html` after build,
+  or use a hash-router fallback.
+
+### Pointing your domain (e.g. naborhoa.com) at the new host
+
+1. In your host, add `naborhoa.com` as a custom domain and update DNS per its instructions
+   (Base44's old DNS records no longer apply).
+2. In **Supabase → Authentication → URL Configuration**, set the Site URL to
+   `https://naborhoa.com` and add it (plus `http://localhost:5173` for dev) to the redirect
+   allow-list — the login, signup-confirm, OAuth, and password-reset flows all redirect back to
+   the origin the user is on. Mirror this in `site_url` / `additional_redirect_urls` in
+   `supabase/config.toml`.
+3. Set the edge-function secret so payment redirects land back on your domain:
+   `supabase secrets set APP_BASE_URL=https://naborhoa.com`. (Checkout functions already prefer
+   the browser's Origin and only fall back to `APP_BASE_URL`, which now defaults to
+   `https://naborhoa.com` if the secret is unset.)
+
+Nothing in the code hardcodes a domain — all in-app links use `window.location.origin`, so the
+app works from whatever domain it is served on.
 
 ## Project layout
 

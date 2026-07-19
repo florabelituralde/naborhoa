@@ -57,7 +57,7 @@ function port(name) {
   code = closeWithCors(code);
 
   // Point the checkout redirect fallback at the self-hosted app domain.
-  code = code.replaceAll('"https://app.base44.app"', 'Deno.env.get("APP_BASE_URL") || "https://app.base44.app"');
+  code = code.replaceAll('"https://app.base44.app"', 'Deno.env.get("APP_BASE_URL") || "https://naborhoa.com"');
 
   const outSub = path.join(OUT_DIR, name);
   fs.mkdirSync(outSub, { recursive: true });
