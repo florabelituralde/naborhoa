@@ -4,54 +4,54 @@ import { ChevronUp, Users, ClipboardList, CreditCard, Vote, Calendar, FileText, 
 import NaborLogo from "@/components/NaborLogo";
 
 const VIDEO_URL =
-  "https://media.base44.com/videos/public/6a4acea33cfa263e6d1847b3/2400dfc94_Neighborhood_Video.mp4";
+  "/intro/neighborhood.mp4";
 
 const SLIDES = [
   {
     image:
-      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/82cc177f5_generated_image.png",
+      "/intro/slide-1.png",
     icon: Users,
     title: "One place for your whole neighborhood",
     text: "Announcements, events, board updates and community docs — everyone stays in the loop.",
   },
   {
     image:
-      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/d67c7bd51_generated_image.png",
+      "/intro/slide-2.png",
     icon: ClipboardList,
     title: "Submit & track any request",
     text: "Maintenance, repairs, and plan reviews with custom request types and real-time status updates.",
   },
   {
     image:
-      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/1e2c72b66_generated_image.png",
+      "/intro/slide-3.png",
     icon: CreditCard,
     title: "Pay dues without the paperwork",
     text: "Pay HOA dues, assessments, and fees online with card or ACH — view invoices and history anytime.",
   },
   {
     image:
-      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/82cc177f5_generated_image.png",
+      "/intro/slide-1.png",
     icon: Vote,
     title: "Vote in elections & polls",
     text: "Meet the candidates, read their statements, and cast your ballot in board elections and community polls.",
   },
   {
     image:
-      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/d67c7bd51_generated_image.png",
+      "/intro/slide-2.png",
     icon: Calendar,
     title: "Never miss an event",
     text: "Track meetings, social gatherings, and important deadlines on a shared community calendar.",
   },
   {
     image:
-      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/1e2c72b66_generated_image.png",
+      "/intro/slide-3.png",
     icon: FileText,
     title: "Documents & financial transparency",
     text: "Access bylaws, rules, and meeting minutes, plus transparent budgets and expense tracking.",
   },
   {
     image:
-      "https://media.base44.com/images/public/6a4acea33cfa263e6d1847b3/82cc177f5_generated_image.png",
+      "/intro/slide-1.png",
     icon: Bell,
     title: "Stay in the loop",
     text: "Smart notifications for request updates, invoices, announcements, and voting reminders — so nothing slips by.",
