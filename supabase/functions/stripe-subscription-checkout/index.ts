@@ -4,8 +4,8 @@ import { withCors } from '../_shared/cors.ts';
 
 // Recurring HOA dues auto-pay via Stripe, settled to the community's connected
 // Stripe account (Stripe Connect) with a platform application fee. This replaces
-// the old Wix auto-pay checkout — Wix is now used only for the app's own plan
-// subscriptions (create-plan-checkout).
+// the old Wix auto-pay checkout. (The app's own plan subscription now also runs
+// on Stripe, via create-plan-checkout — as a direct charge, not Connect.)
 // Platform processing fee (1.5%) added ON TOP of the recurring dues amount.
 // The homeowner pays dues + 1.5%; the platform retains the 1.5% via
 // application_fee_percent, and the HOA receives the original dues (minus
