@@ -34,3 +34,7 @@ base44/.app.jsonc
 
 # Live data dumped by scripts/migrate-data.mjs — never commit
 migration-data/
+
+# Supabase CLI local state (linked project ref, service versions, etc.)
+supabase/.temp/
+supabase/.branches/
