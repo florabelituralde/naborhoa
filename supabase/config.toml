@@ -1,0 +1,71 @@
+# Supabase project configuration.
+# For Supabase Cloud: `supabase link --project-ref <your-ref>` then
+# `supabase db push` and `supabase functions deploy`.
+project_id = "naborhoa"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+# Set this to your deployed frontend URL in production.
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+
+# OAuth providers — fill in credentials via the dashboard or env vars.
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+
+[auth.external.apple]
+enabled = false
+client_id = "env(SUPABASE_AUTH_APPLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_APPLE_SECRET)"
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+# ---------------------------------------------------------------------------
+# Edge Functions. Public (guest) endpoints and external webhooks must NOT
+# require a Supabase user JWT. Everything else keeps the default (verify_jwt = true).
+# ---------------------------------------------------------------------------
+[functions.get-public-community]
+verify_jwt = false
+[functions.get-public-invoice]
+verify_jwt = false
+[functions.public-ai-chat]
+verify_jwt = false
+[functions.find-community-by-address]
+verify_jwt = false
+[functions.google-address-search]
+verify_jwt = false
+[functions.initiate-guest-payment]
+verify_jwt = false
+[functions.verify-guest-otp]
+verify_jwt = false
+[functions.stripe-checkout]
+verify_jwt = false
+[functions.stripe-webhook]
+verify_jwt = false
+[functions.wix-payments-webhook]
+verify_jwt = false
