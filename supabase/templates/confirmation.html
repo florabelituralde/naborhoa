@@ -1,0 +1,26 @@
+<!--
+  Supabase "Confirm signup" email template for Nabor HOA.
+
+  The app verifies sign-ups with a 6-digit code (base44Client.js -> verifyOtp,
+  type: 'signup'), so this template MUST expose {{ .Token }}. The default
+  Supabase template only sends {{ .ConfirmationURL }} (a magic link), which the
+  6-digit OTP screen cannot use.
+
+  Apply it either by pasting the markup below into
+  Dashboard -> Authentication -> Emails -> Templates -> "Confirm signup",
+  or by wiring it into supabase/config.toml under
+  [auth.email.template.confirmation] and running `supabase config push`.
+-->
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1f2937;">
+  <h2 style="margin: 0 0 8px; font-size: 20px; color: #5c8065;">Confirm your email</h2>
+  <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.5; color: #374151;">
+    Enter this code to finish creating your Nabor HOA account:
+  </p>
+  <div style="font-size: 34px; font-weight: 700; letter-spacing: 8px; text-align: center; background: #f1f5f2; color: #2f4735; padding: 18px 0; border-radius: 12px;">
+    {{ .Token }}
+  </div>
+  <p style="margin: 24px 0 0; font-size: 13px; line-height: 1.5; color: #6b7280;">
+    This code expires in 1 hour. If you didn't try to sign up, you can safely
+    ignore this email.
+  </p>
+</div>
