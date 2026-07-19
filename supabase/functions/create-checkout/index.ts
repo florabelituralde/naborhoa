@@ -11,7 +11,7 @@ import { withCors } from '../_shared/cors.ts';
 //
 // This endpoint previously used Wix Payments, which routed homeowner money to
 // the platform. That is no longer permitted: the platform only collects its
-// own plan subscriptions via create-plan-checkout (Wix). This endpoint now
+// own plan subscriptions via create-plan-checkout (Stripe). This endpoint now
 // refuses to create any checkout so no homeowner payment can ever reach the
 // platform through it.
 Deno.serve(withCors(async (_req) => {

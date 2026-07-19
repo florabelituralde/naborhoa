@@ -65,7 +65,7 @@ supabase functions deploy
 
 ### 3. Set Edge Function secrets
 
-Only set the ones you use. AI chat needs OpenAI; email needs Resend; payments need Stripe/Wix.
+Only set the ones you use. AI chat needs OpenAI; email needs Resend; payments need Stripe.
 
 ```bash
 supabase secrets set \
@@ -75,16 +75,17 @@ supabase secrets set \
   RESEND_FROM="Naborhoa <no-reply@yourdomain.com>" \
   Stripe_api_key=sk_live_...       \
   Stripe_webhook=whsec_...         \
-  APP_BASE_URL=https://your-frontend-url
-# Wix payments (only if used):
-supabase secrets set WIX_PAYMENTS_APP_ID=... WIX_PAYMENTS_PUBLIC_KEY=... WIX_PAYMENTS_APP_SECRET=...
+  APP_BASE_URL=https://naborhoa.com
 ```
 
 `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected into functions automatically —
 do not set them yourself.
 
-> Secret names (`Stripe_api_key`, `Stripe_webhook`, `WIX_PAYMENTS_*`) match what the ported
-> function code reads via `Deno.env.get(...)`; keep them exactly as shown.
+> Secret names (`Stripe_api_key`, `Stripe_webhook`) match what the ported function code reads
+> via `Deno.env.get(...)`; keep them exactly as shown (note the capital `S` in the Stripe names).
+
+Payments run entirely on Stripe — see **[Payments (Stripe)](#payments-stripe)** for the full
+step-by-step (Stripe Connect for HOA dues plus the platform subscription and webhook).
 
 ### 4. Configure Auth
 
@@ -118,6 +119,80 @@ VITE_SUPABASE_ANON_KEY=<your-anon-public-key>
 npm run dev      # Vite dev server against your Supabase project
 npm run build    # production build
 ```
+
+## Payments (Stripe)
+
+The app uses **one Stripe account** for two separate money flows, kept apart by how each
+Checkout Session is built — Stripe itself routes the money, so they can never mix:
+
+| Flow | Who pays whom | Stripe mechanism | Where the money lands |
+| --- | --- | --- | --- |
+| **HOA dues / invoices** | residents pay their HOA | Connect destination charge (`transfer_data` + 1.5% `application_fee`) | the HOA's connected account; you keep the 1.5% fee |
+| **App subscription** | HOA admin pays you | direct charge, no Connect | your platform account (100%) |
+
+Functions: `stripe-checkout` (one-time dues), `stripe-subscription-checkout` (dues auto-pay),
+`stripe-connect` (HOA payout onboarding), `create-plan-checkout` (app subscription),
+`stripe-webhook` (shared; routes by `metadata.kind`), `cancel-subscription`.
+
+### Step by step
+
+1. **Create a Stripe account** at [dashboard.stripe.com](https://dashboard.stripe.com). Do the
+   whole setup in **Test mode** first (toggle, top-right), then repeat in Live mode to go live.
+
+2. **Enable Connect** (so each HOA can receive dues): Dashboard → **Connect** → Get started →
+   choose a **Platform or marketplace**. Fill in your platform business profile and branding.
+   The app onboards each HOA as a Stripe **Express** account.
+
+3. **Copy your secret key**: Developers → **API keys** → *Secret key* (`sk_test_...` /
+   `sk_live_...`), then set it (note the capital `S`):
+   ```bash
+   supabase secrets set Stripe_api_key=sk_live_...
+   ```
+
+4. **Add the webhook**: Developers → **Webhooks** → *Add endpoint*.
+   - **Endpoint URL**: `https://<project-ref>.supabase.co/functions/v1/stripe-webhook`
+   - **Events**: `checkout.session.completed`, `payment_intent.succeeded`,
+     `customer.subscription.deleted`, `account.updated`.
+   - Save, then copy the endpoint's **Signing secret** (`whsec_...`):
+   ```bash
+   supabase secrets set Stripe_webhook=whsec_...
+   ```
+   Resident payments are destination charges created on your platform account, so their events
+   arrive here automatically. `account.updated` (an HOA finishing payout onboarding) is a
+   *Connect* event — tick **"Listen to events on connected accounts"** on the endpoint to get it
+   in real time. It is optional: the app also refreshes each HOA's status whenever an admin opens
+   **HOA → Payment Settings**.
+
+5. **Set the redirect base** so post-checkout redirects land on your domain:
+   ```bash
+   supabase secrets set APP_BASE_URL=https://naborhoa.com
+   ```
+
+6. **Deploy** so the functions pick everything up: `supabase functions deploy`.
+
+You do **not** need to create any Products or Prices in Stripe — the app builds line items
+inline for both plans and dues.
+
+### Each HOA connects its own payouts
+
+Online dues stay off until each HOA admin connects a payout account: in-app **HOA → Payment
+Settings → Connect with Stripe** runs Stripe Express onboarding (`stripe-connect`). Until it
+finishes (`charges_enabled`), residents see a "your HOA hasn't enabled online payments yet"
+message. This is per-community and done by the HOA admin, not by you.
+
+### Testing and going live
+
+- In Test mode, pay with card `4242 4242 4242 4242` (any future expiry / any CVC). Use the
+  Stripe CLI (`stripe listen --forward-to https://<project-ref>.supabase.co/functions/v1/stripe-webhook`)
+  or the dashboard's "Send test webhook" to exercise events.
+- To go live: switch the dashboard to Live mode, recreate the webhook there (its signing secret
+  differs), and re-set `Stripe_api_key` / `Stripe_webhook` with the live values.
+
+### Canceling the app subscription
+
+There is no in-app cancel button for the platform plan; cancel it from the Stripe Dashboard
+(Customers → the subscription → Cancel). The `customer.subscription.deleted` event then marks
+the community's `subscription_status = canceled`.
 
 ## Migrating your live Base44 data
 

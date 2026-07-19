@@ -1,4 +1,15 @@
+import Stripe from 'npm:stripe@14.25.0';
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+
+// Platform (app) subscription checkout — the HOA admin paying Naborhoa for a
+// plan. This is a DIRECT charge on the platform's own Stripe account: there is
+// NO Stripe Connect `transfer_data` and NO `application_fee`, so 100% of the
+// subscription revenue stays with the platform. That is exactly what keeps this
+// flow separate from homeowner dues (stripe-checkout / stripe-subscription-
+// checkout), which are destination charges routed to each HOA's connected
+// account. The shared stripe-webhook tells the two apart via metadata.kind.
+//
+// Replaces the previous Wix Payments Platform integration.
 
 // Plan pricing mirror (server-side source of truth to prevent tampering).
 const PLANS: Record<string, { name: string; monthlyPrice: number }> = {
@@ -9,10 +20,11 @@ const PLANS: Record<string, { name: string; monthlyPrice: number }> = {
   pro_multi: { name: "Nabor Portfolio", monthlyPrice: 199 },
 };
 
-const CYCLES: Record<string, { multiplier: number; discount: number; frequency: "MONTH" | "YEAR"; interval: number }> = {
-  monthly: { multiplier: 1, discount: 0, frequency: "MONTH", interval: 1 },
-  quarterly: { multiplier: 3, discount: 0.1, frequency: "MONTH", interval: 3 },
-  annual: { multiplier: 12, discount: 0.2, frequency: "YEAR", interval: 1 },
+// Billing cycles map to a Stripe recurring interval. quarterly = every 3 months.
+const CYCLES: Record<string, { multiplier: number; discount: number; interval: "month" | "year"; intervalCount: number }> = {
+  monthly: { multiplier: 1, discount: 0, interval: "month", intervalCount: 1 },
+  quarterly: { multiplier: 3, discount: 0.1, interval: "month", intervalCount: 3 },
+  annual: { multiplier: 12, discount: 0.2, interval: "year", intervalCount: 1 },
 };
 
 function safeOrigin(req: Request): string {
@@ -52,73 +64,63 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Not authorized for this community" }, { status: 403 });
     }
 
+    // Charge per billing period, computed server-side (never trust the client).
     const gross = plan.monthlyPrice * cycle.multiplier;
     const amount = Math.round(gross * (1 - cycle.discount) * 100) / 100;
 
     if (amount < 0.50) {
+      // The free plan (and any $0 selection) never goes through checkout — the
+      // frontend applies it directly.
       return Response.json({ error: "Amount must be at least $0.50" }, { status: 400 });
     }
 
-    const origin = safeOrigin(req);
-    const WIX_API_KEY = Deno.env.get("WIX_PAYMENTS_API_KEY");
-    const WIX_SITE_ID = Deno.env.get("WIX_PAYMENTS_SITE_ID");
-    if (!WIX_API_KEY || !WIX_SITE_ID) {
+    const secretKey = Deno.env.get("Stripe_api_key");
+    if (!secretKey) {
       return Response.json({ error: "Payments are not configured." }, { status: 503 });
     }
 
+    const stripe = new Stripe(secretKey);
+    const origin = safeOrigin(req);
     const cycleLabel = billing_cycle.charAt(0).toUpperCase() + billing_cycle.slice(1);
+    const unitAmount = Math.round(amount * 100);
 
-    const item = {
-      name: `${plan.name} — ${cycleLabel}`,
-      quantity: 1,
-      price: amount.toFixed(2),
-      subscriptionInfo: {
-        subscriptionSettings: {
-          frequency: cycle.frequency,
-          interval: cycle.interval,
-        },
-        title: `${plan.name} (${cycleLabel})`,
-        description: `Nabor platform subscription — ${plan.name}, billed ${billing_cycle}`,
-      },
-    };
+    const planMeta = { kind: "platform_plan", community_id, plan_id, billing_cycle };
 
-    const response = await fetch("https://www.wixapis.com/payments/platform/v1/checkout-sessions/construct", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": WIX_API_KEY,
-        "wix-site-id": WIX_SITE_ID,
-      },
-      body: JSON.stringify({
-        cart: { items: [item] },
-        callbackUrls: {
-          postFlowUrl: `${origin}/onboarding`,
-          thankYouPageUrl: `${origin}/pay/thank-you?plan=1`,
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      payment_method_types: ["card"],
+      customer_email: caller?.email || undefined,
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `${plan.name} — ${cycleLabel}`,
+              description: `Naborhoa platform subscription — ${plan.name}, billed ${billing_cycle}`,
+            },
+            unit_amount: unitAmount,
+            recurring: { interval: cycle.interval, interval_count: cycle.intervalCount },
+          },
+          quantity: 1,
         },
-      }),
+      ],
+      // NO transfer_data / application_fee: this revenue stays with the platform.
+      subscription_data: { metadata: planMeta },
+      metadata: planMeta,
+      success_url: `${origin}/pay/thank-you?plan=1`,
+      cancel_url: `${origin}/onboarding`,
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Wix plan checkout error:", response.status, JSON.stringify(data));
-      return Response.json({ error: data?.details?.applicationError?.description || "Failed to create checkout" }, { status: 500 });
-    }
-
-    const checkoutId = data.checkoutSession.id;
-
-    // Stage the selected plan/billing cycle without granting it yet — plan_id
-    // is only promoted once payment is confirmed by the webhook. This keeps
-    // premium features locked until the subscription is actually paid for. An
-    // already-active subscription keeps its current plan_id/access during a plan
-    // change, so residents aren't disrupted mid-checkout.
+    // Stage the selected plan/billing cycle without granting it yet — plan_id is
+    // only promoted once payment is confirmed by the webhook. An already-active
+    // subscription keeps its current plan_id/access during a plan change.
     await base44.asServiceRole.entities.Community.update(community_id, {
       pending_plan_id: plan_id,
       pending_billing_cycle: billing_cycle,
-      platform_checkout_id: checkoutId,
+      platform_checkout_id: session.id,
     });
 
-    return Response.json({ redirectUrl: data.checkoutSession.redirectUrl });
+    return Response.json({ redirectUrl: session.url });
   } catch (error) {
     console.error("create-plan-checkout error:", error);
     return Response.json({ error: error.message }, { status: 500 });
