@@ -1,0 +1,39 @@
+<!--
+  Supabase "Reset Password" (recovery) email template for Nabor HOA.
+
+  The app's reset screen (src/pages/ResetPassword.jsx) reads a `token` query
+  param and calls verifyOtp({ token_hash, type: 'recovery' }) via
+  base44Client.js -> resetPassword. So the link MUST be:
+    {{ .SiteURL }}/reset-password?token={{ .TokenHash }}
+  The default Supabase recovery template uses {{ .ConfirmationURL }}, which
+  does not carry the token in the shape this app expects, so reset would fail.
+
+  {{ .SiteURL }} resolves to the dashboard's Authentication -> URL Configuration
+  -> Site URL, so that must be set to https://naborhoa.com in production.
+
+  Apply by pasting the markup below into
+  Dashboard -> Authentication -> Emails -> Templates -> "Reset Password".
+-->
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1f2937;">
+  <h2 style="margin: 0 0 8px; font-size: 20px; color: #5c8065;">Reset your password</h2>
+  <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.5; color: #374151;">
+    We received a request to reset the password for your Nabor HOA account.
+    Click the button below to choose a new one.
+  </p>
+  <div style="text-align: center; margin: 0 0 24px;">
+    <a href="{{ .SiteURL }}/reset-password?token={{ .TokenHash }}"
+       style="display: inline-block; background: #5c8065; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 15px; padding: 14px 28px; border-radius: 12px;">
+      Reset password
+    </a>
+  </div>
+  <p style="margin: 0 0 8px; font-size: 13px; line-height: 1.5; color: #6b7280;">
+    If the button doesn't work, copy and paste this link into your browser:
+  </p>
+  <p style="margin: 0 0 24px; font-size: 12px; line-height: 1.5; color: #6b7280; word-break: break-all;">
+    {{ .SiteURL }}/reset-password?token={{ .TokenHash }}
+  </p>
+  <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b7280;">
+    This link expires in 1 hour. If you didn't request a password reset, you can
+    safely ignore this email.
+  </p>
+</div>
